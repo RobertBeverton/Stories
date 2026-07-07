@@ -1,0 +1,26 @@
+---
+layout: base.njk
+---
+<nav class="breadcrumb">
+  <a href="/">← Library</a>
+  {% if series %} · {{ series }}{% endif %}
+</nav>
+
+<h1>{{ title }}</h1>
+<p class="card-meta">~{{ readMinutes }} min read{% if audioMinutes %} · ~{{ audioMinutes }} min listen{% endif %}</p>
+
+{% if audio %}
+<audio controls preload="none" id="story-audio" src="{{ audioUrl }}"></audio>
+<p id="resume-banner" class="resume-banner" hidden></p>
+{% endif %}
+
+<article class="story-body">
+  {{ content | safe }}
+</article>
+
+<nav class="series-nav">
+  {% if prevStory %}<a href="{{ prevStory.url }}">← {{ prevStory.title }}</a>{% endif %}
+  {% if nextStory %}<a href="{{ nextStory.url }}">Next: {{ nextStory.title }} →</a>{% endif %}
+</nav>
+
+<script src="/assets/resume.js" data-slug="{{ slug }}"></script>
