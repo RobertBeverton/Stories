@@ -504,9 +504,26 @@ git commit -m "Wire validation into CLI entry point with automatic audio duratio
 ## Task 6: Library (home) page — story cards, grouped by series
 
 **Files:**
+- Create: `scripts/slugify.mjs` (shared slug helper — single source of truth for URL derivation)
 - Create: `site/_data/stories.js` (11ty global data file)
 - Modify: `site/index.njk`
 - Create: `site/assets/style.css`
+
+**Important:** the URL a story's card links to (built here) and the URL its actual page renders at (built in Task 7) MUST be derived identically, or cards 404. Rather than deriving the series-folder segment two different ways (raw filesystem folder name vs. slugified series name), both tasks import and use the same helper.
+
+**Step 0: Write `scripts/slugify.mjs`**
+
+```js
+export function slugify(text) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+```
+
+A small dependency-free slugify is enough at this scale (no need for `@sindresorhus/slugify`) — it only needs to handle series titles like "The Bramble Wall" → `the-bramble-wall`.
 
 **Step 1: Write `site/_data/stories.js`** — exposes parsed story metadata to templates
 
@@ -515,6 +532,7 @@ import fg from "fast-glob";
 import matter from "gray-matter";
 import fs from "node:fs";
 import path from "node:path";
+import { slugify } from "../../scripts/slugify.mjs";
 
 export default async function () {
   const files = await fg("stories/**/*.md");
@@ -526,8 +544,9 @@ export default async function () {
     const readMinutes = Math.max(1, Math.round(wordCount / 215));
     return {
       ...data,
+      tags: data.tags ?? [],
       slug,
-      url: `/stories/${data.series ? path.basename(path.dirname(file)) + "/" : ""}${slug}/`,
+      url: `/stories/${data.series ? slugify(data.series) + "/" : ""}${slug}/`,
       readMinutes,
       audioMinutes: data.audioDuration ? Math.round(data.audioDuration / 60) : null,
     };
@@ -538,6 +557,8 @@ export default async function () {
     .sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
 }
 ```
+
+This gives every story a flat `/stories/{slug}/` URL unless it has a `series`, in which case it's namespaced under `/stories/{slugified-series-name}/{slug}/` — regardless of what the actual filesystem folder happens to be named. Task 7's permalink logic (below) uses this exact same `slugify(data.series)` derivation so the two can never drift out of sync.
 
 **Step 2: Rewrite `site/index.njk`**
 
@@ -592,7 +613,7 @@ Open `http://localhost:8080` — expected: a card for "The Gap in the Bramble Wa
 **Step 5: Commit**
 
 ```bash
-git add site/_data/stories.js site/index.njk site/assets/style.css
+git add scripts/slugify.mjs site/_data/stories.js site/index.njk site/assets/style.css
 git commit -m "Add library home page with story cards"
 ```
 
@@ -603,6 +624,8 @@ git commit -m "Add library home page with story cards"
 **Files:**
 - Create: `site/stories.11tydata.js` (directory data file to generate story pages)
 - Create: `site/_includes/story.njk`
+- Create: `site/story-pages.njk`
+- Modify: `eleventy.config.js` (register the shared `slugify` filter)
 
 Eleventy needs a template that iterates `/stories/**/*.md` files directly (not just the summarized `stories` data) to render each one as its own page with full content. The cleanest approach: configure the collection in `eleventy.config.js` (already done in Task 2) and add a template that paginates over it.
 
@@ -637,7 +660,17 @@ layout: base.njk
 <script src="/assets/resume.js" data-slug="{{ slug }}"></script>
 ```
 
-**Step 2: Create a pagination template `site/story-pages.njk`** that generates one page per story using 11ty pagination over the `stories` collection (the raw markdown collection from `eleventy.config.js`, not the summarized `_data/stories.js`):
+**Step 2: Register the shared slugify helper as an 11ty filter**, in `eleventy.config.js` (modify, don't recreate — add alongside the existing passthrough copies and collection):
+
+```js
+import { slugify } from "./scripts/slugify.mjs";
+// ...inside the config function, alongside the existing addPassthroughCopy/addCollection calls:
+eleventyConfig.addFilter("slugify", slugify);
+```
+
+This registers the SAME `scripts/slugify.mjs` helper used by `site/_data/stories.js` (Task 6) as a Nunjucks filter, so permalink construction below and the library card's `url` field are guaranteed to produce identical paths for the same series name — do not use 11ty's own built-in `slugify` filter (a different implementation, e.g. different punctuation handling), since that reintroduces the exact URL-mismatch bug Task 6 hit.
+
+**Step 3: Create a pagination template `site/story-pages.njk`** that generates one page per story using 11ty pagination over the `stories` collection (the raw markdown collection from `eleventy.config.js`, not the summarized `_data/stories.js`):
 
 ```njk
 ---
@@ -659,17 +692,17 @@ layout: story.njk
 {{ storyPage.templateContent | safe }}
 ```
 
-**Note for the implementer:** 11ty pagination-over-collection-with-full-page-output is one of the fiddlier parts of Eleventy's API and the exact syntax above may need adjustment once you run it — treat the numbers/filters as a starting point. If this proves awkward, the simpler fallback (equally valid, less "clever") is to let each markdown file's own frontmatter specify `layout: story.njk` directly and rely on 11ty's default "one output file per input file" behavior instead of explicit pagination — try that first, since it's simpler, and only reach for the pagination template above if you need computed permalinks that pagination handles more easily. Prev/next (`prevStory`/`nextStory`) can be computed in `site/_data/stories.js` by grouping stories by `series` and sorting by `seriesOrder`, then attaching `prevStory`/`nextStory` references before returning — pass that through as global data keyed by slug rather than computing it in the template.
+**Note for the implementer:** 11ty pagination-over-collection-with-full-page-output is one of the fiddlier parts of Eleventy's API and the exact syntax above may need adjustment once you run it — treat the numbers/filters as a starting point. If this proves awkward, the simpler fallback (equally valid, less "clever") is to let each markdown file's own frontmatter specify `layout: story.njk` directly and rely on 11ty's default "one output file per input file" behavior instead of explicit pagination — try that first, since it's simpler, and only reach for the pagination template above if you need computed permalinks that pagination handles more easily. Whichever approach is used, the resulting page URL MUST match `site/_data/stories.js`'s `url` field exactly (same `slugify(series)` derivation) — verify this explicitly by comparing a library card's `href` against the actual page it links to, not just that each renders independently without erroring. Prev/next (`prevStory`/`nextStory`) can be computed in `site/_data/stories.js` by grouping stories by `series` and sorting by `seriesOrder`, then attaching `prevStory`/`nextStory` references before returning — pass that through as global data keyed by slug rather than computing it in the template.
 
-**Step 3: Verify in browser**
+**Step 4: Verify in browser**
 
 Run: `npm run build && npx @11ty/eleventy --serve`
-Navigate to the story's URL from the library card — expected: title, read time, rendered story body, and (once Task 8 adds an MP3) a native audio player.
+Navigate to the story's URL from the library card — expected: title, read time, rendered story body, and (once Task 8 adds an MP3) a native audio player. Explicitly click through from the library card's link (not just visit the URL directly) to confirm the href actually resolves rather than 404ing.
 
-**Step 4: Commit**
+**Step 5: Commit**
 
 ```bash
-git add site/_includes/story.njk site/story-pages.njk site/_data/stories.js
+git add site/_includes/story.njk site/story-pages.njk site/_data/stories.js eleventy.config.js
 git commit -m "Add story page template with series prev/next navigation"
 ```
 
