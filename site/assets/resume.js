@@ -22,6 +22,8 @@ function saveProgress(partial) {
   }
 }
 
+saveProgress({ title: document.title.replace(" — Stories", ""), url: window.location.pathname });
+
 const saved = readProgress();
 if (saved && (saved.audioTime > 5 || saved.scrollY > 200)) {
   banner.hidden = false;
