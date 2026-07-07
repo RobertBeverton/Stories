@@ -10,4 +10,6 @@ main { max-width: 700px; margin: 0 auto; padding: 0 1rem 2rem; }
 .card-meta { font-size: 0.9rem; opacity: 0.75; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 audio { width: 100%; }
+.resume-badge { font-size: 0.8rem; margin-left: 0.5rem; opacity: 0.8; }
+.resume-banner button { min-height: 44px; min-width: 44px; font-size: 1rem; margin-right: 0.5rem; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

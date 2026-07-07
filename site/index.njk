@@ -20,3 +20,14 @@ title: Library
 </section>
 
 <script src="/assets/search.js"></script>
+<script>
+  document.querySelectorAll(".story-card").forEach((card) => {
+    const slug = card.getAttribute("href").split("/").filter(Boolean).pop();
+    if (localStorage.getItem(`story-progress:${slug}`)) {
+      const badge = document.createElement("span");
+      badge.textContent = "▶ Resume";
+      badge.className = "resume-badge";
+      card.querySelector("h3").appendChild(badge);
+    }
+  });
+</script>
