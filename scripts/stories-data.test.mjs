@@ -38,14 +38,14 @@ describe("computeStories", () => {
         seriesOrder: 1,
       }),
     ]);
-    expect(stories[0].url).toBe("/stories/the-bramble-wall/book-1/");
+    expect(stories[0].url).toBe("/Stories/stories/the-bramble-wall/book-1/");
   });
 
   it("builds a flat url for a story with no series", () => {
     const stories = computeStories([
       makeStory("stories/standalone-tale.md", { title: "Standalone Tale" }),
     ]);
-    expect(stories[0].url).toBe("/stories/standalone-tale/");
+    expect(stories[0].url).toBe("/Stories/stories/standalone-tale/");
     expect(stories[0].url).not.toContain("undefined");
   });
 
@@ -61,7 +61,7 @@ describe("computeStories", () => {
     // Regression guard: the page URL uses slugify(series) ("the-bramble-wall"),
     // but the passthrough-copied MP3 keeps the real folder name
     // ("bramble-wall"). audioUrl must use the latter or the <audio> tag 404s.
-    expect(stories[0].audioUrl).toBe("/stories/bramble-wall/book-1.mp3");
+    expect(stories[0].audioUrl).toBe("/Stories/stories/bramble-wall/book-1.mp3");
     expect(stories[0].audioUrl).not.toContain("the-bramble-wall");
   });
 
@@ -91,12 +91,12 @@ describe("computeStories", () => {
     const bySlug = stories.bySlug;
     expect(bySlug["book-1"].prevStory).toBeNull();
     expect(bySlug["book-1"].nextStory).toEqual({
-      url: "/stories/the-bramble-wall/book-2/",
+      url: "/Stories/stories/the-bramble-wall/book-2/",
       title: "Book Two",
     });
 
     expect(bySlug["book-2"].prevStory).toEqual({
-      url: "/stories/the-bramble-wall/book-1/",
+      url: "/Stories/stories/the-bramble-wall/book-1/",
       title: "Book One",
     });
     expect(bySlug["book-2"].nextStory).toBeNull();

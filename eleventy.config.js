@@ -34,6 +34,15 @@ export default function (eleventyConfig) {
   }
 
   return {
+    // This repo (RobertBeverton/Stories) is not a <user>.github.io user-site
+    // repo, so GitHub Pages serves it from https://robertbeverton.github.io/Stories/
+    // (a subpath), not the domain root. pathPrefix tells Eleventy's `url`
+    // filter (and page/collection-item `.url` properties for content that
+    // goes through Eleventy's own page-object system) to prepend this prefix
+    // when rendering links. It does NOT change where output files are
+    // written under `_site/` — that's controlled solely by `dir.output` and
+    // template `permalink`s, which stay unprefixed (see story-pages.11ty.js).
+    pathPrefix: "/Stories/",
     dir: {
       input: "site",
       includes: "_includes",

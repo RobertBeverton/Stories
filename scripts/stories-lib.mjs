@@ -35,6 +35,21 @@ export async function loadStories(globPattern = "stories/**/*.md") {
 // template. Keeping stories.js as a default-export-only wrapper around this
 // module avoids that trap while still making the URL/prevNext logic
 // unit-testable.
+// This repo (RobertBeverton/Stories) deploys to GitHub Pages at
+// https://robertbeverton.github.io/Stories/ (a project-repo subpath), not
+// the domain root, so every URL/audioUrl this module hands to templates
+// must be prefixed accordingly. This mirrors the `pathPrefix` set in
+// eleventy.config.js: that config prefixes paths run through Nunjucks's
+// `| url` filter, but `url`/`audioUrl` here are already fully-formed strings
+// by the time they reach the templates (computed in plain JS, not through
+// Eleventy's page-object system), so the filter can't reach them — the
+// prefix has to be baked in here instead, at the single place this codebase
+// already centralizes URL construction.
+// Exported so story-pages.11ty.js can strip it back off `meta.url` when
+// computing `permalink` — permalinks control where files actually land on
+// disk under `_site/` and must stay unprefixed (see that file's comments).
+export const PATH_PREFIX = "/Stories";
+
 export function computeStories(rawStories) {
   const allStories = rawStories.map(({ file, data, content }) => {
     const slug = path.basename(file, ".md");
@@ -55,8 +70,10 @@ export function computeStories(rawStories) {
       ...data,
       tags: data.tags ?? [],
       slug,
-      url: `/stories/${seriesSlug}${slug}/`,
-      audioUrl: data.audio ? `/stories/${diskDir ? diskDir + "/" : ""}${data.audio}` : null,
+      url: `${PATH_PREFIX}/stories/${seriesSlug}${slug}/`,
+      audioUrl: data.audio
+        ? `${PATH_PREFIX}/stories/${diskDir ? diskDir + "/" : ""}${data.audio}`
+        : null,
       readMinutes,
       audioMinutes: data.audioDuration ? Math.round(data.audioDuration / 60) : null,
     };

@@ -2,7 +2,7 @@
 layout: base.njk
 ---
 <nav class="breadcrumb">
-  <a href="/">← Library</a>
+  <a href="{{ '/' | url }}">← Library</a>
   {% if series %} · {{ series }}{% endif %}
 </nav>
 
@@ -23,4 +23,4 @@ layout: base.njk
   {% if nextStory %}<a href="{{ nextStory.url }}">Next: {{ nextStory.title }} →</a>{% endif %}
 </nav>
 
-<script src="/assets/resume.js" data-slug="{{ slug }}"></script>
+<script src="{{ '/assets/resume.js' | url }}" data-slug="{{ slug }}"></script>

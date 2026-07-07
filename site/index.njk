@@ -19,7 +19,7 @@ title: Library
   </div>
 </section>
 
-<script src="/assets/search.js"></script>
+<script src="{{ '/assets/search.js' | url }}"></script>
 <script>
   document.querySelectorAll(".story-card").forEach((card) => {
     const slug = card.getAttribute("href").split("/").filter(Boolean).pop();
