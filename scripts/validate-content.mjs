@@ -2,6 +2,8 @@ import fg from "fast-glob";
 import matter from "gray-matter";
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { parseFile } from "music-metadata";
 
 export function checkRequiredFields(stories) {
   const required = ["title", "description", "publishDate"];
@@ -87,4 +89,54 @@ export function checkRepoSize(fileSizes, maxTotalBytes, maxFileBytes) {
     errors.push(`A file in /stories exceeds ${maxFileBytes / 1024 / 1024}MB (${(tooBig / 1024 / 1024).toFixed(1)}MB)`);
   }
   return errors;
+}
+
+async function deriveAudioDurations(stories) {
+  for (const story of stories) {
+    if (!story.data.audio) continue;
+    const audioPath = path.join(path.dirname(story.file), story.data.audio);
+    if (!fs.existsSync(audioPath)) continue;
+    const metadata = await parseFile(audioPath);
+    const seconds = Math.round(metadata.format.duration ?? 0);
+    if (story.data.audioDuration !== seconds) {
+      const raw = fs.readFileSync(story.file, "utf8");
+      const updated = raw.replace(
+        /audioDuration:\s*\d+/,
+        `audioDuration: ${seconds}`
+      );
+      fs.writeFileSync(story.file, updated);
+      console.log(`${story.file}: audioDuration updated to ${seconds}`);
+    }
+  }
+}
+
+async function main() {
+  const stories = await loadStories();
+  await deriveAudioDurations(stories);
+  const refreshed = await loadStories(); // reload in case durations changed
+
+  const fileSizes = refreshed
+    .filter((s) => s.data.audio)
+    .map((s) => {
+      const p = path.join(path.dirname(s.file), s.data.audio);
+      return fs.existsSync(p) ? fs.statSync(p).size : 0;
+    });
+
+  const errors = [
+    ...checkRequiredFields(refreshed),
+    ...checkDuplicateSeriesOrder(refreshed),
+    ...checkDuplicateSlugs(refreshed),
+    ...checkAudioFilesExist(refreshed, (p) => fs.existsSync(p)),
+    ...checkRepoSize(fileSizes, 700 * 1024 * 1024, 90 * 1024 * 1024),
+  ];
+
+  if (errors.length > 0) {
+    console.error("Content validation failed:\n" + errors.map((e) => `  - ${e}`).join("\n"));
+    process.exit(1);
+  }
+  console.log(`Content validation passed (${refreshed.length} stories checked).`);
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
 }

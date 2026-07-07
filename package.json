@@ -19,6 +19,7 @@
     "@11ty/eleventy": "^3.1.6",
     "fast-glob": "^3.3.3",
     "gray-matter": "^4.0.3",
+    "music-metadata": "^11.13.0",
     "vitest": "^4.1.10"
   }
 }
