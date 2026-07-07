@@ -8,6 +8,7 @@ layout: base.njk
   </nav>
 
   <h1>{{ title }}</h1>
+  {% if description %}<p class="story-description">{{ description }}</p>{% endif %}
   <p class="card-meta">~{{ readMinutes }} min read{% if audioMinutes %} · ~{{ audioMinutes }} min listen{% endif %}</p>
 </div>
 

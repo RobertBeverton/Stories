@@ -50,6 +50,7 @@ export const data = {
       return unprefixedUrl + "index.html";
     },
     title: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.title,
+    description: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.description,
     series: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.series,
     seriesOrder: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.seriesOrder,
     audio: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.audio,
