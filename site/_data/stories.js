@@ -2,6 +2,7 @@ import fg from "fast-glob";
 import matter from "gray-matter";
 import fs from "node:fs";
 import path from "node:path";
+import { slugify } from "../../scripts/slugify.mjs";
 
 export default async function () {
   const files = await fg("stories/**/*.md");
@@ -15,7 +16,7 @@ export default async function () {
       ...data,
       tags: data.tags ?? [],
       slug,
-      url: `/stories/${path.basename(path.dirname(file))}/${slug}/`,
+      url: `/stories/${data.series ? slugify(data.series) + "/" : ""}${slug}/`,
       readMinutes,
       audioMinutes: data.audioDuration ? Math.round(data.audioDuration / 60) : null,
     };
