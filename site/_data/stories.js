@@ -13,6 +13,7 @@ export default async function () {
     const readMinutes = Math.max(1, Math.round(wordCount / 215));
     return {
       ...data,
+      tags: data.tags ?? [],
       slug,
       url: `/stories/${data.series ? path.basename(path.dirname(file)) + "/" : ""}${slug}/`,
       readMinutes,
