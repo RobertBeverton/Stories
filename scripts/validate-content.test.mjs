@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { checkDuplicateSeriesOrder, checkDuplicateSlugs, checkRequiredFields } from "./validate-content.mjs";
+import {
+  checkDuplicateSeriesOrder,
+  checkDuplicateSlugs,
+  checkRequiredFields,
+  checkAudioFilesExist,
+  checkRepoSize,
+} from "./validate-content.mjs";
 
 describe("checkRequiredFields", () => {
   it("returns an error for a story missing title", () => {
@@ -43,5 +49,45 @@ describe("checkDuplicateSlugs", () => {
     expect(checkDuplicateSlugs(stories)).toEqual([
       "Duplicate slug 'book-1': stories/a/book-1.md, stories/b/book-1.md",
     ]);
+  });
+});
+
+describe("checkAudioFilesExist", () => {
+  it("flags a story whose audio file does not exist on disk", () => {
+    const stories = [{ file: "stories/a/book-1.md", data: { audio: "missing.mp3" } }];
+    const exists = (p) => false;
+    expect(checkAudioFilesExist(stories, exists)).toEqual([
+      "stories/a/book-1.md: audio file 'missing.mp3' not found",
+    ]);
+  });
+
+  it("passes when audio file exists", () => {
+    const stories = [{ file: "stories/a/book-1.md", data: { audio: "book-1.mp3" } }];
+    const exists = (p) => true;
+    expect(checkAudioFilesExist(stories, exists)).toEqual([]);
+  });
+
+  it("skips stories with no audio field", () => {
+    const stories = [{ file: "stories/a/book-1.md", data: {} }];
+    expect(checkAudioFilesExist(stories, () => false)).toEqual([]);
+  });
+});
+
+describe("checkRepoSize", () => {
+  it("flags when total size exceeds the max", () => {
+    const sizes = Array(10).fill(80 * 1024 * 1024);
+    expect(checkRepoSize(sizes, 700 * 1024 * 1024, 90 * 1024 * 1024)).toEqual([
+      "Total /stories size 800.0MB exceeds guard threshold 700MB",
+    ]);
+  });
+
+  it("flags when a single file exceeds the max", () => {
+    const sizes = [10 * 1024 * 1024, 95 * 1024 * 1024];
+    const errors = checkRepoSize(sizes, 700 * 1024 * 1024, 90 * 1024 * 1024);
+    expect(errors).toEqual(["A file in /stories exceeds 90MB (95.0MB)"]);
+  });
+
+  it("passes when under both thresholds", () => {
+    expect(checkRepoSize([10 * 1024 * 1024], 700 * 1024 * 1024, 90 * 1024 * 1024)).toEqual([]);
   });
 });

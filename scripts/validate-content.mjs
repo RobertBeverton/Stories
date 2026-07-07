@@ -61,3 +61,30 @@ export async function loadStories(globPattern = "stories/**/*.md") {
     return { file, data, slug: slugify(file) };
   });
 }
+
+export function checkAudioFilesExist(stories, exists) {
+  const errors = [];
+  for (const story of stories) {
+    if (!story.data.audio) continue;
+    const audioPath = path.join(path.dirname(story.file), story.data.audio);
+    if (!exists(audioPath)) {
+      errors.push(`${story.file}: audio file '${story.data.audio}' not found`);
+    }
+  }
+  return errors;
+}
+
+export function checkRepoSize(fileSizes, maxTotalBytes, maxFileBytes) {
+  const errors = [];
+  const total = fileSizes.reduce((a, b) => a + b, 0);
+  if (total > maxTotalBytes) {
+    errors.push(
+      `Total /stories size ${(total / 1024 / 1024).toFixed(1)}MB exceeds guard threshold ${maxTotalBytes / 1024 / 1024}MB`
+    );
+  }
+  const tooBig = fileSizes.find((s) => s > maxFileBytes);
+  if (tooBig) {
+    errors.push(`A file in /stories exceeds ${maxFileBytes / 1024 / 1024}MB (${(tooBig / 1024 / 1024).toFixed(1)}MB)`);
+  }
+  return errors;
+}
