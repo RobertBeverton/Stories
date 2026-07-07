@@ -24,8 +24,26 @@ function saveProgress(partial) {
 
 saveProgress({ title: document.title.replace(" — Stories", ""), url: window.location.pathname });
 
+const autoplayFallback = document.getElementById("autoplay-fallback");
+const autoplaySignal = new URLSearchParams(window.location.search).get("autoplay") === "1";
+
 const saved = readProgress();
-if (saved && (saved.audioTime > 5 || saved.scrollY > 200)) {
+if (autoplaySignal && audio) {
+  // Explicit user intent (they tapped Play on the library card) — attempt
+  // immediate playback, resuming from saved position if present. This
+  // branch is mutually exclusive with the resume banner below: showing
+  // both would offer a redundant/contradictory choice for a decision the
+  // user already made by tapping Play.
+  if (saved && saved.audioTime) audio.currentTime = saved.audioTime;
+  audio.play().catch(() => {
+    // Browser autoplay policy does not treat a user gesture on the PREVIOUS
+    // page as authorization for play() on this freshly-loaded page — this
+    // is expected to be blocked on some browsers (notably first-visit
+    // mobile Safari/Chrome), not a bug. Show a highly visible fallback
+    // instead of leaving the user with silent, unexplained nothing.
+    if (autoplayFallback) autoplayFallback.hidden = false;
+  });
+} else if (saved && (saved.audioTime > 5 || saved.scrollY > 200) && banner) {
   banner.hidden = false;
   banner.innerHTML = `
     <button id="resume-btn" type="button">⏪ Resume where you left off</button>
