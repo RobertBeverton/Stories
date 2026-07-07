@@ -3,6 +3,7 @@ const slug = script.dataset.slug;
 const storageKey = `story-progress:${slug}`;
 const audio = document.getElementById("story-audio");
 const banner = document.getElementById("resume-banner");
+banner.setAttribute("role", "status");
 
 function readProgress() {
   try {
@@ -24,7 +25,6 @@ function saveProgress(partial) {
 const saved = readProgress();
 if (saved && (saved.audioTime > 5 || saved.scrollY > 200)) {
   banner.hidden = false;
-  banner.setAttribute("role", "status");
   banner.innerHTML = `
     <button id="resume-btn" type="button">⏪ Resume where you left off</button>
     <button id="restart-btn" type="button">🔄 Start over</button>
