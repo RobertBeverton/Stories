@@ -5,24 +5,31 @@ title: Library
 <h1>Stories</h1>
 <input type="search" id="search-box" placeholder="Search stories..." aria-label="Search stories">
 
-<section aria-labelledby="all-stories-heading">
-  <h2 id="all-stories-heading" class="visually-hidden">All stories</h2>
-  <div class="card-grid" id="card-grid">
-    {% for story in stories %}
+<section id="continue-section" aria-labelledby="continue-heading" hidden>
+  <h2 id="continue-heading">Continue</h2>
+  <div class="card-row" id="continue-row"></div>
+</section>
+
+{% for group in stories.seriesGroups %}
+<section aria-labelledby="series-heading-{{ loop.index }}" class="series-section" style="--accent-bg: {{ group.accentColor.background }}; --accent-text: {{ group.accentColor.text }};">
+  <h2 id="series-heading-{{ loop.index }}">{{ group.series }}</h2>
+  <div class="card-grid">
+    {% for story in group.stories %}
       {% include "story-card.njk" %}
     {% endfor %}
   </div>
 </section>
+{% endfor %}
+
+{% if stories.standalone.length > 0 %}
+<section aria-labelledby="standalone-heading">
+  <h2 id="standalone-heading">More Stories</h2>
+  <div class="card-grid">
+    {% for story in stories.standalone %}
+      {% include "story-card.njk" %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
 
 <script src="{{ '/assets/search.js' | url }}"></script>
-<script>
-  document.querySelectorAll(".story-card").forEach((card) => {
-    const slug = card.getAttribute("href").split("/").filter(Boolean).pop();
-    if (localStorage.getItem(`story-progress:${slug}`)) {
-      const badge = document.createElement("span");
-      badge.textContent = "▶ Resume";
-      badge.className = "resume-badge";
-      card.querySelector("h3").appendChild(badge);
-    }
-  });
-</script>
