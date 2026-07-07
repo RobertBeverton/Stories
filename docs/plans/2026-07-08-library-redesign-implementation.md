@@ -8,55 +8,18 @@
 
 **Tech Stack:** Same as the existing project — 11ty v3, vanilla JS/CSS, vitest for pure-function tests, Playwright as a scratch (non-dependency) verification tool as used in prior tasks.
 
+**Task sizing:** each task below is scoped to roughly 10 minutes of focused agent work — one file, one concern, one clear verification step. Don't combine tasks even if they touch the same file; do them in order so later tasks can rely on earlier ones being committed.
+
 Reference docs: `docs/plans/2026-07-08-library-redesign-design.md` (design + premortem), `docs/plans/2026-07-07-stories-site-design.md` (original site design, for constraints like the no-JS content guarantee and 44px tap targets).
 
 ---
 
-## Task 1: Accent color palette — pure function, unit-tested
+## Task 1: Accent color palette module
 
 **Files:**
 - Create: `scripts/accent-colors.mjs`
-- Create: `scripts/accent-colors.test.mjs`
 
-Per the design's contrast guardrail: colors are NOT an unconstrained hash-to-HSL value. A series name hashes to an index into a small, fixed, pre-vetted palette.
-
-**Step 1: Write the failing test** — `scripts/accent-colors.test.mjs`
-
-```js
-import { describe, it, expect } from "vitest";
-import { accentColorFor, PALETTE } from "./accent-colors.mjs";
-
-describe("accentColorFor", () => {
-  it("returns the same color pair for the same series name every time", () => {
-    const a = accentColorFor("The Bramble Wall");
-    const b = accentColorFor("The Bramble Wall");
-    expect(a).toEqual(b);
-  });
-
-  it("returns a {background, text} pair from the fixed palette", () => {
-    const result = accentColorFor("The Bramble Wall");
-    expect(PALETTE).toContainEqual(result);
-  });
-
-  it("returns the default neutral pair for standalone stories (no series)", () => {
-    const result = accentColorFor(undefined);
-    expect(result).toEqual(PALETTE[0]);
-  });
-
-  it("distributes different series names across the palette (not all to one entry)", () => {
-    const names = ["The Bramble Wall", "Moonlit Cove", "Pepper the Fox", "Starlight Express"];
-    const results = new Set(names.map((n) => JSON.stringify(accentColorFor(n))));
-    expect(results.size).toBeGreaterThan(1);
-  });
-});
-```
-
-**Step 2: Run test to verify it fails**
-
-Run: `npx vitest run scripts/accent-colors.test.mjs`
-Expected: FAIL — module doesn't exist yet.
-
-**Step 3: Write minimal implementation** — `scripts/accent-colors.mjs`
+**Step 1: Write `scripts/accent-colors.mjs`**
 
 ```js
 // Each pair is manually checked for WCAG AA (4.5:1) contrast in BOTH light
@@ -89,29 +52,140 @@ export function accentColorFor(seriesName) {
 }
 ```
 
-**Step 4: Run test to verify it passes**
-
-Run: `npx vitest run scripts/accent-colors.test.mjs`
-Expected: PASS (4/4).
-
-**Step 5: Commit**
+**Step 2: Commit**
 
 ```bash
-git add scripts/accent-colors.mjs scripts/accent-colors.test.mjs
-git commit -m "Add pre-vetted accent color palette with deterministic per-series assignment"
+git add scripts/accent-colors.mjs
+git commit -m "Add pre-vetted accent color palette module"
 ```
 
 ---
 
-## Task 2: Group stories into Continue/series/standalone sections — pure function, unit-tested
+## Task 2: Test the accent color palette
+
+**Files:**
+- Create: `scripts/accent-colors.test.mjs`
+
+**Step 1: Write `scripts/accent-colors.test.mjs`**
+
+```js
+import { describe, it, expect } from "vitest";
+import { accentColorFor, PALETTE } from "./accent-colors.mjs";
+
+describe("accentColorFor", () => {
+  it("returns the same color pair for the same series name every time", () => {
+    const a = accentColorFor("The Bramble Wall");
+    const b = accentColorFor("The Bramble Wall");
+    expect(a).toEqual(b);
+  });
+
+  it("returns a {background, text} pair from the fixed palette", () => {
+    const result = accentColorFor("The Bramble Wall");
+    expect(PALETTE).toContainEqual(result);
+  });
+
+  it("returns the default neutral pair for standalone stories (no series)", () => {
+    const result = accentColorFor(undefined);
+    expect(result).toEqual(PALETTE[0]);
+  });
+
+  it("distributes different series names across the palette (not all to one entry)", () => {
+    const names = ["The Bramble Wall", "Moonlit Cove", "Pepper the Fox", "Starlight Express"];
+    const results = new Set(names.map((n) => JSON.stringify(accentColorFor(n))));
+    expect(results.size).toBeGreaterThan(1);
+  });
+});
+```
+
+**Step 2: Run and confirm pass**
+
+Run: `npx vitest run scripts/accent-colors.test.mjs`
+Expected: PASS (4/4). If any fail, fix `accent-colors.mjs` from Task 1 (already committed — amend with a new commit, don't rewrite history).
+
+**Step 3: Commit**
+
+```bash
+git add scripts/accent-colors.test.mjs
+git commit -m "Add tests for accent color palette"
+```
+
+---
+
+## Task 3: Add groupForLibrary to stories-lib.mjs
 
 **Files:**
 - Modify: `scripts/stories-lib.mjs`
+
+**Context:** `computeStories()` in this file currently returns a flat array (with a `.bySlug` map attached) sorted by `publishDate`. This task adds a new pure function that groups an already-computed story array into series sections (each with an accent color) and a standalone list. It does NOT touch the "Continue" section — that needs localStorage, a client-side-only concern (Task 12/13).
+
+**Step 1: Read the current file** at `scripts/stories-lib.mjs` to confirm exact current shape before editing (shown in the design/premortem discussion above, but re-read it live — don't assume).
+
+**Step 2: Add this import and function** (append the function after `computeStories`, add the import at the top alongside the existing imports)
+
+```js
+import { accentColorFor } from "./accent-colors.mjs";
+```
+
+```js
+// Groups the already-computed, non-draft story list (as returned by
+// computeStories()) into series sections and a standalone list, for the
+// library page. Pure function — no localStorage/DOM access, since the
+// "Continue" section (which DOES need localStorage) can only be computed
+// client-side; see site/assets/library.js.
+export function groupForLibrary(stories) {
+  const bySeries = new Map();
+  const standalone = [];
+  for (const story of stories) {
+    if (!story.series) {
+      standalone.push(story);
+      continue;
+    }
+    if (!bySeries.has(story.series)) bySeries.set(story.series, []);
+    bySeries.get(story.series).push(story);
+  }
+
+  const seriesGroups = Array.from(bySeries.entries()).map(([series, seriesStories]) => {
+    seriesStories.sort((a, b) => (a.seriesOrder ?? 0) - (b.seriesOrder ?? 0));
+    const earliestPublish = seriesStories.reduce(
+      (min, s) => Math.min(min, new Date(s.publishDate).getTime()),
+      Infinity
+    );
+    return {
+      series,
+      accentColor: accentColorFor(series),
+      stories: seriesStories,
+      _earliestPublish: earliestPublish,
+    };
+  });
+
+  seriesGroups.sort((a, b) => b._earliestPublish - a._earliestPublish);
+  for (const group of seriesGroups) delete group._earliestPublish;
+
+  return { seriesGroups, standalone };
+}
+```
+
+**Step 3: Sanity check**
+
+Run: `npx vitest run` — confirm the pre-existing tests in this file still pass unchanged (this task only adds a new export, doesn't touch `computeStories`/`loadStories`/`parseStoryFile`).
+
+**Step 4: Commit**
+
+```bash
+git add scripts/stories-lib.mjs
+git commit -m "Add groupForLibrary function to stories-lib.mjs"
+```
+
+---
+
+## Task 4: Test groupForLibrary
+
+**Files:**
 - Modify: `scripts/stories-data.test.mjs`
 
-**Context:** `computeStories()` in `scripts/stories-lib.mjs` currently returns a flat array (with a `.bySlug` map attached) sorted by `publishDate`. The library page needs this grouped instead: a Continue list (needs runtime localStorage data, computed client-side — see Task 6), a list of series sections (each with its accent color and ordered stories), and a standalone list. This task adds a new pure function `groupForLibrary(stories)` that takes the already-computed flat story array and returns the series/standalone grouping (NOT the Continue section — that requires localStorage, which doesn't exist at build time, so it's a client-side concern handled in Task 6).
+**Step 1: Read the current file** to find its existing `makeStory` fixture helper (or equivalent) — match its exact signature/shape rather than assuming.
 
-**Step 1: Write the failing tests** — append to `scripts/stories-data.test.mjs` (read the existing file first to match its fixture style, e.g. its `makeStory` helper)
+**Step 2: Append these tests**, adapting field names to match the file's existing helper:
 
 ```js
 import { groupForLibrary } from "./stories-lib.mjs";
@@ -159,78 +233,30 @@ describe("groupForLibrary", () => {
 });
 ```
 
-Check the existing test file's `makeStory` helper signature before writing these — adapt field names/shape to match exactly rather than assuming.
-
-**Step 2: Run test to verify it fails**
+**Step 3: Run and confirm pass**
 
 Run: `npx vitest run scripts/stories-data.test.mjs`
-Expected: FAIL — `groupForLibrary` not exported.
+Expected: PASS, all tests including the 5 new ones. If failing, fix `groupForLibrary` from Task 3 with a new commit.
 
-**Step 3: Write minimal implementation** — add to `scripts/stories-lib.mjs` (below `computeStories`)
-
-```js
-import { accentColorFor } from "./accent-colors.mjs";
-
-// Groups the already-computed, non-draft story list (as returned by
-// computeStories()) into series sections and a standalone list, for the
-// library page. Pure function — no localStorage/DOM access, since the
-// "Continue" section (which DOES need localStorage) can only be computed
-// client-side; see site/assets/library.js.
-export function groupForLibrary(stories) {
-  const bySeries = new Map();
-  const standalone = [];
-  for (const story of stories) {
-    if (!story.series) {
-      standalone.push(story);
-      continue;
-    }
-    if (!bySeries.has(story.series)) bySeries.set(story.series, []);
-    bySeries.get(story.series).push(story);
-  }
-
-  const seriesGroups = Array.from(bySeries.entries()).map(([series, seriesStories]) => {
-    seriesStories.sort((a, b) => (a.seriesOrder ?? 0) - (b.seriesOrder ?? 0));
-    const earliestPublish = seriesStories.reduce(
-      (min, s) => Math.min(min, new Date(s.publishDate).getTime()),
-      Infinity
-    );
-    return {
-      series,
-      accentColor: accentColorFor(series),
-      stories: seriesStories,
-      _earliestPublish: earliestPublish,
-    };
-  });
-
-  seriesGroups.sort((a, b) => b._earliestPublish - a._earliestPublish);
-  for (const group of seriesGroups) delete group._earliestPublish;
-
-  return { seriesGroups, standalone };
-}
-```
-
-**Step 4: Run test to verify it passes**
-
-Run: `npx vitest run scripts/stories-data.test.mjs`
-Expected: PASS (all previous tests plus the 5 new ones).
-
-**Step 5: Commit**
+**Step 4: Commit**
 
 ```bash
-git add scripts/stories-lib.mjs scripts/stories-data.test.mjs
-git commit -m "Add groupForLibrary: series/standalone grouping with accent colors"
+git add scripts/stories-data.test.mjs
+git commit -m "Add tests for groupForLibrary"
 ```
 
 ---
 
-## Task 3: Wire grouped data into the library page's 11ty data layer
+## Task 5: Wire grouped data into the 11ty data layer
 
 **Files:**
 - Modify: `site/_data/stories.js`
 
-**Context:** `site/_data/stories.js` must stay a default-export-only module (see the existing comment in that file — Eleventy silently breaks otherwise). Rather than adding a second named export, expose the grouping as a property on the returned array (matching the existing `.bySlug` pattern already used for prev/next).
+**Context:** Must stay a default-export-only module (Eleventy silently breaks otherwise — see the existing comment in the file). Expose the grouping as properties on the returned array, matching the existing `.bySlug` pattern.
 
-**Step 1: Modify `site/_data/stories.js`**
+**Step 1: Read the current file** to confirm its exact shape.
+
+**Step 2: Modify it to**
 
 ```js
 import { loadStories, computeStories, groupForLibrary } from "../../scripts/stories-lib.mjs";
@@ -250,13 +276,13 @@ export default async function () {
 }
 ```
 
-**Step 2: Verify**
+**Step 3: Verify**
 
-Run: `npx @11ty/eleventy` (full build). This won't show grouped output yet since `index.njk` isn't updated until Task 4 — just confirm the build still succeeds with no errors (the `stories` array gaining two extra non-numeric properties, `seriesGroups`/`standalone`, doesn't break Nunjucks's `{% for story in stories %}` iteration, since Nunjucks iterates array indices only).
+Run: `npx @11ty/eleventy` (full build) — confirm it succeeds with no errors. The library page won't visually change yet (Task 6+ updates the template) — this step just confirms the extra non-numeric properties on the `stories` array don't break Nunjucks's existing `{% for story in stories %}` iteration (Nunjucks iterates array indices only, so this should be safe, but confirm empirically).
 
-Run: `npx vitest run` — confirm all existing tests still pass (this change doesn't touch tested logic, just wiring).
+Run: `npx vitest run` — confirm all tests still pass.
 
-**Step 3: Commit**
+**Step 4: Commit**
 
 ```bash
 git add site/_data/stories.js
@@ -265,11 +291,48 @@ git commit -m "Expose seriesGroups/standalone grouping on the stories data objec
 
 ---
 
-## Task 4: Redesign the library page template and styles — sectioned layout, color-blocked cards, Play button
+## Task 6: Extract the story card into its own partial (no visual change yet)
+
+**Files:**
+- Create: `site/_includes/story-card.njk`
+- Modify: `site/index.njk`
+
+**Context:** Before redesigning the card's look, first extract the EXISTING card markup into a reusable partial with no behavior/appearance change — isolates the "extract" step from the "redesign" step so each is independently verifiable.
+
+**Step 1: Read the current `site/index.njk`** to confirm its exact current card markup (shown earlier in this session, but re-read live).
+
+**Step 2: Create `site/_includes/story-card.njk`** containing exactly the current card markup, unchanged:
+
+```njk
+<a class="story-card" href="{{ story.url }}" data-title="{{ story.title }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}">
+  <h3>{{ story.title }}</h3>
+  {% if story.series %}<p class="card-series">{{ story.series }} — Book {{ story.seriesOrder }}</p>{% endif %}
+  <p>{{ story.description }}</p>
+  <p class="card-meta">~{{ story.readMinutes }} min read{% if story.audioMinutes %} · ~{{ story.audioMinutes }} min listen{% endif %}</p>
+</a>
+```
+
+**Step 3: Modify `site/index.njk`** to use the include instead of the inline markup — replace only the card's inner content inside the existing `{% for story in stories %}` loop with `{% include "story-card.njk" %}`, keeping everything else (search box, section wrapper, scripts) exactly as-is.
+
+**Step 4: Verify no visual/behavioral change**
+
+Build and view the library page — confirm it looks and behaves identically to before (same card content, same search filtering, same resume badge script still works since it's untouched). This is a pure refactor step.
+
+**Step 5: Commit**
+
+```bash
+git add site/_includes/story-card.njk site/index.njk
+git commit -m "Extract story card markup into a reusable partial (no visual change)"
+```
+
+---
+
+## Task 7: Redesign the library page template — sectioned layout
 
 **Files:**
 - Modify: `site/index.njk`
-- Modify: `site/assets/style.css`
+
+**Context:** Now that the card is a partial (Task 6), restructure the page around it into Continue/series/standalone sections. This task is template structure only — the Play button and color-blocking come in Tasks 8-9.
 
 **Step 1: Rewrite `site/index.njk`**
 
@@ -309,16 +372,34 @@ title: Library
 {% endif %}
 
 <script src="{{ '/assets/search.js' | url }}"></script>
-<script src="{{ '/assets/mini-player.js' | url }}"></script>
-<script src="{{ '/assets/library.js' | url }}"></script>
 ```
 
-Note: `story-card.njk` (a new partial, Step 2), `library.js` (new, Task 6), `mini-player.js` (new, Task 7) don't exist yet at this point in the plan — that's fine, script 404s are harmless during incremental development (same pattern used throughout the original implementation plan). Focus this task on the template/CSS; the JS files land in later tasks.
+Note: this drops the old flat `{% for story in stories %}` loop entirely in favor of the three sections above. The Continue section's actual population happens client-side in a later task — for now it stays `hidden` always (no JS wired up yet). The resume-badge inline script and `mini-player.js`/`library.js` references are intentionally NOT added yet — those come in later tasks.
 
-**Step 2: Create the card partial** — `site/_includes/story-card.njk` (extracted so it can be reused across series/standalone loops and, later, the Continue row is rendered client-side using the same visual class names)
+**Step 2: Verify**
+
+Build and view the library page — confirm: one series section ("The Bramble Wall") renders with its accent-color CSS variables set (even though no CSS rule uses them yet, so visually it'll look unstyled/plain — that's expected, Task 9 adds the CSS), the card content itself is unchanged (still the Task 6 partial), no "More Stories" section appears (since `standalone.length` is 0 today), Continue section stays hidden. Search should still work (`search.js` is untouched and the card markup/data-attributes are unchanged).
+
+**Step 3: Commit**
+
+```bash
+git add site/index.njk
+git commit -m "Restructure library page into Continue/series/standalone sections"
+```
+
+---
+
+## Task 8: Add Play button and no-audio badge to the story card partial
+
+**Files:**
+- Modify: `site/_includes/story-card.njk`
+
+**Context:** This is the actual fix for the original two-click-to-play complaint. Per the design/premortem, a nested `<a>` inside another `<a>` is invalid HTML and can break click targeting — this task must verify the real rendered DOM, not just trust the template.
+
+**Step 1: Modify `site/_includes/story-card.njk`**
 
 ```njk
-<a class="story-card" href="{{ story.url }}" data-title="{{ story.title }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}" data-slug="{{ story.slug }}" style="{% if group %}--accent-bg: {{ group.accentColor.background }}; --accent-text: {{ group.accentColor.text }};{% endif %}">
+<a class="story-card" href="{{ story.url }}" data-title="{{ story.title }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}" data-slug="{{ story.slug }}">
   <h3>{{ story.title }}</h3>
   {% if story.series %}<p class="card-series">{{ story.series }} — Book {{ story.seriesOrder }}</p>{% endif %}
   <p>{{ story.description }}</p>
@@ -331,9 +412,29 @@ Note: `story-card.njk` (a new partial, Step 2), `library.js` (new, Task 6), `min
 </a>
 ```
 
-**Note for the implementer:** a nested `<a>` inside another `<a>` (the play button inside the card link) is invalid HTML and will be auto-corrected/flattened by browsers in ways that break click targeting (per the original persona review's designer finding) — verify this concretely when you build it (inspect the actual rendered DOM in a browser, don't just trust the template renders "logically"). If it causes problems, restructure `story-card.njk` so the outer element is a `<div class="story-card">` wrapping two sibling elements: the `<a>` covering title/description/meta (for "open"), and a separate `<a class="play-button">` (for "play") — both direct children of the div, not nested. This is very likely the correct fix; treat the snippet above as a first draft to verify against real rendered/inspected HTML, not as final.
+**Step 2: Verify the DOM structure is actually sound — this is the critical check**
 
-**Step 3: Add CSS** — append to `site/assets/style.css`
+Build and view the library page using a headless browser tool (Playwright, scratch, not a dependency). Inspect the ACTUAL rendered/parsed DOM (not the template source) for the card containing a Play button: confirm whether the browser has flattened/broken the nested `<a>` structure. Click specifically on the Play button's coordinates and confirm it navigates to `?autoplay=1` (not the plain card URL); click elsewhere on the card (e.g. the title) and confirm it navigates to the plain URL without `?autoplay=1`.
+
+**If the nested-anchor structure is broken** (very likely, per the design doc's own warning): restructure the partial so the outer element is a `<div class="story-card">` wrapping two sibling elements — the `<a>` covering title/description/meta, and a separate sibling `<a class="play-button">` — both direct children of the div, neither nested inside the other. Re-verify with the same click-target test until it passes cleanly.
+
+**Step 3: Commit**
+
+```bash
+git add site/_includes/story-card.njk
+git commit -m "Add Play button and no-audio badge to story card, verified as non-nested DOM"
+```
+
+---
+
+## Task 9: Color-block the cards and sections — CSS only
+
+**Files:**
+- Modify: `site/assets/style.css`
+
+**Step 1: Read the current file** to confirm exact existing rules (shown earlier — re-read live) so this task only appends, never accidentally duplicates or removes Task 10's existing accessibility-related rules (`.resume-badge`, `.resume-banner button`, `.visually-hidden`, `prefers-reduced-motion`, the 44px `min-height` rules).
+
+**Step 2: Append this CSS**
 
 ```css
 h1 { font-size: 1.75rem; font-weight: 800; }
@@ -385,37 +486,58 @@ section h2 { font-size: 1.3rem; font-weight: 700; margin: 1.5rem 0 0.75rem; }
 }
 ```
 
-Keep the existing `.card-grid`, `.card-meta`, `.resume-badge`, `.resume-banner button`, `.visually-hidden`, `audio`, and `prefers-reduced-motion` rules already in the file — this task only adds to the stylesheet, it doesn't remove the existing accessibility-related rules from Task 10.
+**Step 3: Verify visually**
 
-**Step 4: Verify in browser**
+Build and view the library page (real browser or screenshot) — confirm the series section has a tinted background matching its accent color, the card itself is solid-colored with readable text, the Play button is a visible white circle in the bottom-right corner, and (if you temporarily test a no-audio fixture) the no-audio badge shows distinctly instead. Check both light and dark OS color-scheme rendering for contrast (the accent pairs were pre-vetted for both — confirm that check holds up visually, not just in theory).
 
-Since `stories/bramble-wall/book-1.md` has real content and is currently un-drafted (`draft: false`, per the end of the original implementation plan), running `npx @11ty/eleventy` and viewing the library page should show: one series section ("The Bramble Wall") with its accent-colored background and one card, a visible Play button on that card, no "More Stories" section (since `standalone.length` is 0), and no "Continue" section (hidden by default — Task 6 wires up its actual visibility logic). Confirm via browser inspection (Playwright, as used in prior tasks) that the Play button and card-open link are two genuinely separate DOM elements with distinct click targets, not a broken nested-anchor situation.
-
-**Step 5: Commit**
+**Step 4: Commit**
 
 ```bash
-git add site/index.njk site/_includes/story-card.njk site/assets/style.css
-git commit -m "Redesign library page: color-blocked series sections and per-card Play button"
+git add site/assets/style.css
+git commit -m "Add color-blocked card and section styling"
 ```
 
 ---
 
-## Task 5: Story page redesign — accent-colored header, restyled audio card, autoplay handling with fallback
+## Task 10: Compute and pass accent color to the story page
 
 **Files:**
-- Modify: `site/_includes/story.njk`
-- Modify: `site/story-pages.11ty.js` (pass `accentColor` through to the template)
-- Modify: `site/assets/style.css`
+- Modify: `site/story-pages.11ty.js`
 
-**Step 1: Modify `site/story-pages.11ty.js`** to compute and pass through the story's accent color
+**Step 1: Read the current file** to confirm its exact `eleventyComputed` shape.
 
-Add `import { accentColorFor } from "../scripts/accent-colors.mjs";` at the top, and add an `accentColor` entry to the `eleventyComputed` object:
+**Step 2: Add the import and one new computed field**
+
+Add near the top: `import { accentColorFor } from "../scripts/accent-colors.mjs";`
+
+Add to the `eleventyComputed` object:
 
 ```js
 accentColor: (data) => accentColorFor(data.stories.bySlug[data.storyPage.data.storySlug]?.series),
 ```
 
-**Step 2: Modify `site/_includes/story.njk`**
+**Step 3: Verify**
+
+Run: `npx @11ty/eleventy` — confirm the build succeeds (the story page template doesn't reference `accentColor` yet, so this step just confirms the computed field itself doesn't error). Run `npx vitest run` — confirm no regressions.
+
+**Step 4: Commit**
+
+```bash
+git add site/story-pages.11ty.js
+git commit -m "Compute accentColor for the story page from its series"
+```
+
+---
+
+## Task 11: Restyle the story page — accent header and audio card
+
+**Files:**
+- Modify: `site/_includes/story.njk`
+- Modify: `site/assets/style.css`
+
+**Step 1: Read the current `site/_includes/story.njk`** to confirm its exact current markup.
+
+**Step 2: Modify it to**
 
 ```njk
 ---
@@ -449,8 +571,9 @@ layout: base.njk
 </nav>
 
 <script src="{{ '/assets/resume.js' | url }}" data-slug="{{ slug }}"></script>
-<script src="{{ '/assets/mini-player.js' | url }}"></script>
 ```
+
+Note: this only moves/wraps existing elements and adds the (currently inert) `#autoplay-fallback` placeholder — no JS behavior changes yet, that's Task 13.
 
 **Step 3: Add CSS** — append to `site/assets/style.css`
 
@@ -461,58 +584,63 @@ layout: base.njk
 .autoplay-fallback { font-weight: 600; margin-top: 0.5rem; }
 ```
 
-**Step 4: Verify in browser**
+**Step 4: Verify**
 
-Build and view the story page — confirm the accent-colored header band renders, the audio player sits inside a tinted card, and (with `autoplay-fallback` still `hidden` since Task 6 wires up the actual autoplay-attempt logic) nothing looks broken. Run `npx vitest run` to confirm no regressions.
+Build and view the story page — confirm the accent-colored header band renders correctly, the audio player sits inside a tinted card, resume banner still works exactly as before (Task 10 of the original plan's behavior — unseeded/seeded localStorage should behave identically to before this change). Run `npx vitest run` — no regressions expected.
 
 **Step 5: Commit**
 
 ```bash
-git add site/_includes/story.njk site/story-pages.11ty.js site/assets/style.css
+git add site/_includes/story.njk site/assets/style.css
 git commit -m "Restyle story page with accent-colored header and audio card"
 ```
 
 ---
 
-## Task 6: Autoplay-on-arrival with fallback, mutually exclusive with the resume banner
+## Task 12: Add the title/url fields resume.js needs for the mini-player
 
 **Files:**
 - Modify: `site/assets/resume.js`
 
-**Context:** Per the design doc and premortem finding #5, when a story page loads with `?autoplay=1` in the URL, the page should attempt to seek+play immediately using saved progress (if any) — and the existing resume-banner-and-focus logic must be SKIPPED in that case, not run alongside it. Per premortem finding #1, the `.play()` call's promise must always be handled; on rejection, show the fallback message added in Task 5.
+**Context:** Small, isolated prep step before the bigger autoplay-branch change (Task 13). The mini-player (Task 15) needs to know each story's title/URL from localStorage — `resume.js` currently never writes those fields.
 
-**Step 1: Modify `site/assets/resume.js`**
+**Step 1: Read the current `site/assets/resume.js`** to confirm its exact current content.
 
-Read the current file first (shown in context above) — this task wraps the existing `if (saved && ...)` banner block in an additional condition and adds a new autoplay branch above it.
+**Step 2: Add one line** near the top of the script (after the existing `const saved = readProgress();` line, or immediately before it — whichever reads more naturally given the current file, your judgment), unconditionally (not inside any `if` branch):
 
 ```js
-const script = document.currentScript;
-const slug = script.dataset.slug;
-const storageKey = `story-progress:${slug}`;
-const audio = document.getElementById("story-audio");
-const banner = document.getElementById("resume-banner");
+saveProgress({ title: document.title.replace(" — Stories", ""), url: window.location.pathname });
+```
+
+**Step 3: Verify**
+
+Build, serve, open a story page, check via browser devtools (or a quick script) that `localStorage.getItem("story-progress:book-1")` now includes `title` and `url` fields matching the page. Confirm existing resume-banner behavior is unaffected (this is an additive write, not a change to the read/branch logic).
+
+**Step 4: Commit**
+
+```bash
+git add site/assets/resume.js
+git commit -m "Write title/url into progress storage for the mini-player to use"
+```
+
+---
+
+## Task 13: Autoplay-on-arrival branch in resume.js
+
+**Files:**
+- Modify: `site/assets/resume.js`
+
+**Context:** Per premortem findings #1 and #5: the autoplay branch must be mutually exclusive with the existing resume banner (not run alongside it), and the `.play()` promise must always be handled with a visible fallback on rejection — this is the single most important behavior in the whole redesign per the premortem, and browser autoplay policy make it inherently not-always-verifiable in this environment (real mobile Safari testing is a followup for the user, per Task 16).
+
+**Step 1: Read the current `site/assets/resume.js`** (post-Task-12) to confirm its exact shape before editing.
+
+**Step 2: Modify the file to add the autoplay signal check and branch**, restructuring the existing `if (saved && (saved.audioTime > 5 || saved.scrollY > 200))` block into an `else if`:
+
+```js
 const autoplayFallback = document.getElementById("autoplay-fallback");
 const autoplaySignal = new URLSearchParams(window.location.search).get("autoplay") === "1";
-if (banner) banner.setAttribute("role", "status");
 
-function readProgress() {
-  try {
-    return JSON.parse(localStorage.getItem(storageKey) || "null");
-  } catch {
-    return null;
-  }
-}
-
-function saveProgress(partial) {
-  const existing = readProgress() || {};
-  try {
-    localStorage.setItem(storageKey, JSON.stringify({ ...existing, ...partial, savedAt: Date.now() }));
-  } catch {
-    // Ignore write failures (e.g. Safari private browsing, quota exceeded).
-  }
-}
-
-const saved = readProgress();
+// ... (existing readProgress/saveProgress functions and the title/url write from Task 12 stay above this point) ...
 
 if (autoplaySignal && audio) {
   // Explicit user intent (they tapped Play on the library card) — attempt
@@ -530,25 +658,38 @@ if (autoplaySignal && audio) {
     if (autoplayFallback) autoplayFallback.hidden = false;
   });
 } else if (saved && (saved.audioTime > 5 || saved.scrollY > 200) && banner) {
-  banner.hidden = false;
-  banner.innerHTML = `
-    <button id="resume-btn" type="button">⏪ Resume where you left off</button>
-    <button id="restart-btn" type="button">🔄 Start over</button>
-  `;
-  document.getElementById("resume-btn").focus();
-  document.getElementById("resume-btn").addEventListener("click", () => {
-    if (audio && saved.audioTime) audio.currentTime = saved.audioTime;
-    if (saved.scrollY) window.scrollTo({ top: saved.scrollY, behavior: "smooth" });
-    banner.hidden = true;
-  });
-  document.getElementById("restart-btn").addEventListener("click", () => {
-    localStorage.removeItem(storageKey);
-    banner.hidden = true;
-    if (audio) audio.currentTime = 0;
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
+  // ... existing banner logic, unchanged ...
 }
+```
 
+Keep the existing banner logic's body completely unchanged — only the `if` became an `else if` with an added `&& banner` guard (defensive, since `banner` only exists when the page has audio) and the new autoplay branch was added above it.
+
+**Step 3: Verify manually** using a headless browser tool (Playwright, scratch, not a dependency):
+- Navigate to a story URL WITHOUT `?autoplay=1`, with seeded saved progress — confirm the resume banner appears exactly as before (no regression).
+- Navigate to the SAME story URL WITH `?autoplay=1` appended, with the same seeded progress — confirm the banner does NOT appear, and instead either audio actually plays (`audio.paused === false`) or the fallback message becomes visible (`.catch()` fired). Either outcome is acceptable and expected to be environment-dependent per the premortem — what must NOT happen is both the banner appearing AND the autoplay attempt running simultaneously.
+- Navigate to a story URL WITH `?autoplay=1` and NO saved progress — confirm it attempts to play from the start (no seek), same pass/fallback logic applies.
+
+**Step 4: Commit**
+
+```bash
+git add site/assets/resume.js
+git commit -m "Add autoplay-on-arrival branch, mutually exclusive with resume banner"
+```
+
+---
+
+## Task 14: Write playing/pause state for the mini-player to read
+
+**Files:**
+- Modify: `site/assets/resume.js`
+
+**Context:** Small, separate from Task 13's autoplay logic — this task only adds the `playing` boolean writes the mini-player (Task 15) will read, tied to the audio element's own real events (per premortem finding #4 — the source of truth is the DOM, not a separately-tracked flag).
+
+**Step 1: Read the current file** (post-Task-13) to confirm its exact current shape, specifically the existing `if (audio) { ... audio.addEventListener("timeupdate", ...) ... }` block.
+
+**Step 2: Modify that block** to also write `playing: true` on each `timeupdate` save, and add two new listeners:
+
+```js
 if (audio) {
   let lastSaved = 0;
   audio.addEventListener("timeupdate", () => {
@@ -560,36 +701,27 @@ if (audio) {
   audio.addEventListener("pause", () => saveProgress({ playing: false }));
   audio.addEventListener("play", () => saveProgress({ playing: true }));
 }
-
-window.addEventListener("beforeunload", () => {
-  saveProgress({ scrollY: window.scrollY });
-});
 ```
 
-Note the two additions beyond the autoplay branch: `playing: true/false` is now written on the `timeupdate`/`pause`/`play` events (feeding the mini-player's staleness-guarded state in Task 7), and `saved.audioTime` is checked before the autoplay branch's seek so a fresh story (no prior progress) just plays from the start.
+**Step 3: Verify**
 
-**Step 2: Verify manually**
+Build, serve, open a story page, play the audio, check `localStorage.getItem("story-progress:book-1")` shows `playing: true` shortly after pressing play, and `playing: false` immediately after pressing pause (the `pause`/`play` event listeners should update this instantly, not wait for the 5-second `timeupdate` threshold).
 
-Build, serve, and using a headless browser tool (Playwright, scratch, not a dependency): navigate directly to a story URL with `?autoplay=1` appended and confirm `audio.play()` is attempted (check `audio.paused === false` after a tick, or that `.catch()` fires and reveals the fallback message — both are valid depending on the environment's autoplay policy, per the premortem's own finding that this is inherently environment-dependent). Navigate to the same story URL WITHOUT `?autoplay=1` after seeding saved progress and confirm the resume banner still appears exactly as before (no regression to Task 10's behavior). Confirm that with BOTH `?autoplay=1` present AND saved progress present, only the autoplay branch runs (seeks and attempts play) — the banner does not also appear.
-
-Run `npx vitest run` — no test changes expected in this task (resume.js has no direct unit tests, consistent with the original plan's treatment of it as browser-verified glue code), just confirm nothing else broke.
-
-**Step 3: Commit**
+**Step 4: Commit**
 
 ```bash
 git add site/assets/resume.js
-git commit -m "Add autoplay-on-arrival with fallback, mutually exclusive with resume banner"
+git commit -m "Write playing state on audio play/pause events"
 ```
 
 ---
 
-## Task 7: Mini-player bar — staleness-guarded, event-bound to real audio state
+## Task 15: Mini-player bar script
 
 **Files:**
 - Create: `site/assets/mini-player.js`
-- Modify: `site/assets/style.css`
 
-**Context:** Per premortem findings #2 and #4: the "is something playing" state must expire if stale (tab closed/killed without a fresh write), and on a page where the real `<audio>` element for the currently-playing story exists, the mini-player's controls must reflect that real element's actual state, not a separately-tracked boolean.
+**Context:** Per premortem finding #2, the "is something playing" state must expire if stale. Per finding #4, on the page where the real `<audio>` element for the currently-playing story exists, controls must bind to that element's real events, not a shadow boolean.
 
 **Step 1: Write `site/assets/mini-player.js`**
 
@@ -625,7 +757,8 @@ function renderBar(playing) {
     return;
   }
   const localAudio = document.getElementById("story-audio");
-  const isLocalStory = localAudio && document.currentScript?.dataset.slug === playing.slug;
+  const currentSlug = document.querySelector("script[data-slug]")?.dataset.slug;
+  const isLocalStory = localAudio && currentSlug === playing.slug;
 
   if (!bar) {
     bar = document.createElement("div");
@@ -641,9 +774,6 @@ function renderBar(playing) {
 
   const toggle = document.getElementById("mini-player-toggle");
   if (isLocalStory) {
-    // Real audio element for this story exists on this page — bind directly
-    // to its actual events rather than a shadow boolean, so the control
-    // can never desync from what's actually playing (premortem finding #4).
     const sync = () => { toggle.textContent = localAudio.paused ? "▶" : "⏸"; };
     localAudio.addEventListener("play", sync);
     localAudio.addEventListener("pause", sync);
@@ -653,10 +783,6 @@ function renderBar(playing) {
       else localAudio.pause();
     });
   } else {
-    // No local audio element for this story (e.g. we're on the library
-    // page) — this is necessarily an optimistic reflection of last-known
-    // state; clicking can only record intent for the story's own page to
-    // pick up if/when it's next opened, it cannot pause audio elsewhere.
     toggle.addEventListener("click", () => {
       const key = `story-progress:${playing.slug}`;
       try {
@@ -674,9 +800,25 @@ renderBar(currentlyPlaying());
 window.addEventListener("storage", () => renderBar(currentlyPlaying()));
 ```
 
-**Note for the implementer:** `playing.url`/`playing.title` are referenced but `resume.js` currently only ever writes `audioTime`/`scrollY`/`playing`/`savedAt` into the per-slug localStorage record — it does NOT currently write `url` or `title`. Add those two fields to `resume.js`'s `saveProgress` calls (or a one-time write on script load) so the mini-player has something to render; check the current file's shape before wiring this up, since the exact mechanism (writing title/url once vs. every save) is an implementation judgment call, not fully specified here. The simplest fix: in `resume.js`, add a single `saveProgress({ title: document.title.replace(" — Stories", ""), url: window.location.pathname })` call once near the top of the script (outside any conditional), so every page visit refreshes these fields regardless of which branch (autoplay/banner/neither) runs below it.
+Note: `currentSlug` is read from `document.querySelector("script[data-slug]")` rather than `document.currentScript`, since this script (unlike `resume.js`) doesn't itself carry a `data-slug` attribute — it reads the one already present on `resume.js`'s script tag, if any (present on story pages, absent on the library page). Verify this lookup actually finds the right element when you test it — it's a reasonable approach but confirm empirically rather than trusting it blind, since a wrong selector here would silently make `isLocalStory` always false.
 
-**Step 2: Add CSS** — append to `site/assets/style.css`
+**Step 2: No test/build step yet** — this file isn't referenced by any template until Task 17. Just confirm it has no syntax errors: `node --check site/assets/mini-player.js`.
+
+**Step 3: Commit**
+
+```bash
+git add site/assets/mini-player.js
+git commit -m "Add mini-player bar script"
+```
+
+---
+
+## Task 16: Mini-player CSS
+
+**Files:**
+- Modify: `site/assets/style.css`
+
+**Step 1: Append to `site/assets/style.css`**
 
 ```css
 #mini-player {
@@ -698,29 +840,55 @@ window.addEventListener("storage", () => renderBar(currentlyPlaying()));
 main { padding-bottom: 4.5rem; } /* room for the fixed mini-player bar */
 ```
 
-**Step 3: Verify manually**
+**Step 2: No visual verification yet** — the mini-player script isn't wired into any page until Task 17, so there's nothing to see yet. Just confirm the CSS file still parses (build succeeds): `npx @11ty/eleventy`.
 
-Using a headless browser tool: seed a fake `story-progress:book-1` entry with `playing: true` and a fresh `savedAt`, load the library page, confirm the mini-player bar renders. Wait/mock time past `STALE_AFTER_MS` (or seed an old `savedAt` directly) and reload — confirm the bar does NOT render (staleness guard working). Load the story page itself while `playing: true` is fresh, confirm the mini-player's toggle reflects and controls the real `<audio>` element's actual paused/playing state (press play/pause on the native controls directly and confirm the mini-player's icon updates via the bound events, not just via its own click handler).
-
-Run `npx vitest run` — no new unit tests for this task (it's DOM/localStorage-interaction glue code, consistent with how `resume.js` itself has no direct unit tests), just confirm the suite is unaffected.
-
-**Step 4: Modify `site/assets/resume.js`** to add the title/url write described in the implementer note above, and to `site/index.njk`/`site/_includes/story.njk`'s existing `<script>` tags — confirm `mini-player.js` is loaded on both pages (already added in Tasks 4 and 5's template snippets above).
-
-**Step 5: Commit**
+**Step 3: Commit**
 
 ```bash
-git add site/assets/mini-player.js site/assets/resume.js site/assets/style.css
-git commit -m "Add staleness-guarded mini-player bar bound to real audio state"
+git add site/assets/style.css
+git commit -m "Add mini-player bar CSS"
 ```
 
 ---
 
-## Task 8: Client-side Continue section
+## Task 17: Wire mini-player.js into both pages
+
+**Files:**
+- Modify: `site/index.njk`
+- Modify: `site/_includes/story.njk`
+
+**Step 1: Add one script tag to each file.**
+
+In `site/index.njk`, after the existing `<script src="{{ '/assets/search.js' | url }}"></script>` line, add:
+
+```njk
+<script src="{{ '/assets/mini-player.js' | url }}"></script>
+```
+
+In `site/_includes/story.njk`, after the existing `<script src="{{ '/assets/resume.js' | url }}" data-slug="{{ slug }}"></script>` line, add:
+
+```njk
+<script src="{{ '/assets/mini-player.js' | url }}"></script>
+```
+
+**Step 2: Verify manually** using a headless browser tool:
+- Seed a fake `story-progress:book-1` entry with `playing: true`, a fresh `savedAt`, a `title`, and a `url` (matching what Tasks 12/14 now actually write). Load the library page — confirm the mini-player bar renders with the right title and a pause icon.
+- Manually set `savedAt` to something older than 20 seconds ago and reload — confirm the bar does NOT render (staleness guard).
+- Load the story page itself with the same fresh `playing: true` state — confirm the mini-player's toggle reflects the real `<audio>` element's state, and pressing the NATIVE audio control's play/pause directly (not the mini-player's own button) also updates the mini-player's icon via the bound events.
+
+**Step 3: Commit**
+
+```bash
+git add site/index.njk site/_includes/story.njk
+git commit -m "Wire mini-player script into library and story pages"
+```
+
+---
+
+## Task 18: Client-side Continue section script
 
 **Files:**
 - Create: `site/assets/library.js`
-
-**Context:** The "Continue" section (Task 4's template already has the `hidden` placeholder markup) can only be populated client-side, since it depends on localStorage data that doesn't exist at 11ty build time.
 
 **Step 1: Write `site/assets/library.js`**
 
@@ -760,22 +928,43 @@ if (entries.length > 0) {
 }
 ```
 
-Note: this reuses the same `title`/`url` localStorage fields Task 7 added to `resume.js`'s writes.
-
-**Step 2: Verify manually**
-
-Seed a fake progress entry with a recent `savedAt` and a `url`/`title`, load the library page, confirm the Continue section appears with a card linking to that story. Clear localStorage and reload — confirm the Continue section stays `hidden` (no bare heading over nothing, per premortem finding #7's guard principle applied here too).
+**Step 2: No wiring/verification yet** — added to the page in Task 19. Just confirm no syntax errors: `node --check site/assets/library.js`.
 
 **Step 3: Commit**
 
 ```bash
 git add site/assets/library.js
-git commit -m "Add client-side Continue section for the library page"
+git commit -m "Add client-side Continue section script"
 ```
 
 ---
 
-## Task 9: Full manual QA pass
+## Task 19: Wire library.js into the library page and verify Continue section
+
+**Files:**
+- Modify: `site/index.njk`
+
+**Step 1: Add the script tag** to `site/index.njk`, after the `mini-player.js` tag added in Task 17:
+
+```njk
+<script src="{{ '/assets/library.js' | url }}"></script>
+```
+
+**Step 2: Verify manually** using a headless browser tool:
+- With no localStorage progress at all, load the library page — confirm the Continue section stays `hidden` (no bare heading over nothing).
+- Seed a fake progress entry with a recent `savedAt`, a `title`, and a `url` — reload — confirm the Continue section becomes visible with a card linking to that story.
+- Seed an entry with a `savedAt` older than 30 days — confirm it's excluded (Continue section stays hidden if that's the only entry).
+
+**Step 3: Commit**
+
+```bash
+git add site/index.njk
+git commit -m "Wire Continue section script into library page"
+```
+
+---
+
+## Task 20: Full manual QA pass
 
 **Files:** none (verification only)
 
@@ -783,14 +972,14 @@ git commit -m "Add client-side Continue section for the library page"
 
 **Step 1: Checklist** (verify each via headless browser automation where possible, being honest about anything genuinely unverifiable in this environment — e.g. real iOS Safari autoplay behavior):
 
-- [ ] Library page: series section renders with correct accent color and contrast; Play button and card-open link are two independently clickable/tappable elements (inspect actual DOM, not just template source).
+- [ ] Library page: series section renders with correct accent color and contrast; Play button and card-open link are two independently clickable/tappable elements (confirmed via real DOM inspection, from Task 8).
 - [ ] Tapping a card's Play button navigates to the story page and either (a) audio audibly starts, or (b) the "Tap to play" fallback is visibly shown — never silent nothing.
 - [ ] Tapping a card's title/description (not the Play button) opens the story page WITHOUT autoplay.
-- [ ] Story page: resume banner still works exactly as before (Task 10's original behavior) when visited without `?autoplay=1`.
+- [ ] Story page: resume banner still works exactly as before (original Task 10's behavior) when visited without `?autoplay=1`.
 - [ ] Mini-player: appears when a story is playing, correctly disappears if the underlying progress entry goes stale, toggle reflects real `<audio>` state on the story's own page.
 - [ ] Keyboard-only navigation: Play button is reachable and activatable via Tab+Enter; mini-player toggle meets the 44px target and is keyboard-operable.
 - [ ] JS disabled: library page and story page content (text, not audio controls' interactivity) still fully readable, per the site's original no-JS content guarantee.
-- [ ] Phone viewport: sections/cards/mini-player don't overflow or overlap; mini-player bar doesn't obscure content behind it (confirm the `main { padding-bottom }` CSS addition is sufficient).
+- [ ] Phone viewport: sections/cards/mini-player don't overflow or overlap; mini-player bar doesn't obscure content behind it (confirm the `main { padding-bottom }` CSS addition from Task 16 is sufficient).
 - [ ] Search still filters cards correctly with the new section structure.
 - [ ] Full `npx vitest run` passes; `npm run validate` passes.
 - [ ] Real iPhone/Safari test of the autoplay-after-navigation behavior — flag explicitly as needing the user's own device if unavailable in this environment, per the premortem's finding #1.
