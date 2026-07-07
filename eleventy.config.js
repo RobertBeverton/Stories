@@ -1,6 +1,7 @@
 import fg from "fast-glob";
 import fs from "node:fs";
 import { slugify } from "./scripts/slugify.mjs";
+import { PATH_PREFIX } from "./scripts/stories-lib.mjs";
 
 export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("stories/**/*.mp3");
@@ -42,7 +43,7 @@ export default function (eleventyConfig) {
     // when rendering links. It does NOT change where output files are
     // written under `_site/` — that's controlled solely by `dir.output` and
     // template `permalink`s, which stay unprefixed (see story-pages.11ty.js).
-    pathPrefix: "/Stories/",
+    pathPrefix: `${PATH_PREFIX}/`,
     dir: {
       input: "site",
       includes: "_includes",
