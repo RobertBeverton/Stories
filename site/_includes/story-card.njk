@@ -1,6 +1,13 @@
-<a class="story-card" href="{{ story.url }}" data-title="{{ story.title }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}">
-  <h3>{{ story.title }}</h3>
-  {% if story.series %}<p class="card-series">{{ story.series }} — Book {{ story.seriesOrder }}</p>{% endif %}
-  <p>{{ story.description }}</p>
-  <p class="card-meta">~{{ story.readMinutes }} min read{% if story.audioMinutes %} · ~{{ story.audioMinutes }} min listen{% endif %}</p>
-</a>
+<div class="story-card" data-title="{{ story.title }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}" data-slug="{{ story.slug }}">
+  <a class="story-card-link" href="{{ story.url }}">
+    <h3>{{ story.title }}</h3>
+    {% if story.series %}<p class="card-series">{{ story.series }} — Book {{ story.seriesOrder }}</p>{% endif %}
+    <p>{{ story.description }}</p>
+    <p class="card-meta">~{{ story.readMinutes }} min read{% if story.audioMinutes %} · ~{{ story.audioMinutes }} min listen{% endif %}</p>
+  </a>
+  {% if story.audio %}
+  <a class="play-button" href="{{ story.url }}?autoplay=1" aria-label="Play {{ story.title }}">▶</a>
+  {% else %}
+  <span class="no-audio-badge" aria-label="Text only, no audio">🚫🔊</span>
+  {% endif %}
+</div>
