@@ -67,10 +67,12 @@ if (audio) {
   let lastSaved = 0;
   audio.addEventListener("timeupdate", () => {
     if (audio.currentTime - lastSaved > 5) {
-      saveProgress({ audioTime: audio.currentTime });
+      saveProgress({ audioTime: audio.currentTime, playing: true });
       lastSaved = audio.currentTime;
     }
   });
+  audio.addEventListener("pause", () => saveProgress({ playing: false }));
+  audio.addEventListener("play", () => saveProgress({ playing: true }));
 }
 
 window.addEventListener("beforeunload", () => {
