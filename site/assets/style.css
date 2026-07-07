@@ -67,3 +67,20 @@ section h2 { font-size: 1.3rem; font-weight: 700; margin: 1.5rem 0 0.75rem; }
 .story-header .breadcrumb a { color: var(--accent-text); }
 .audio-card { background: color-mix(in srgb, var(--accent-bg) 15%, transparent); border-radius: 16px; padding: 1rem; margin-bottom: 1rem; }
 .autoplay-fallback { font-weight: 600; margin-top: 0.5rem; }
+#mini-player {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: #111;
+  color: #fff;
+  z-index: 10;
+}
+.mini-player-title { color: #fff; text-decoration: none; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#mini-player-toggle { min-width: 44px; min-height: 44px; font-size: 1.25rem; background: none; border: none; color: #fff; }
+main { padding-bottom: 4.5rem; } /* room for the fixed mini-player bar */
