@@ -3,4 +3,20 @@ layout: base.njk
 title: Library
 ---
 <h1>Stories</h1>
-<p>Library grid coming in a later task.</p>
+<input type="search" id="search-box" placeholder="Search stories..." aria-label="Search stories">
+
+<section aria-labelledby="all-stories-heading">
+  <h2 id="all-stories-heading" class="visually-hidden">All stories</h2>
+  <div class="card-grid" id="card-grid">
+    {% for story in stories %}
+    <a class="story-card" href="{{ story.url }}" data-title="{{ story.title }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}">
+      <h3>{{ story.title }}</h3>
+      {% if story.series %}<p class="card-series">{{ story.series }} — Book {{ story.seriesOrder }}</p>{% endif %}
+      <p>{{ story.description }}</p>
+      <p class="card-meta">~{{ story.readMinutes }} min read{% if story.audioMinutes %} · ~{{ story.audioMinutes }} min listen{% endif %}</p>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<script src="/assets/search.js"></script>

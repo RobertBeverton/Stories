@@ -1,0 +1,13 @@
+:root { color-scheme: light dark; }
+body { font-family: system-ui, sans-serif; font-size: 18px; line-height: 1.5; margin: 0; }
+.site-header { padding: 1rem; font-size: 1.25rem; }
+.site-header a { text-decoration: none; color: inherit; }
+main { max-width: 700px; margin: 0 auto; padding: 0 1rem 2rem; }
+#search-box { width: 100%; font-size: 1.1rem; padding: 0.75rem; margin-bottom: 1rem; box-sizing: border-box; min-height: 44px; }
+.card-grid { display: grid; gap: 1rem; }
+.story-card { display: block; padding: 1rem; border: 1px solid #8884; border-radius: 8px; text-decoration: none; color: inherit; min-height: 44px; }
+.card-series { font-size: 0.9rem; opacity: 0.75; }
+.card-meta { font-size: 0.9rem; opacity: 0.75; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+audio { width: 100%; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
