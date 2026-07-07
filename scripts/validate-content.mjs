@@ -92,11 +92,20 @@ export function checkRepoSize(fileSizes, maxTotalBytes, maxFileBytes) {
 }
 
 async function deriveAudioDurations(stories) {
+  const errors = [];
   for (const story of stories) {
     if (!story.data.audio) continue;
     const audioPath = path.join(path.dirname(story.file), story.data.audio);
     if (!fs.existsSync(audioPath)) continue;
-    const metadata = await parseFile(audioPath);
+    let metadata;
+    try {
+      metadata = await parseFile(audioPath);
+    } catch (err) {
+      errors.push(
+        `${story.file}: failed to read audio duration from '${story.data.audio}' (${err.message})`
+      );
+      continue;
+    }
     const seconds = Math.round(metadata.format.duration ?? 0);
     if (story.data.audioDuration !== seconds) {
       const raw = fs.readFileSync(story.file, "utf8");
@@ -108,11 +117,12 @@ async function deriveAudioDurations(stories) {
       console.log(`${story.file}: audioDuration updated to ${seconds}`);
     }
   }
+  return errors;
 }
 
 async function main() {
   const stories = await loadStories();
-  await deriveAudioDurations(stories);
+  const audioDurationErrors = await deriveAudioDurations(stories);
   const refreshed = await loadStories(); // reload in case durations changed
 
   const fileSizes = refreshed
@@ -123,6 +133,7 @@ async function main() {
     });
 
   const errors = [
+    ...audioDurationErrors,
     ...checkRequiredFields(refreshed),
     ...checkDuplicateSeriesOrder(refreshed),
     ...checkDuplicateSlugs(refreshed),
