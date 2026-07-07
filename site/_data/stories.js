@@ -15,7 +15,7 @@ export default async function () {
       ...data,
       tags: data.tags ?? [],
       slug,
-      url: `/stories/${data.series ? path.basename(path.dirname(file)) + "/" : ""}${slug}/`,
+      url: `/stories/${path.basename(path.dirname(file))}/${slug}/`,
       readMinutes,
       audioMinutes: data.audioDuration ? Math.round(data.audioDuration / 60) : null,
     };
