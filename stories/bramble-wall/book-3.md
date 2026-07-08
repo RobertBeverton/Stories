@@ -1,274 +1,183 @@
 ---
-title: "The Heart of the Bramble Wall"
+title: "The Track"
 series: "The Bramble Wall"
 seriesOrder: 3
-description: "At the heart of the maze lies an unexpected discovery. Felix and Alex must decide whether to reveal what they've found or keep the secret safe."
-tags: ["adventure", "forest", "discovery", "mystery", "friendship"]
+description: "Felix imagines a track through the forest that no one can quite build, until he and Alex learn that some ideas have to be seen, not just said."
+tags: ["adventure", "forest", "brothers", "bikes", "friendship", "cooperation"]
 audio: "book-3.mp3"
-audioDuration: 1221
 publishDate: 2026-07-08
 draft: false
 ---
 
 # The Bramble Wall
-## Book One — The Gap in the Bramble Wall
+## Book Three — The Track
 
-It was the first proper Saturday of the summer holidays, and Felix was already at the back door with one welly on, hopping.
+The first cool morning of the whole summer, and Felix could feel it the second he stepped outside — the air had a different smell, less green, more gold, and somewhere behind his ribs an idea arrived so completely formed that he had to say it out loud immediately or it would burst.
 
-"We're going to the forest," he told Alex. "Properly in. Not just the edge. Today."
+"We're going to build a track," he told Alex. "Today. Before the summer's properly over — Isla's coming to see us before school starts again, and I want it *finished*, so people can actually *ride* it."
 
-Alex was by the shelf near the door, checking his radio, the way he always did before the forest. There were four radios in a row on the charger — one for Mummy, one for Daddy, one for Felix, one for Alex. Each person had their own. Each person looked after their own. That was the rule.
+Alex, radio already clipped on, considered this the way he considered everything — slowly, and from more than one angle.
 
-Alex picked his up. The little light on top glowed green. *Full. Ready.* He clicked it on and it gave a soft, friendly hiss, like the sea in a shell.
+"Ride it on what?"
 
-"Mine's charged," said Alex.
+"Bikes. Your bike."
 
-Felix grabbed his and clicked it on. It went *bip* — and the light glowed a sad sort of orange.
+That got his attention. Alex's OSET stood in the shed, small and orange and entirely his — his own domain, quiet and serious, not usually for sharing. But a *track* was different from the bike itself. A track was somewhere to put it.
 
-"Mine's a bit charged," said Felix.
-
-"You didn't put it on last night."
-
-"I put it *near* the charger."
-
-"Near isn't on," said Alex, which was true, and which Felix decided not to argue with, because there wasn't really a way to.
-
-Daddy came through in his espresso-drinking, not-in-any-hurry sort of way, mug in hand, and looked at the two of them.
-
-"Forest?" he said.
-
-"Forest," said Felix. "Both of us. You too — but not *with* us."
-
-"That's the arrangement." Daddy took a sip. "I'll be out on the bike. Shout or radio if you need me." He nodded at the radios. "And remember the red button on top. That one's not for chatting. That's the emergency button. You press that, and *everyone's* radio shouts, all at once, so we come running. Then you tell us where you are. Only for a real emergency, though. Not for finding a good stick."
-
-"We know," said Felix.
-
-"Say the rule."
-
-"We always go together," said Felix.
-
-"We always have someone on the radio," said Alex.
-
-"Good." Daddy glanced out of the window, at the sky over the trees. It was blue — but far off, past the hill, there was a low grey line, like a smudge someone had left there. "There's weather coming later. Keep an eye on it. If it starts, you come home."
-
-Felix wasn't really listening. Felix had already got his other welly on and was halfway out the door.
+"Show me where," said Alex.
 
 ---
 
-The path started right outside the front gate.
+They went together, radios on, Daddy's enduro a far-off buzz somewhere past the hollow way, and Felix led Alex on a route that existed, at that moment, only inside Felix's head.
 
-That was the brilliant thing about where they lived. You didn't have to *get* to the forest. You walked out of your own gate, onto the footpath, and there it was — a great dark-green wall of trees, getting closer with every step. It only took a few minutes. Less time than cleaning your teeth, and much more fun.
+"Here," Felix said, at the first bend, "it goes round this tree — fast — then down this bit — then" — he was almost running now, arms out, already riding it in his imagination — "then it jumps."
 
-Then the trees came up and over them, and the sunshine broke into pieces on the ground, and the sound went quiet-and-big at the same time, the way it does under a lot of leaves. And it was, exactly and completely, a whole new world.
+"Jumps what?"
 
-It was a good forest for two boys. Not a tangly, lost sort of forest — the trees stood apart, with room to walk between them, room to run. The ground was open and bare underfoot, because in the winter this whole wood filled up with water for months and months, and by summer the leaves overhead drank up all the light, so not much grew down low. You could see a long way between the trunks. Somewhere off to the left, faint, Felix could hear the *buzz* of Daddy's bike, moving through the far trees.
+"That." Felix pointed at a low grassy mound, no higher than his knee. "You ride up it, and you fly, and you land right *there*" — a patch of ground a good few strides beyond the mound — "and it's brilliant."
 
-Felix took a big breath in through his nose. "It smells green," he said.
+Alex looked at the mound. He looked at the gap. He looked at the ground on the far side, which was rutted and uneven and not, in his professional opinion, a good place to land anything.
 
-It did. Bark and earth and cool growing things.
+"It doesn't work like that," he said.
 
-Alex didn't say anything. He was looking — at the way the light came down in long stripes, at a bird he could hear but not see.
+"It will if we build it right."
 
----
+"You can't just *fly*. There's no ramp. There's no landing. It's just grass and then more grass with a hole in your plan in the middle of it."
 
-They found the wall about ten minutes in.
+Felix's face did the thing it did when a brilliant idea met its first piece of resistance — a kind of stubborn brightening, like a fire deciding not to go out.
 
-Not a proper wall. A wall of *brambles* — a huge, thorny, tangled heap of them, taller than Daddy, running along under a stand of old oaks. Old, and thick, and woven together like somebody had done it on purpose.
+"You're not even trying to picture it," he said.
 
-"Ow," said Felix, who had walked into it.
-
-"I was going to say," said Alex.
-
-But Felix had gone still now, which for Felix was rare. He was staring at the very bottom of the bramble wall, where a big oak root pushed up out of the ground. Down low, in the dark, there was a gap. Small, and just about big enough to crawl through. And through it, on the other side, Felix could see *green.* Open green. Another place, hidden away.
-
-"There's something back there," he breathed.
-
-Alex got down flat on the ground, no fuss, and put his eye to the gap. He was quiet a moment.
-
-"It's a clearing," he said. "A little one. Hidden. There's a huge fallen tree, all covered in moss." He looked closer. "The gap's nearly grown over, though. The brambles are creeping across it. Another summer and it'll close right up."
-
-Felix's whole face changed.
-
-"Then it has to be today," he said. "We go in *today*, and we make it ours, before it closes and we can't ever find the way back. Come on."
+"I *am* picturing it," said Alex. "I'm picturing you in a heap."
 
 ---
 
-They went through one at a time, flat on their tummies, elbows doing the work.
+That was, more or less, where it started to go wrong.
 
-Felix went first and got his hood caught on a thorn and said "ow" and then "I'm fine" and then he was through. Just inside the gap, on the old oak that stood beside it like a gatepost, Alex — going second, slower — noticed a hollow. A little dry hole where a branch had come away long ago. He stopped and looked in, the way Alex looked into things, and saw it wasn't empty. An acorn. Three small smooth stones in a row. A scrap of bark, folded once, soft with age. Somebody had put them there — not this year, maybe not for a lot of years. He didn't touch them. He just looked, and wondered, and tucked it away in the quiet place where he kept things. Then he followed Felix in.
+Felix built anyway — piling earth into a rough ramp with his hands and a stick, no plan for the landing side, working fast the way he always worked, sure that speed and belief would get him there.
 
-And they stood up on the other side, and they stopped talking, both of them, even Felix.
+*Whump.* The face of it slid sideways into a puddle of itself.
 
-The clearing was small, and quiet, and completely its own world. Three sides were old oak trees, huge and close, making walls. The fourth side was the bramble wall they'd just come through. The floor was deep soft leaves, springy under your wellies, on ground that sat up a little higher than the rest of the forest — dry ground, good ground. And the light came down through the leaves in long gold stripes that moved.
+He packed it back up. *Whump.* Down again.
 
-And along one side lay the fallen oak.
+Alex, meanwhile, went further down the line and started clearing a safe, sensible path through the undergrowth — dragging branches aside, testing the ground for roots, building nothing that jumped or flew, just a good, solid, boring trail that a bike could ride slowly and safely from one end to the other.
 
-It was *enormous.* Not a little fallen tree — a giant, lying on its side, as thick across as Felix was tall. It had been down so long that the bark had gone soft and the moss had covered it completely. Deep, deep green, thick as a carpet. It came up to Felix's chest. It came up to Alex's shoulders.
+Neither of them said much to the other for a while. Then Felix called out, "Come and see the jump," and Alex came and looked at it, and didn't say anything at all, which was worse than saying something.
 
-Alex put both hands flat on the moss and just held them there.
+"Well?" said Felix.
 
-"Don't pick it," said Felix, who didn't know why you shouldn't, but felt strongly that you shouldn't.
+"It's a heap of mud," said Alex.
 
-"I'm not," said Alex, who wouldn't have anyway.
+"It's a *ramp*."
 
-Felix turned slowly, taking it all in — the mossy giant, the oak walls, the gold light, the soft floor.
+"It's not shaped like a ramp. It'll crumble the second a wheel touches it. And even if it didn't — there's nothing on the other side. You'd land on your face."
 
-"This," he announced, "is the base. We're building a den. Right here, against the big tree. Today."
+"You never think it'll work," said Felix, louder now, the hot feeling rising fast. "You never think anything I imagine is real until you can already see it built. You never think about the *wow*, you only ever think about the *how*."
 
-Alex looked up. Above the oaks, the blue had gone a little thinner, a little whiter. The grey smudge from beyond the hill had grown.
+"Somebody has to," said Alex, quiet and stung, "or nothing you imagine ever stands up."
 
-"There's weather coming," said Alex. "Daddy said."
-
-Felix looked up too. And instead of worrying, his eyes lit up.
-
-"Then we build it *before* the rain," he said. "And it has to be good enough to keep the rain out. A proper den, that stands up, before the storm gets here." He grinned. "We can do it. It's easy. Lean branches on the tree, put ferns on top. Done."
-
-It was not, as it turned out, easy.
+That landed exactly as hard as it was meant to. Felix's mouth went tight. Alex's jaw went tight. And without either of them deciding to, they were suddenly not building together anymore — Felix stamping back to his crumbling ramp, Alex turning back to his careful, sensible trail, the whole clearing gone quiet and cross between them.
 
 ---
 
-Here is what Felix did.
+They built alone for a long time, in the kind of silence that has a shape to it.
 
-Felix found branches — good dead dry ones, all over the open floor — and leaned them against the fallen oak in a big hurry, one after another, *thunk thunk thunk,* building a wall of sticks as fast as he could, because in Felix's head the den was already finished and he was just catching up to it.
+Felix's ramp got taller, and messier, and no closer to being anything you could actually ride. There was a landing side he still hadn't touched, because in his head the landing had always simply *happened*, the way it happens in a story, and he didn't know how to make ground do what a story could do for free.
 
-Then he threw armfuls of fern on top for a roof.
+He sat back on his heels, hot-faced, and felt the cross feeling curdle into something worse — a small, sinking, is-this-actually-stupid feeling.
 
-Then he stood back to admire his brilliant finished den.
+Down the track, Alex's trail was, by any sensible measure, a complete success. It was clear. It was safe. You could ride the whole thing without falling off once.
 
-And the whole thing slid sideways and fell down. *Whump.*
+It was also, Alex had to admit, standing at the end of it, looking back along its careful boring length — not very interesting at all. Nobody would remember riding it. Nobody would tell anyone about it afterward. It held up. It just didn't matter.
 
-"Right," said Felix.
-
-He built it again. Faster. *Thunk thunk thunk,* fern on top, stand back—
-
-*Whump.*
-
-He built it a third time, and this time he wasn't saying anything at all, which for Felix was how you could tell he was getting upset. His face had gone red. His good idea wasn't working and he didn't know why, and the grey was climbing up the sky, and the den was just a heap of sticks on the ground.
-
-He felt the hot, cross feeling coming up in his chest — the one that used to make him shout, or kick something.
-
-But Felix knew that feeling now. He'd been learning what to do with it.
-
-"I need a minute," he said.
-
-He walked to the edge of the clearing, stood with his back to the sticks, and took a big breath in through his nose — the green smell — and let it out slow. And another. And another. The hot feeling got smaller. It didn't go all the way. But it got small enough.
-
-"Okay," said Felix, mostly to himself. "Okay."
-
-Then he came back.
-
-Alex had been quiet all this time. Not doing nothing — Alex was almost never doing nothing — but *watching.* Watching the sticks slide. Watching *where* they slid. And now that Felix was back and breathing normally, Alex crouched by the fallen heap and began, slowly, to do something with it.
-
-He didn't rush. That was the thing about Alex — he could stay with one small job a long, long time, turning it over, getting it right. He took two branches and leaned them against each other first, so they held each other up, like an upside-down V. Then he leaned the next branch into those. Then the next. Each stick holding the one before it, all of them leaning the same way, all their weight going *down* into the ground instead of sideways.
-
-It took ages. Felix watched, calm now, waiting.
-
-"Try one," said Alex, not looking up.
-
-Felix leaned a branch on, carefully this time, where Alex pointed. It stayed. He leaned another. Stayed. Another. Stayed.
-
-"It's staying," Felix whispered, as if being loud might knock it over. "Alex. *It's staying.*"
-
-Then they did the ferns together — and Alex showed him how to lay them overlapping, each one tucked under the one above, like tiles on a roof, so the gaps disappeared and the rain would run off instead of through. When they'd finished there was one small hole near the top where a coin of light shone in. Alex slid two more ferns under the thatch. The coin of light vanished.
-
-"Now it works," said Alex.
-
-Felix crawled inside. There was just room for both of them. It smelled of crushed fern and cool earth, and it held up over their heads and did not fall down.
-
-"It'll keep the rain out," said Felix, from inside, sounding enormously pleased.
-
-"Most of it," said Alex, crawling in beside him. "It's not a house. It only has to work most of the time."
+Alex looked at his good, solid, forgettable trail, and then looked back through the trees toward the terrible mud heap his brother was still hopelessly patting into shape, and felt, for the first time all morning, less angry and more like something was actually missing.
 
 ---
 
-They needed one last post to hold the door end, and that was when Felix found the thing.
+Neither of them said sorry, exactly. What happened was smaller than that, and better.
 
-He was scraping a little hole with a stick to wedge the post into, digging out the soft dark soil, when the stick went *clnk* on something that wasn't a stone.
+Felix, giving up on building the real thing for a minute, scooped a double handful of the same mud and pressed it into a tiny model instead. A little ramp, no bigger than his own two fists, patted flat on top. And this time, without really deciding to, he shaped a second little mound on the far side too — because a model was small enough, at last, to see the whole shape of it at once.
 
-He stopped. "There's something down here."
+He looked at what his hands had made. Then he ran to get Alex.
 
-He put the stick down and dug with his fingers instead, careful, scooping the cool soil away. Then he lifted it out and rubbed it clean with his thumb.
+"Look," he said. "Look, it needs a landing too — a proper one, not just grass — see, it goes up, and then down again, like this, so you don't just stop, you keep going."
 
-It sat in his palm. Small. *Heavy* — much heavier than it looked, heavier than a stone that size had any right to be. Hard and black, with a shine to it in places like dark glass, and little bubble-holes all over it, as though it had once been melted long ago and gone hard again.
+Alex crouched over the small wet model for a long moment. Something in his face changed.
 
-Felix had never seen anything like it. Neither had Alex. It wasn't a stone, and it wasn't glass, and it wasn't anything from a shop.
+"Why didn't you show me that first?"
 
-"What is it?" said Felix, quietly.
+"I didn't know how to say it. I only knew how to say the flying bit."
 
-Alex took it, turned it over, felt the weight. He didn't know. But he had a feeling — he couldn't have said why — that it was *old.* Not old like last year. Old like *before.*
+Alex turned the little model round in his fingers, seeing it now the way Felix had always seen it — not mud, but shape, not a heap, but a curve with a beginning and an end. And because he could finally see it, he knew exactly, precisely, how to build it.
 
-"I don't know," he said. "But I want to keep it."
+"I can make this stand," he said. "But it has to be smaller than what's in your head. And the landing goes here" — he pointed — "not there. And we pack it in layers, not all at once, or it slides."
 
-Felix pushed it deep in his pocket and pressed his hand flat over the outside to feel it was still there. It was. A small heavy secret.
-
----
-
-And then, far off, the first low grumble of thunder rolled over the hill.
-
-The light in the clearing had gone soft and grey. A cool wind moved the tops of the oaks. The storm was nearly here — but the den was built, and it was standing, and they'd done it in time.
-
-They sat for a moment on the moss of the fallen oak, side by side, looking at what they'd made, while the wind grew and the first fat drops began to tick down through the leaves.
-
-And that was when Alex heard it.
-
-His radio was clipped to his chest, turned on, quiet. And in the soft hiss of it — the little sea-in-a-shell sound — there was something else. Under the hiss. Far away. So faint he had to go completely still to catch it.
-
-*Tock.*
-
-A pause.
-
-*Tock.*
-
-A pause.
-
-*Tock.*
-
-Slow. Steady. Like someone, a very long way off, hitting something hard, over and over, patient as anything. Not on the radio's channel — nobody was talking. Just *there,* in the quiet, under the rain, coming up out of the old ground and the old trees and the soft green moss.
-
-Alex went still. He held his breath. He listened with his whole body.
-
-*Tock.*
-
-Then nothing. Just the hiss. Just the rain.
-
-"You alright?" said Felix.
-
-Alex looked at him. He nearly said it — *I heard something, listen* — the words were right there. But then he thought, the way you sometimes just know a thing, that he wanted to keep this one for himself a little while first. Not to hide it. Just to hold it, quietly, and turn it over, like the heavy black stone in Felix's pocket. He'd tell him. Just not yet.
-
-"Yeah," said Alex. "Come on. Rain's here. Time to go."
-
-They crawled out through the gap — Felix's hood catching again — and ran home through the warm summer rain, laughing, wellies slapping the path, as the sky opened up behind them and the storm came down on a forest that had a brand-new den in it, holding.
+"Then let's build it," said Felix. "Both bits. Together."
 
 ---
 
-They dripped in through the back door, soaked and glad, with leaves in their hair and mud on both knees and a small heavy secret in Felix's pocket.
+It took the rest of the morning, and it was, this time, actually building — Alex packing the mud in thin layers, tamping each one flat with the back of a spade before adding the next, exactly the way he'd learned to lean the den's first sticks so their weight went down instead of sideways. Felix fetched water to firm the mud when it crumbled, and moved stones into the base to give it bones, and kept saying "there — like that — yes" every time Alex's hands turned his impossible picture into an actual, standing thing.
 
-Mummy was home, music playing in the kitchen, and she took one look at the two of them and laughed and got towels.
+By midday there was a proper ramp — low, sturdy, sloped to launch gently rather than fling — and a proper landing on the far side, packed and firm, exactly where the little mud model had shown it needed to be.
 
-At the shelf, Alex clicked his radio off and put it straight on the charger. The little light blinked red — *filling up* — ready for next time.
+"Radio Daddy first," said Alex, before either of them so much as looked at a bike. "Get him to check it's actually safe before anyone rides it."
 
-Felix put his on the shelf. *Near* the charger.
+Daddy came off the enduro at a jog, walked the ramp end to end, pressed his weight into the face of it, checked the landing wasn't hiding a root or a stone under the packed earth. "Good bones," he said, at last. "Low and slow first time, both of you, and full gear." He didn't touch a single handful of mud himself — it was theirs, built and checked, not his to finish.
 
-Alex looked at it. Felix looked at Alex. Then Felix picked it up again and plugged it in properly, and the light went red, and neither of them said anything, which was its own kind of victory.
+Alex rode it first, slow, testing, helmet on, and came off the lip and touched down clean, and didn't say anything, just turned the bike round to do it again.
 
-They flopped on the sofa, warm and tired, and told the whole thing — both at once, tumbling over each other. Felix told the big bits: the secret gap that was nearly closed, and building the den, and *racing the storm.* Alex told the true bits: how you lean the branches so they hold each other up, and the little hollow in the gatepost oak with the acorn and the three stones that somebody had left a long, long time ago.
+"Told you," said Felix, grinning enormously.
 
-And Felix took out the heavy black stone and put it on the windowsill, in the light, to keep it safe.
+"You didn't tell me," said Alex. "You showed me. Once you showed me, I could build it."
 
-Daddy came in from the bike, rain running off his gear, and saw it there. He picked it up and weighed it in his hand, and looked at it a moment longer than you'd look at an ordinary stone.
+"Same thing."
 
-"Where'd you find this?"
+"Not the same thing," said Alex, but he was smiling too, in the small way he smiled, which was worth more than a big one.
 
-"In the ground. By the big fallen tree. Is it okay to keep?"
+---
 
-"Let's have a proper look." Daddy turned it over, checked it wasn't sharp, checked it wasn't anything it shouldn't be. "Always show me what you dig up, alright? But this — this you can keep. This is a good one." He handed it back. "That forest's been the forest a very, very long time, you know."
+They'd nearly forgotten the rest of the track existed, and they went back along it together now, properly, finishing it side by side — Felix seeing the next bend before it was cleared, Alex clearing it exactly right once he could see it. By the old fallen oak they cleared a proper approach, wide enough to wheel a bike through without snagging on brambles, and stood two fat branches upright either side of the den's new door to lean bikes against, so the den had somewhere for wheels to rest as well as boys.
 
-Felix didn't really hear him. Felix was already deep in plans for next Saturday.
+Digging out one last root in the new approach, Alex's spade struck something that wasn't wood or stone. He worked it free — a curl of old iron, bent into a shape neither of them could name, pitted and dark, heavier than it looked.
 
-But Alex heard him. Alex was looking out at the window, at the rain on the glass and the grey trees on the hill, thinking about a slow far-off sound in the quiet of a radio, and a stone that was heavier than it should be, and a feeling he didn't have a word for yet.
+"Another one," said Felix.
 
-*Tock,* he thought. *Tock. Tock.*
+"For the shelf," said Alex, and pocketed it carefully, the way you pocket something that matters.
 
-Then the storm drummed on the roof, and their den stood dry in the forest in the rain, and it was a very good end to the first proper Saturday of the summer holidays.
+---
+
+They heard the bikes before they saw them — a smaller buzz, higher-pitched, a little uncertain in its throttle, and behind it the enduro they already knew, back again after another loop of the forest. Isla came round the bend on her own bike, bright and new-looking, wobbling slightly on the looser ground, with Pete riding steady behind her and Dad alongside.
+
+"We heard there was a track now," said Pete.
+
+Isla stopped, planted both feet, and looked down the freshly cleared line with the particular hunger of someone who is still learning and wants, badly, to be good at the thing already. Her bike was a proper one, a real beginner's electric bike, but she still rode it like she was borrowing it from someone braver — and more than once she'd said, out loud, that she wished she had one like Alex's, small and quick and entirely his own.
+
+"Is it hard?" she asked.
+
+"Some of it," said Alex. He looked at the ramp, then at Isla's bike, then, unexpectedly, walked the gentle bypass line beside the jump that they'd cleared without really planning to, the safe route round the mound rather than over it. "That bit's easy. Start there."
+
+Isla took the gentle line first, slow and careful, and made it, and her whole face opened up with the specific joy of a thing that had, for once, gone exactly right. Alex rode alongside her the second time, not showing off, not going ahead — just alongside, matching her pace, the way he almost never rode with anyone.
+
+"You could try the jump next time," he said. "When you want to."
+
+"You'd help?"
+
+"Yeah," said Alex, which from Alex was an enormous amount of words for what it meant.
+
+Felix stood at the top of the ramp and watched all of it — Isla wobbling and laughing, Alex riding steady beside her, Pete and Dad taking the bigger line on their enduros further down, the whole track alive with people who weren't there this morning, on a thing that hadn't existed this morning either — and felt a kind of proud that had nothing to do with riding anything himself, because he never would, and had never minded that he wouldn't.
+
+*I built the thing that's making everyone happy,* he thought.
+
+---
+
+They walked home in the last of the gold light, tired in the good way, Alex's OSET ticking as it cooled, Isla's bike wheeled between her and Pete, the whole day settling into the kind of story that gets told twice — once excited, once quiet and true.
+
+At the shelf, Felix set down nothing new of his own, because his part of today wasn't a thing you could put on a windowsill. Alex put the curl of old iron down instead, next to the two black stones and the feather, and looked at it a moment before stepping back.
+
+"We couldn't have built it without both of us," Felix said, on the sofa later, tumbling the day out the way they always did. "I couldn't see how. Alex could."
+
+"I couldn't see *what* to build," said Alex, "until Felix showed me. Then I knew exactly how."
+
+The radios went on the charger — four little lights, same as always, because Isla and Pete had ridden home with Dad, close enough that nobody needed a fifth — glowing red in a row, filling up for whatever came next.
 
 *The End.*

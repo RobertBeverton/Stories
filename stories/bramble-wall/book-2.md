@@ -1,274 +1,175 @@
 ---
-title: "Deeper Into the Brambles"
+title: "The Treasure That Was Already There"
 series: "The Bramble Wall"
 seriesOrder: 2
-description: "Felix and Alex venture deeper into the bramble maze, discovering ancient pathways and mysterious markings carved into the thorny walls."
-tags: ["adventure", "forest", "mystery", "exploration", "siblings"]
+description: "Felix has promised his cousins treasure in the forest — and Alex quietly means to help him keep it, even after the day takes an unexpected turn."
+tags: ["adventure", "forest", "brothers", "cousins", "radio", "safety"]
 audio: "book-2.mp3"
-audioDuration: 1221
 publishDate: 2026-07-08
 draft: false
 ---
 
 # The Bramble Wall
-## Book One — The Gap in the Bramble Wall
+## Book Two — The Treasure That Was Already There
 
-It was the first proper Saturday of the summer holidays, and Felix was already at the back door with one welly on, hopping.
+It was the hottest Saturday of the summer so far, and Felix had a problem, and the problem was his own mouth.
 
-"We're going to the forest," he told Alex. "Properly in. Not just the edge. Today."
+"There's treasure," he'd told his cousins, on the phone, three whole days ago. "Loads of it. In our forest. We know exactly where."
 
-Alex was by the shelf near the door, checking his radio, the way he always did before the forest. There were four radios in a row on the charger — one for Mummy, one for Daddy, one for Felix, one for Alex. Each person had their own. Each person looked after their own. That was the rule.
+Now Elfine and Marion were standing at the back gate with sun hats and empty rucksacks, seven years old and buzzing, and Felix was realising that "loads of it" was a much bigger promise than he actually had a plan for.
 
-Alex picked his up. The little light on top glowed green. *Full. Ready.* He clicked it on and it gave a soft, friendly hiss, like the sea in a shell.
+"Where's the treasure, then?" said Elfine, who was the taller cousin and asked things straight out.
 
-"Mine's charged," said Alex.
+"In the forest," said Felix. "Obviously."
 
-Felix grabbed his and clicked it on. It went *bip* — and the light glowed a sad sort of orange.
+"But where *in* the forest?"
 
-"Mine's a bit charged," said Felix.
+"That," said Felix, "is the exciting part."
 
-"You didn't put it on last night."
+Alex, checking his radio at the shelf the way he always did, didn't say anything. But he'd heard the phone call three days ago too, and he'd been quietly thinking about it ever since. Felix had made a promise he couldn't keep on his own. So Alex had decided, without saying so to anyone, that he was going to help keep it anyway.
 
-"I put it *near* the charger."
+There were four radios today instead of two — Mummy had dug the spare pair out of the drawer, and now Felix and Elfine had one, and Alex and Marion had the other.
 
-"Near isn't on," said Alex, which was true, and which Felix decided not to argue with, because there wasn't really a way to.
-
-Daddy came through in his espresso-drinking, not-in-any-hurry sort of way, mug in hand, and looked at the two of them.
-
-"Forest?" he said.
-
-"Forest," said Felix. "Both of us. You too — but not *with* us."
-
-"That's the arrangement." Daddy took a sip. "I'll be out on the bike. Shout or radio if you need me." He nodded at the radios. "And remember the red button on top. That one's not for chatting. That's the emergency button. You press that, and *everyone's* radio shouts, all at once, so we come running. Then you tell us where you are. Only for a real emergency, though. Not for finding a good stick."
-
-"We know," said Felix.
-
-"Say the rule."
+"You know the rule," said Mummy, tying her foraging bag on, sun cream shiny on her nose.
 
 "We always go together," said Felix.
 
 "We always have someone on the radio," said Alex.
 
-"Good." Daddy glanced out of the window, at the sky over the trees. It was blue — but far off, past the hill, there was a low grey line, like a smudge someone had left there. "There's weather coming later. Keep an eye on it. If it starts, you come home."
+"Good. I'll be along the old hollow way, looking for chicken-of-the-woods — I'll have my radio on, but I'm not *with* you, so mind the little ones and mind yourselves." She looked at Marion and Elfine. "Do everything the boys say about the forest. They know it."
 
-Felix wasn't really listening. Felix had already got his other welly on and was halfway out the door.
-
----
-
-The path started right outside the front gate.
-
-That was the brilliant thing about where they lived. You didn't have to *get* to the forest. You walked out of your own gate, onto the footpath, and there it was — a great dark-green wall of trees, getting closer with every step. It only took a few minutes. Less time than cleaning your teeth, and much more fun.
-
-Then the trees came up and over them, and the sunshine broke into pieces on the ground, and the sound went quiet-and-big at the same time, the way it does under a lot of leaves. And it was, exactly and completely, a whole new world.
-
-It was a good forest for two boys. Not a tangly, lost sort of forest — the trees stood apart, with room to walk between them, room to run. The ground was open and bare underfoot, because in the winter this whole wood filled up with water for months and months, and by summer the leaves overhead drank up all the light, so not much grew down low. You could see a long way between the trunks. Somewhere off to the left, faint, Felix could hear the *buzz* of Daddy's bike, moving through the far trees.
-
-Felix took a big breath in through his nose. "It smells green," he said.
-
-It did. Bark and earth and cool growing things.
-
-Alex didn't say anything. He was looking — at the way the light came down in long stripes, at a bird he could hear but not see.
+"We know it," Felix agreed, with enormous confidence, given that he did not currently know where the treasure was.
 
 ---
 
-They found the wall about ten minutes in.
+Through the gate, up the footpath, and the trees closed over, and the sound went quiet-and-big, and it was a whole new world, same as always — except today there were four of them tramping through it instead of two, and the cousins kept stopping to look at everything.
 
-Not a proper wall. A wall of *brambles* — a huge, thorny, tangled heap of them, taller than Daddy, running along under a stand of old oaks. Old, and thick, and woven together like somebody had done it on purpose.
+"Is *that* the treasure?" said Marion, pointing at a stick.
 
-"Ow," said Felix, who had walked into it.
+"No," said Felix.
 
-"I was going to say," said Alex.
+"Is *that*?" A leaf.
 
-But Felix had gone still now, which for Felix was rare. He was staring at the very bottom of the bramble wall, where a big oak root pushed up out of the ground. Down low, in the dark, there was a gap. Small, and just about big enough to crawl through. And through it, on the other side, Felix could see *green.* Open green. Another place, hidden away.
+"No."
 
-"There's something back there," he breathed.
+Alex, walking a little behind, caught Felix's eye. Felix's face had gone the particular shade of pink it went when a good idea was starting to feel like a less good idea.
 
-Alex got down flat on the ground, no fuss, and put his eye to the gap. He was quiet a moment.
-
-"It's a clearing," he said. "A little one. Hidden. There's a huge fallen tree, all covered in moss." He looked closer. "The gap's nearly grown over, though. The brambles are creeping across it. Another summer and it'll close right up."
-
-Felix's whole face changed.
-
-"Then it has to be today," he said. "We go in *today*, and we make it ours, before it closes and we can't ever find the way back. Come on."
+"We'll find it near the fallen oak," Felix announced, because that was where all their best things had ever come from, and it seemed as good a place as any to start being right about something.
 
 ---
 
-They went through one at a time, flat on their tummies, elbows doing the work.
+The first attempt was a rusty old drink can, half-buried, which Elfine dug out with a stick and held up like a trophy before everyone saw what it actually was.
 
-Felix went first and got his hood caught on a thorn and said "ow" and then "I'm fine" and then he was through. Just inside the gap, on the old oak that stood beside it like a gatepost, Alex — going second, slower — noticed a hollow. A little dry hole where a branch had come away long ago. He stopped and looked in, the way Alex looked into things, and saw it wasn't empty. An acorn. Three small smooth stones in a row. A scrap of bark, folded once, soft with age. Somebody had put them there — not this year, maybe not for a lot of years. He didn't touch them. He just looked, and wondered, and tucked it away in the quiet place where he kept things. Then he followed Felix in.
+"That's rubbish," said Marion.
 
-And they stood up on the other side, and they stopped talking, both of them, even Felix.
+"It's *old* rubbish," said Felix, weakly, and picked a new patch of ground on the strength of nothing at all — darker earth, a bit of a dip, it *looked* promising — and got all four of them digging with sticks and hands for ten hot minutes, for nothing but more dark earth and one confused worm.
 
-The clearing was small, and quiet, and completely its own world. Three sides were old oak trees, huge and close, making walls. The fourth side was the bramble wall they'd just come through. The floor was deep soft leaves, springy under your wellies, on ground that sat up a little higher than the rest of the forest — dry ground, good ground. And the light came down through the leaves in long gold stripes that moved.
+"Sorry, worm," said Marion, putting it back.
 
-And along one side lay the fallen oak.
+Felix sat back on his heels, red in the face, sweat on his forehead, and the good feeling from three days ago — the big exciting phone-call feeling — had gone completely and been replaced by a hot, prickling, gone-wrong feeling that made him want to shout at somebody, even though nobody had done anything.
 
-It was *enormous.* Not a little fallen tree — a giant, lying on its side, as thick across as Felix was tall. It had been down so long that the bark had gone soft and the moss had covered it completely. Deep, deep green, thick as a carpet. It came up to Felix's chest. It came up to Alex's shoulders.
+"I need a minute," he said, and walked off toward the shade of the bramble wall, and stood there breathing, the way he'd learned to.
 
-Alex put both hands flat on the moss and just held them there.
+While he did that, Alex crouched down where Felix had been digging and looked — properly looked, the way he looked at everything — not at the ground this time, but *around* it. At the shape of the clearing. At where the light fell. At the old fallen oak, mossy and enormous, that had given up the black stone last time without anybody having to guess.
 
-"Don't pick it," said Felix, who didn't know why you shouldn't, but felt strongly that you shouldn't.
-
-"I'm not," said Alex, who wouldn't have anyway.
-
-Felix turned slowly, taking it all in — the mossy giant, the oak walls, the gold light, the soft floor.
-
-"This," he announced, "is the base. We're building a den. Right here, against the big tree. Today."
-
-Alex looked up. Above the oaks, the blue had gone a little thinner, a little whiter. The grey smudge from beyond the hill had grown.
-
-"There's weather coming," said Alex. "Daddy said."
-
-Felix looked up too. And instead of worrying, his eyes lit up.
-
-"Then we build it *before* the rain," he said. "And it has to be good enough to keep the rain out. A proper den, that stands up, before the storm gets here." He grinned. "We can do it. It's easy. Lean branches on the tree, put ferns on top. Done."
-
-It was not, as it turned out, easy.
+"It's not about digging just anywhere," Alex said, when Felix came back, calmer. "It's about digging where the forest's already telling you to look."
 
 ---
 
-Here is what Felix did.
+So they did the looking game instead — Alex's kind, the quiet kind, the kind the boys had invented for themselves without ever writing it down. *Read the signs a place leaves.* Elfine and Marion picked it up fast, once someone showed them: crouch low, go slow, watch where the ground looks different, where something old might be waiting to be noticed rather than dug for.
 
-Felix found branches — good dead dry ones, all over the open floor — and leaned them against the fallen oak in a big hurry, one after another, *thunk thunk thunk,* building a wall of sticks as fast as he could, because in Felix's head the den was already finished and he was just catching up to it.
+And the forest, once they stopped attacking it and started looking at it, turned out to be full of things.
 
-Then he threw armfuls of fern on top for a roof.
+Marion found a stone with a hole clean through it, smooth as if a river had worked at it for a hundred years. Elfine found a curl of rusted iron, twisted like a snail shell, half-sunk in the black earth near an old scorched patch of ground. Felix found a feather, glossy dark blue-green, from some bird none of them could name. Alex, going still the way he did, found a lump of something black and glassy and bubble-holed, smaller than the first one but unmistakably its cousin.
 
-Then he stood back to admire his brilliant finished den.
+"Is *this* the treasure?" said Marion, holding up her holed stone, and this time nobody said no.
 
-And the whole thing slid sideways and fell down. *Whump.*
-
-"Right," said Felix.
-
-He built it again. Faster. *Thunk thunk thunk,* fern on top, stand back—
-
-*Whump.*
-
-He built it a third time, and this time he wasn't saying anything at all, which for Felix was how you could tell he was getting upset. His face had gone red. His good idea wasn't working and he didn't know why, and the grey was climbing up the sky, and the den was just a heap of sticks on the ground.
-
-He felt the hot, cross feeling coming up in his chest — the one that used to make him shout, or kick something.
-
-But Felix knew that feeling now. He'd been learning what to do with it.
-
-"I need a minute," he said.
-
-He walked to the edge of the clearing, stood with his back to the sticks, and took a big breath in through his nose — the green smell — and let it out slow. And another. And another. The hot feeling got smaller. It didn't go all the way. But it got small enough.
-
-"Okay," said Felix, mostly to himself. "Okay."
-
-Then he came back.
-
-Alex had been quiet all this time. Not doing nothing — Alex was almost never doing nothing — but *watching.* Watching the sticks slide. Watching *where* they slid. And now that Felix was back and breathing normally, Alex crouched by the fallen heap and began, slowly, to do something with it.
-
-He didn't rush. That was the thing about Alex — he could stay with one small job a long, long time, turning it over, getting it right. He took two branches and leaned them against each other first, so they held each other up, like an upside-down V. Then he leaned the next branch into those. Then the next. Each stick holding the one before it, all of them leaning the same way, all their weight going *down* into the ground instead of sideways.
-
-It took ages. Felix watched, calm now, waiting.
-
-"Try one," said Alex, not looking up.
-
-Felix leaned a branch on, carefully this time, where Alex pointed. It stayed. He leaned another. Stayed. Another. Stayed.
-
-"It's staying," Felix whispered, as if being loud might knock it over. "Alex. *It's staying.*"
-
-Then they did the ferns together — and Alex showed him how to lay them overlapping, each one tucked under the one above, like tiles on a roof, so the gaps disappeared and the rain would run off instead of through. When they'd finished there was one small hole near the top where a coin of light shone in. Alex slid two more ferns under the thatch. The coin of light vanished.
-
-"Now it works," said Alex.
-
-Felix crawled inside. There was just room for both of them. It smelled of crushed fern and cool earth, and it held up over their heads and did not fall down.
-
-"It'll keep the rain out," said Felix, from inside, sounding enormously pleased.
-
-"Most of it," said Alex, crawling in beside him. "It's not a house. It only has to work most of the time."
+"Yeah," said Felix, and something in his chest un-knotted. "Yeah. That's it. That's all of it."
 
 ---
 
-They needed one last post to hold the door end, and that was when Felix found the thing.
+They were crossing back toward the fallen oak, treasure-heavy and happy, when it happened.
 
-He was scraping a little hole with a stick to wedge the post into, digging out the soft dark soil, when the stick went *clnk* on something that wasn't a stone.
+Marion, showing off a bit, hopped up onto a big rolled log to walk along the top of it like a balance beam — and her welly slid into the gap where the log met a root, and wedged there, snug as anything, and she sat down with a bump, one foot stuck fast.
 
-He stopped. "There's something down here."
+"I can't get it out," said Marion, and her voice had gone small and a bit frightened, though she wasn't hurt — just properly, thoroughly stuck.
 
-He put the stick down and dug with his fingers instead, careful, scooping the cool soil away. Then he lifted it out and rubbed it clean with his thumb.
+Nobody had done anything wrong. It was just one of those things.
 
-It sat in his palm. Small. *Heavy* — much heavier than it looked, heavier than a stone that size had any right to be. Hard and black, with a shine to it in places like dark glass, and little bubble-holes all over it, as though it had once been melted long ago and gone hard again.
+Elfine grabbed at the welly and pulled, and it didn't move, and Marion said "ow, not like that," and for one second everybody just stood there not knowing what to do.
 
-Felix had never seen anything like it. Neither had Alex. It wasn't a stone, and it wasn't glass, and it wasn't anything from a shop.
+Then Alex, who was on the radio pair with Marion, unclipped his radio from his chest, and pressed the red button on top.
 
-"What is it?" said Felix, quietly.
+Every other radio in the forest screamed at once — a loud, urgent, unmissable tone, cutting straight through the birdsong and the heat.
 
-Alex took it, turned it over, felt the weight. He didn't know. But he had a feeling — he couldn't have said why — that it was *old.* Not old like last year. Old like *before.*
+Far off, Mummy's whole body went cold for exactly one second. Then she was moving, running, radio in hand.
 
-"I don't know," he said. "But I want to keep it."
+Alex pressed the talk button next, calm, the way Daddy had shown him. "Mummy. It's Alex. Marion's stuck, not hurt, her welly's wedged under the big rolled log. We're at the fallen oak clearing. Over."
 
-Felix pushed it deep in his pocket and pressed his hand flat over the outside to feel it was still there. It was. A small heavy secret.
+A crackle. A pause. Long enough for a held breath.
 
----
+"Coming now," Mummy's voice came back. "Keep her calm. Over."
 
-And then, far off, the first low grumble of thunder rolled over the hill.
+Felix knelt down next to Marion, and for once he didn't have a big plan or a big idea — he just held her hand and said, "You're okay. Mummy's coming. It's not your fault, it just got stuck," which was, it turned out, exactly the right thing to say, in exactly the right amount of words.
 
-The light in the clearing had gone soft and grey. A cool wind moved the tops of the oaks. The storm was nearly here — but the den was built, and it was standing, and they'd done it in time.
+Elfine, quieter now, stopped pulling and just sat with them, and somewhere in the trees they heard the *buzz* getting louder — not just Mummy running, but Daddy too, off his enduro and moving fast, radio crackling on his hip, because his had shouted the same as everyone else's.
 
-They sat for a moment on the moss of the fallen oak, side by side, looking at what they'd made, while the wind grew and the first fat drops began to tick down through the leaves.
+It took both grown-ups, in the end. Daddy eased the log with his boot. Mummy worked the welly gently, side to side. No more than a minute, probably, though it felt like a lot longer to Marion.
 
-And that was when Alex heard it.
+Then the welly came free with a wet *schlorp*, and Marion's foot was fine, and Marion herself burst into the kind of tears that are mostly relief.
 
-His radio was clipped to his chest, turned on, quiet. And in the soft hiss of it — the little sea-in-a-shell sound — there was something else. Under the hiss. Far away. So faint he had to go completely still to catch it.
+"Well done," said Daddy, looking round at all four of them, "pressing that button. That's exactly what it's for." He looked at Alex. "And you said where you were. That's the whole trick, and you got it right."
 
-*Tock.*
+"We know the rule," said Felix, a little shakily, and for once didn't need to say anything bigger than that.
 
-A pause.
+Marion wiped her face and, a moment later, grinned, because being rescued in under a minute by your own family, with your cousins right there holding your hand, is actually a pretty good story to have.
 
-*Tock.*
+"I knew what to press," she said. "I just couldn't reach it myself."
 
-A pause.
-
-*Tock.*
-
-Slow. Steady. Like someone, a very long way off, hitting something hard, over and over, patient as anything. Not on the radio's channel — nobody was talking. Just *there,* in the quiet, under the rain, coming up out of the old ground and the old trees and the soft green moss.
-
-Alex went still. He held his breath. He listened with his whole body.
-
-*Tock.*
-
-Then nothing. Just the hiss. Just the rain.
-
-"You alright?" said Felix.
-
-Alex looked at him. He nearly said it — *I heard something, listen* — the words were right there. But then he thought, the way you sometimes just know a thing, that he wanted to keep this one for himself a little while first. Not to hide it. Just to hold it, quietly, and turn it over, like the heavy black stone in Felix's pocket. He'd tell him. Just not yet.
-
-"Yeah," said Alex. "Come on. Rain's here. Time to go."
-
-They crawled out through the gap — Felix's hood catching again — and ran home through the warm summer rain, laughing, wellies slapping the path, as the sky opened up behind them and the storm came down on a forest that had a brand-new den in it, holding.
+"That's what the four of us are for," said Elfine.
 
 ---
 
-They dripped in through the back door, soaked and glad, with leaves in their hair and mud on both knees and a small heavy secret in Felix's pocket.
+Mummy checked Marion over properly, decided she was fine — just a fright and a wet sock — and, once it was clear nobody needed anything more, drifted back off toward her foraging patch, and Daddy back to his bike, because the rule still held: the grown-ups had come when it mattered, and now the forest belonged to the four of them again.
 
-Mummy was home, music playing in the kitchen, and she took one look at the two of them and laughed and got towels.
+They went back to the den to cool off in the shade of it, and Marion, still a bit shaky, ducked inside first — and stopped.
 
-At the shelf, Alex clicked his radio off and put it straight on the charger. The little light blinked red — *filling up* — ready for next time.
+"It hasn't got a door," she said. "Bugs could just walk in."
 
-Felix put his on the shelf. *Near* the charger.
+"It's never needed one," said Felix, "but it could have one," which was as close as Felix ever came to admitting a good idea wasn't originally his. Elfine wove a flap out of springy hazel and bracken while Alex held it in place and worked out the hinge — two loops of bark-strip, twisted till they held — and by the time they'd finished, the den had a door that swung, properly, and kept the bugs and the wind out.
 
-Alex looked at it. Felix looked at Alex. Then Felix picked it up again and plugged it in properly, and the light went red, and neither of them said anything, which was its own kind of victory.
+Inside, Alex found a flat stone, wide as a dinner plate, and wedged it level on two smaller stones against the back wall, so it sat like a little shelf, low enough for four kids to reach.
 
-They flopped on the sofa, warm and tired, and told the whole thing — both at once, tumbling over each other. Felix told the big bits: the secret gap that was nearly closed, and building the den, and *racing the storm.* Alex told the true bits: how you lean the branches so they hold each other up, and the little hollow in the gatepost oak with the acorn and the three stones that somebody had left a long, long time ago.
+"For treasure," he said. "The finding-here kind. Not the cache — that stays secret. This is just for looking at."
 
-And Felix took out the heavy black stone and put it on the windowsill, in the light, to keep it safe.
+They laid the day's finds out on it for a moment, admiring, before deciding, one by one, what would go in the tin and what would come home.
 
-Daddy came in from the bike, rain running off his gear, and saw it there. He picked it up and weighed it in his hand, and looked at it a moment longer than you'd look at an ordinary stone.
+"We should keep the rest," Felix said, once the shelf-moment was over. "Not take it all home. Keep it *here*. Our own hidden bit, just for us."
 
-"Where'd you find this?"
+Alex was already moving, without needing to be told, scouting the base of the fallen oak for a gap in the roots deep enough to hide something in. He found one, a dry dark pocket under an old knee of root, and Felix produced — from deep in his rucksack, where it had apparently been the whole time, unused — an old biscuit tin with a picture of a Scottish castle on the lid, slightly dented, smelling of ginger nuts.
 
-"In the ground. By the big fallen tree. Is it okay to keep?"
+"I brought this in case we needed somewhere to put the treasure," Felix admitted. "I just didn't know we'd need it for *this* kind of treasure."
 
-"Let's have a proper look." Daddy turned it over, checked it wasn't sharp, checked it wasn't anything it shouldn't be. "Always show me what you dig up, alright? But this — this you can keep. This is a good one." He handed it back. "That forest's been the forest a very, very long time, you know."
+They put it all in together — Marion's holed stone, Elfine's curled iron, Felix's feather. Alex kept his black lump back for the windowsill; some things went home, and some things stayed. Then they wedged the tin into the dry gap under the root and covered it with moss, so it looked, to anyone else, like nothing at all.
 
-Felix didn't really hear him. Felix was already deep in plans for next Saturday.
+"It's ours," said Marion. "All four of us."
 
-But Alex heard him. Alex was looking out at the window, at the rain on the glass and the grey trees on the hill, thinking about a slow far-off sound in the quiet of a radio, and a stone that was heavier than it should be, and a feeling he didn't have a word for yet.
+"Next time we come," said Elfine, "we add to it."
 
-*Tock,* he thought. *Tock. Tock.*
+---
 
-Then the storm drummed on the roof, and their den stood dry in the forest in the rain, and it was a very good end to the first proper Saturday of the summer holidays.
+They walked home slow and sun-tired, treasure-light now, radios clipped on, the forest going gold behind them in the late afternoon. Marion, walking next to Felix, looked over at him.
+
+"You said there was treasure," she said. "I didn't believe you, a bit. But there really was."
+
+"It just wasn't where I thought it'd be," said Felix.
+
+"It was better," said Marion. "It was *ours*."
+
+At home, on the shelf, Felix set down the feather — glossy, useless, not worth anything to anybody except the four of them, who knew exactly what it had cost to find it — and Alex put his little black lump beside the first, so there were two now, side by side in the light.
+
+The radios went on the charger in a row, four little lights, all glowing red, filling up for next time.
+
+And in the forest, under the moss, in a dented tin that used to hold biscuits, a small collection of nothing-much sat waiting to become something — the start of a treasure that was theirs before anyone else ever got the chance to find it.
 
 *The End.*

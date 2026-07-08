@@ -7,8 +7,8 @@
 | Book | Title | Status |
 |---|---|---|
 | 1 | The Gap in the Bramble Wall | ☑ locked · 🔊 v2 narration script ready |
-| 2 | The Treasure That Was Already There | ☐ |
-| 3 | The Track | ☐ |
+| 2 | The Treasure That Was Already There | ☑ locked · 🔊 v2 narration script ready |
+| 3 | The Track | ☑ locked · 🔊 v2 narration script ready |
 | 4 | The Cold Quiet | ☐ |
 | 5 | More Under Than Over | ☐ |
 
@@ -20,8 +20,8 @@
 | After Book | Den state |
 |---|---|
 | 1 | Lean-to against the fallen oak; fern-thatch roof (overlapped like tiles); barely stands but holds; "mostly works." Built racing the first storm — proven to hold in rain. |
-| 2 | + door/entrance flap; + inner flat-stone treasure shelf *(planned)* |
-| 3 | + cleared track approach; + bike-stand / place to leave bikes; den = destination on a route *(planned)* |
+| 2 | + door/entrance flap (hazel-and-bracken flap, bark-strip hinge); + inner flat-stone treasure shelf (for finds to admire, distinct from the buried cache) ✅ |
+| 3 | + cleared track approach (wide enough to wheel a bike through); + bike-stand (two branches upright by the door, for leaning bikes); den = destination on a route ✅ |
 | 4 | + winter/flood-proofing: dry raised corner, windbreak; proven to shelter and stay dry *(planned)* |
 | 5 | Complete; no new structure — a full, real place *(planned)* |
 
@@ -31,8 +31,8 @@
 | After Book | Added |
 |---|---|
 | 1 | The heavy black stone (slag) — the first and most important. |
-| 2 | A "fool's treasure" / feather, kept because the finding mattered *(planned)* |
-| 3 | A track-clearing find (holed stone / horseshoe / worked wood) *(planned)* |
+| 2 | A "fool's treasure" — a glossy feather, kept because the finding mattered — plus a second black glassy stone (smaller, Alex's find); two black stones now on the shelf, side by side ✅ |
+| 3 | A track-clearing find — a curl of old worked iron, dug up clearing the den's new approach ✅ |
 | 4 | A winter/flood thing (bird skull / pine cone / stream stone) *(planned)* |
 | 5 | The *kept* black stone returns to centre (one of the two); shelf full *(planned)* |
 
@@ -52,8 +52,8 @@
 | Book | Guest | In-forest parent |
 |---|---|---|
 | 1 | none | Dad (enduro) ✅ |
-| 2 | cousins Elfine & Marion (7) | Mum (foraging — shared a little) *(planned)* |
-| 3 | Isla & Pete (arrive near the end) | Dad (enduro — pairs with Pete) *(planned)* |
+| 2 | cousins Elfine & Marion (7) | Mum (foraging — shared a little) ✅ |
+| 3 | Isla & Pete (arrive near the end) | Dad (enduro — pairs with Pete) ✅ |
 | 4 | none | Mum or Dad (winter/flood — decide when writing) *(planned)* |
 | 5 | Dad invited in (earned exception) | Dad (out there, so he's invited) *(planned)* |
 
@@ -63,8 +63,8 @@
 | Book | Friction |
 |---|---|
 | 1 | none (soft want made harder by the storm clock) ✅ |
-| 2 | real stakes — emergency-button / stuck-child beat *(planned)* |
-| 3 | interpersonal — Felix–Alex clash, re-forged ("both halves fail alone") *(planned)* |
+| 2 | real stakes — emergency-button / stuck-child beat ✅ (Marion, welly wedged under a rolled log; nobody's fault, not damaging; Alex pressed-and-located; both parents came; nobody in trouble, kids proud) |
+| 3 | interpersonal — Felix–Alex clash, re-forged ("both halves fail alone") ✅ (Felix's ungrounded jump-vision vs. Alex's safe-but-boring trail; reforged when Felix builds a tiny mud model Alex can finally see and build from) |
 | 4 | external — the flood/winter; atmospheric, gentle *(planned)* |
 | 5 | none (warm close) |
 
@@ -74,8 +74,8 @@
 | Book | Beat |
 |---|---|
 | 1 | Forgets → remembers to plug in at the end. Emergency button PLANTED (unused). ✅ |
-| 2 | Remembers; **button USED** — pays off POSITIVELY (charged, works, both parents come). *(planned)* |
-| 3 | Background. *(planned)* |
+| 2 | Remembers; **button USED** — pays off POSITIVELY (charged, works, both parents come). ✅ |
+| 3 | Background — no incident, radios used normally (including to call Dad for the ramp safety check). ✅ |
 | 4 | Habit now; the torch earns its place; no dead-radio catastrophe. *(planned)* |
 | 5 | Charges without a thought — growth complete. *(planned)* |
 
@@ -84,15 +84,16 @@
 | Book | Beat |
 |---|---|
 | 1 | Planted (one line, unused): "red button = real emergency; everyone's radio shouts, then you say where you are." ✅ |
-| 2 | Used for real (stuck child); summon-then-locate; both parents come; nobody in trouble; kids proud. *(planned)* |
-| 3–5 | Known kit, referenced lightly; not re-triggered (don't cry wolf). |
+| 2 | Used for real (stuck child); summon-then-locate; both parents come; nobody in trouble; kids proud. ✅ |
+| 3 | Not triggered; radio used for an ordinary call (getting Dad to check the ramp before riding), not the emergency button. |
+| 4–5 | Known kit, referenced lightly; not re-triggered (don't cry wolf). |
 
 ---
 
 ## Planted seeds awaiting payoff (cross-book Tier-2/3 tracking)
 - **The hollow-with-offerings** (gatepost oak: acorn, three stones, folded bark) — planted Book 1 (Alex notices, doesn't touch). Payoff: **Book 5** give-back (leave one black stone).
 - **The *tock*** — planted Book 1; returns Book 4; resolved-into-belonging Book 5.
-- **The boys' own cache** (a hidden tin) — started Book 2; return in **Book 5**.
+- **The boys' own cache** (a hidden tin) — started Book 2 ✅ (an old biscuit tin, wedged in a dry root-gap under the fallen oak, covered with moss; holds Marion's holed stone, Elfine's curled iron, Felix's feather); return in **Book 5**.
 - **Held-then-given rhyme** (Tier 3) — Alex holds the tock (Book 1) → boys give back to the hollow (Book 5).
 - **Two black stones** — after Book 2 there are two on the shelf; Book 5 leaves one in the hollow, keeps one.
 
