@@ -1,3 +1,11 @@
+---
+title: "The Treasure That Was Already There"
+description: "Felix has promised his cousins treasure in the forest — and Alex quietly means to help him keep it, even after the day takes an unexpected turn."
+publishDate: 2026-07-07
+publishDate: 2026-07-08
+draft: false
+---
+
 The Bramble Wall. Book Two. The Treasure That Was Already There.
 
 It was the hottest Saturday of the summer so far, and Felix had a problem, and the problem was his own mouth.
