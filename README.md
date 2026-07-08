@@ -23,6 +23,10 @@ Built for reading (and listening) to bedtime stories on a phone or PC — pick a
 - **Tapping a card's Play button vs. its title** are two independent, non-nested click targets — an early version accidentally nested them, which browsers silently "fix" by breaking the DOM structure, so this was rebuilt and verified against the real rendered output rather than just the template source.
 - Content is validated on every PR (required frontmatter, duplicate slugs, matching audio files, repo size) before it's allowed to merge.
 
+## Writing workflow
+
+Story drafting, review, and canon/lore reference docs live under `docs/process/` and `reference/` — see [docs/process/README.md](docs/process/README.md) for the full index. These are working notes, never built into the site.
+
 ## Local development
 
 ```bash

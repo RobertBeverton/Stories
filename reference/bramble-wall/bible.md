@@ -1,8 +1,8 @@
 # The Bramble Wall — Series Bible (canonical)
  
-*The single source of truth for the Bramble Wall forest series. This supersedes and replaces the old `bramble-wall-series-bible.md` and the old `bramble-wall-series.md` draft — both retired. Merges the series frame, the 5-book slate, all ledgers, and every design decision to date.*
+*The single source of truth for the Bramble Wall forest series. Merges the series frame, the 5-book slate, all ledgers, and every design decision to date.*
  
-*Companion (wider universe, unchanged): `character-directory__1_.md` (see the patch note at the end of this file), `felix_alex_story_generation_guide.md`, `felix-alex-story-archive.md`. This series is the GROUNDED, no-magic counterweight to the magic/Trio-Force universe.*
+*Companion (wider universe, unchanged): `reference/shared-cannon/shared-canon-character-directory.md` (see the patch note at the end of this file), `reference/shared-cannon/shared-canon-generation-guide.md`, `reference/shared-cannon/felix-alex-story-archive.md`. This series is the GROUNDED, no-magic counterweight to the magic/Trio-Force universe.*
  
 ---
  
@@ -255,7 +255,7 @@ Same shape, beats, rhythm every book — comfort ritual AND re-engagement primer
 4. **Cousins beyond Book 2?** Leaning one-book; possible cameo in Book 5's whole-year retelling.
 ---
  
-## PART H — CANON PATCH NOTE for `character-directory__1_.md`
+## PART H — CANON PATCH NOTE for `reference/shared-cannon/shared-canon-character-directory.md`
 *(The wider-universe directory is kept, but two entries are stale for THIS series and should be updated so other stories don't reuse the old versions.)*
 - **Felix & Alex:** the directory's "Felix does / Alex notices" is the flat early model. Update to the **equal braid**: Felix = imagination/story engine; Alex = concentration+motor-skill/doing engine. "If Alex disappears for a page, something's wrong" still holds.
 - **Parents:** the directory's "Robert — dressing gown, makes tea / Magda — sings in the kitchen, Polish-born calm authority" is the old sitcom version. Update to: **Dad** — laid back, electric enduro rider, espresso, tech/DIY-handy, games with the boys, always in full bike safety gear. **Magda** — UI/UX designer, DJs/dances/exercises, health-conscious, forages. Both true-but-background.
