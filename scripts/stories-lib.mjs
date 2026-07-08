@@ -3,6 +3,7 @@ import path from "node:path";
 import fg from "fast-glob";
 import matter from "gray-matter";
 import { slugify } from "./slugify.mjs";
+import { accentColorFor } from "./accent-colors.mjs";
 
 // Parses one raw story file's frontmatter/content into the shape
 // computeStories() expects: { file, data, content }.
@@ -114,4 +115,41 @@ export function computeStories(rawStories) {
 
   stories.bySlug = bySlug;
   return stories;
+}
+
+// Groups the already-computed, non-draft story list (as returned by
+// computeStories()) into series sections and a standalone list, for the
+// library page. Pure function — no localStorage/DOM access, since the
+// "Continue" section (which DOES need localStorage) can only be computed
+// client-side; see site/assets/library.js.
+export function groupForLibrary(stories) {
+  const bySeries = new Map();
+  const standalone = [];
+  for (const story of stories) {
+    if (!story.series) {
+      standalone.push(story);
+      continue;
+    }
+    if (!bySeries.has(story.series)) bySeries.set(story.series, []);
+    bySeries.get(story.series).push(story);
+  }
+
+  const seriesGroups = Array.from(bySeries.entries()).map(([series, seriesStories]) => {
+    seriesStories.sort((a, b) => (a.seriesOrder ?? 0) - (b.seriesOrder ?? 0));
+    const earliestPublish = seriesStories.reduce(
+      (min, s) => Math.min(min, new Date(s.publishDate).getTime()),
+      Infinity
+    );
+    return {
+      series,
+      accentColor: accentColorFor(series),
+      stories: seriesStories,
+      _earliestPublish: earliestPublish,
+    };
+  });
+
+  seriesGroups.sort((a, b) => b._earliestPublish - a._earliestPublish);
+  for (const group of seriesGroups) delete group._earliestPublish;
+
+  return { seriesGroups, standalone };
 }

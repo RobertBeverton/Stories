@@ -5,7 +5,7 @@ seriesOrder: 1
 description: "Felix and Alex find a hidden gap in a bramble wall and race a summer storm to build a den before the rain arrives."
 tags: ["adventure", "forest", "brothers", "den", "storm", "radio"]
 audio: "book-1.mp3"
-audioDuration: 476
+audioDuration: 1221
 publishDate: 2026-07-07
 draft: false
 ---

@@ -1,17 +1,23 @@
 ---
 layout: base.njk
 ---
-<nav class="breadcrumb">
-  <a href="{{ '/' | url }}">← Library</a>
-  {% if series %} · {{ series }}{% endif %}
-</nav>
+<div class="story-header" style="--accent-bg: {{ accentColor.background }}; --accent-text: {{ accentColor.text }};">
+  <nav class="breadcrumb">
+    <a href="{{ '/' | url }}">← Library</a>
+    {% if series %} · {{ series }}{% endif %}
+  </nav>
 
-<h1>{{ title }}</h1>
-<p class="card-meta">~{{ readMinutes }} min read{% if audioMinutes %} · ~{{ audioMinutes }} min listen{% endif %}</p>
+  <h1>{{ title }}</h1>
+  {% if description %}<p class="story-description">{{ description }}</p>{% endif %}
+  <p class="card-meta">~{{ readMinutes }} min read{% if audioMinutes %} · ~{{ audioMinutes }} min listen{% endif %}</p>
+</div>
 
 {% if audio %}
-<audio controls preload="none" id="story-audio" src="{{ audioUrl }}"></audio>
-<p id="resume-banner" class="resume-banner" hidden></p>
+<div class="audio-card" style="--accent-bg: {{ accentColor.background }};">
+  <audio controls preload="none" id="story-audio" src="{{ audioUrl }}"></audio>
+  <p id="autoplay-fallback" class="autoplay-fallback" hidden>▶︎ Tap play above to start listening</p>
+</div>
+<p id="resume-banner" class="resume-banner" style="--accent-bg: {{ accentColor.background }};" hidden></p>
 {% endif %}
 
 <article class="story-body">
@@ -24,3 +30,4 @@ layout: base.njk
 </nav>
 
 <script src="{{ '/assets/resume.js' | url }}" data-slug="{{ slug }}"></script>
+<script src="{{ '/assets/mini-player.js' | url }}"></script>

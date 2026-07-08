@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeStories } from "./stories-lib.mjs";
+import { computeStories, groupForLibrary } from "./stories-lib.mjs";
 
 // NOTE: this test targets scripts/stories-lib.mjs (the pure URL/prevNext
 // computation extracted out of site/_data/stories.js), not stories.js
@@ -116,5 +116,53 @@ describe("computeStories", () => {
       makeStory("stories/standalone-tale.md", { title: "Standalone Tale" }),
     ]);
     expect(stories[0].tags).toEqual([]);
+  });
+});
+
+describe("groupForLibrary", () => {
+  it("groups stories by series, ordered by seriesOrder", () => {
+    const stories = computeStories([
+      makeStory("stories/a/book-2.md", { series: "The Bramble Wall", seriesOrder: 2, title: "Book 2" }),
+      makeStory("stories/a/book-1.md", { series: "The Bramble Wall", seriesOrder: 1, title: "Book 1" }),
+    ]);
+    const result = groupForLibrary(stories);
+    expect(result.seriesGroups).toHaveLength(1);
+    expect(result.seriesGroups[0].series).toBe("The Bramble Wall");
+    expect(result.seriesGroups[0].stories.map((s) => s.title)).toEqual(["Book 1", "Book 2"]);
+  });
+
+  it("includes an accentColor on each series group", () => {
+    const stories = computeStories([
+      makeStory("stories/a/book-1.md", { series: "The Bramble Wall", seriesOrder: 1 }),
+    ]);
+    const result = groupForLibrary(stories);
+    expect(result.seriesGroups[0].accentColor).toHaveProperty("background");
+    expect(result.seriesGroups[0].accentColor).toHaveProperty("text");
+  });
+
+  it("puts stories with no series into standalone, not a series group", () => {
+    const stories = computeStories([
+      makeStory("stories/standalone-tale.md", { title: "Lonely Tale" }),
+    ]);
+    const result = groupForLibrary(stories);
+    expect(result.seriesGroups).toHaveLength(0);
+    expect(result.standalone.map((s) => s.title)).toEqual(["Lonely Tale"]);
+  });
+
+  it("returns an empty standalone array (not omitted) when there are none", () => {
+    const stories = computeStories([
+      makeStory("stories/a/book-1.md", { series: "The Bramble Wall", seriesOrder: 1 }),
+    ]);
+    const result = groupForLibrary(stories);
+    expect(result.standalone).toEqual([]);
+  });
+
+  it("sorts multiple series groups by each group's earliest publishDate, most recent first", () => {
+    const stories = computeStories([
+      makeStory("stories/old/book-1.md", { series: "Old Series", seriesOrder: 1, publishDate: "2025-01-01" }),
+      makeStory("stories/new/book-1.md", { series: "New Series", seriesOrder: 1, publishDate: "2026-01-01" }),
+    ]);
+    const result = groupForLibrary(stories);
+    expect(result.seriesGroups.map((g) => g.series)).toEqual(["New Series", "Old Series"]);
   });
 });

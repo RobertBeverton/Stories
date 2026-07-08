@@ -31,6 +31,7 @@
 // automatically). So the prefix must be stripped back off here.
 
 import { PATH_PREFIX } from "../scripts/stories-lib.mjs";
+import { accentColorFor } from "../scripts/accent-colors.mjs";
 
 export const data = {
   pagination: {
@@ -49,6 +50,7 @@ export const data = {
       return unprefixedUrl + "index.html";
     },
     title: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.title,
+    description: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.description,
     series: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.series,
     seriesOrder: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.seriesOrder,
     audio: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.audio,
@@ -58,6 +60,7 @@ export const data = {
     slug: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.slug,
     prevStory: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.prevStory ?? null,
     nextStory: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.nextStory ?? null,
+    accentColor: (data) => accentColorFor(data.stories.bySlug[data.storyPage.data.storySlug]?.series),
   },
 };
 
