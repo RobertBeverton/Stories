@@ -53,7 +53,20 @@ export const PATH_PREFIX = "/Stories";
 
 export function computeStories(rawStories) {
   const allStories = rawStories.map(({ file, data, content }) => {
-    const slug = path.basename(file, ".md");
+    const basename = path.basename(file, ".md");
+    // The full, folder-qualified slug (e.g. "bramble-wall/book-1") is what
+    // uniquely identifies a story and keys `bySlug` below — every series
+    // names its entries "book-1", "book-2", etc., so the plain basename
+    // alone collides across series. `basename` (just the filename) is kept
+    // separately because the story PAGE's URL already gets its series
+    // segment from `seriesSlug` (the slugified series NAME, e.g.
+    // "the-bramble-wall") — using the folder-qualified slug there would
+    // duplicate that segment (".../the-bramble-wall/bramble-wall/book-1/").
+    const slug = path
+      .relative("stories", file)
+      .replace(/\.md$/, "")
+      .split(path.sep)
+      .join("/");
     const wordCount = content.trim().split(/\s+/).length;
     const readMinutes = Math.max(1, Math.round(wordCount / 215));
     const seriesSlug = data.series ? slugify(data.series) + "/" : "";
@@ -71,7 +84,7 @@ export function computeStories(rawStories) {
       ...data,
       tags: data.tags ?? [],
       slug,
-      url: `${PATH_PREFIX}/stories/${seriesSlug}${slug}/`,
+      url: `${PATH_PREFIX}/stories/${seriesSlug}${basename}/`,
       audioUrl: data.audio
         ? `${PATH_PREFIX}/stories/${diskDir ? diskDir + "/" : ""}${data.audio}`
         : null,

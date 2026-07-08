@@ -5,6 +5,7 @@ import {
   checkRequiredFields,
   checkAudioFilesExist,
   checkRepoSize,
+  slugify,
 } from "./validate-content.mjs";
 
 describe("checkRequiredFields", () => {
@@ -43,12 +44,30 @@ describe("checkDuplicateSeriesOrder", () => {
 describe("checkDuplicateSlugs", () => {
   it("flags two files producing the same slug", () => {
     const stories = [
-      { file: "stories/a/book-1.md", data: {}, slug: "book-1" },
-      { file: "stories/b/book-1.md", data: {}, slug: "book-1" },
+      { file: "stories/a/book-1.md", data: {}, slug: "a/book-1" },
+      { file: "stories/b/book-1.md", data: {}, slug: "a/book-1" },
     ];
     expect(checkDuplicateSlugs(stories)).toEqual([
-      "Duplicate slug 'book-1': stories/a/book-1.md, stories/b/book-1.md",
+      "Duplicate slug 'a/book-1': stories/a/book-1.md, stories/b/book-1.md",
     ]);
+  });
+});
+
+describe("slugify (file-to-slug)", () => {
+  it("scopes same-named books in different series to distinct slugs", () => {
+    expect(slugify("stories/bramble-wall/book-1.md")).not.toBe(
+      slugify("stories/trio-force/book-1.md")
+    );
+  });
+
+  it("produces no slug collision for the real repo's book-1/2/3 across series", () => {
+    const slugs = [
+      "stories/bramble-wall/book-1.md",
+      "stories/trio-force/book-1.md",
+      "stories/bramble-wall/book-2.md",
+      "stories/trio-force/book-2.md",
+    ].map(slugify);
+    expect(new Set(slugs).size).toBe(slugs.length);
   });
 });
 
@@ -69,6 +88,13 @@ describe("checkAudioFilesExist", () => {
 
   it("skips stories with no audio field", () => {
     const stories = [{ file: "stories/a/book-1.md", data: {} }];
+    expect(checkAudioFilesExist(stories, () => false)).toEqual([]);
+  });
+
+  it("skips draft stories whose audio file does not exist yet", () => {
+    const stories = [
+      { file: "stories/a/book-1.md", data: { audio: "missing.mp3", draft: true } },
+    ];
     expect(checkAudioFilesExist(stories, () => false)).toEqual([]);
   });
 });

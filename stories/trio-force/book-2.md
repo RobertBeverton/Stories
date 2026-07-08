@@ -7,7 +7,7 @@ tags: ["superheroes", "powers", "adventure", "brothers", "villain", "returning-c
 audio: "book-2.mp3"
 audioDuration: 0
 publishDate: 2026-07-08
-draft: false
+draft: true
 ---
 
 # Trio Force

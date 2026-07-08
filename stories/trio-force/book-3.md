@@ -7,7 +7,7 @@ tags: ["superheroes", "powers", "adventure", "brothers", "villain", "friendship"
 audio: "book-3.mp3"
 audioDuration: 0
 publishDate: 2026-07-08
-draft: false
+draft: true
 ---
 
 # Trio Force
@@ -123,6 +123,8 @@ What happened next was chaotic, and afterward nobody could agree on the exact or
 
 Fourteen Felixes tried to make a wall of themselves by standing on each other's shoulders. It held for four seconds and then didn't.
 
+One Felix caught the professor's sneezing power mid-air and went off like a cannon, knocking four other Felixes over like dominoes — which made all twenty of them laugh so hard that two more fell over on purpose, just to join in.
+
 Evy's compass — the one from her own box, which pointed not north but toward *the real one* — spun in wild circles before settling, very precisely, on a single professor third from the left, whose left shoe was untied.
 
 Isla walked straight up to one of the copies, shook his hand, and asked, "Excuse me — which one are you?"
@@ -131,7 +133,7 @@ Isla walked straight up to one of the copies, shook his hand, and asked, "Excuse
 
 "I think that might be the problem," said Isla.
 
-Alex noticed something else, watching from the edge of it all: every time Professor Nought used one of his powers — flew a little, went briefly invisible, did a card trick — he looked *sadder* straight afterward, not happier. Like each one was fun for exactly one second and then instantly not enough.
+Alex noticed something else, watching from the edge of it all: every time Professor Nought used one of his powers — a card trick, a sneeze sent flying across the square, a fresh batch of biscuits appearing out of nowhere — he looked *sadder* straight afterward, not happier. Like each one was fun for exactly one second and then instantly not enough.
 
 Alex walked over to the professor with the untied shoe and stood very still in front of him. Standing still, saying nothing, was Alex's quietest and most powerful thing.
 
@@ -197,7 +199,7 @@ Alex, next to him, didn't say anything at all — but his hand found Felix's und
 
 *Felix tried to multiply himself again at breakfast the next morning, "just to check." Mummy's expression alone was enough to end the experiment.*
 
-*Alex only ever had to blow the whistle once for the recall. He always only needs once.*
+*Alex never blew the whistle a third time. Whatever the emergency blow was for, it stayed exactly what it had been all day: a thing he knew was there, and didn't need.*
 
 *Amelia, informed of all this well after the fact, wrote a single furious line in her own time about it and left it at that — she'd been out that whole afternoon and was not consulted, a fact she intends to raise at a later date.*
 

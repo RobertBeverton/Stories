@@ -52,7 +52,8 @@ export function checkDuplicateSlugs(stories) {
 }
 
 export function slugify(filePath) {
-  return path.basename(filePath, ".md");
+  const relative = path.relative("stories", filePath).replace(/\.md$/, "");
+  return relative.split(path.sep).join("/");
 }
 
 export async function loadStories(globPattern = "stories/**/*.md") {
@@ -68,6 +69,7 @@ export function checkAudioFilesExist(stories, exists) {
   const errors = [];
   for (const story of stories) {
     if (!story.data.audio) continue;
+    if (story.data.draft) continue;
     const audioPath = path.join(path.dirname(story.file), story.data.audio);
     if (!exists(audioPath)) {
       errors.push(`${story.file}: audio file '${story.data.audio}' not found`);

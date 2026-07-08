@@ -89,17 +89,17 @@ describe("computeStories", () => {
     ]);
 
     const bySlug = stories.bySlug;
-    expect(bySlug["book-1"].prevStory).toBeNull();
-    expect(bySlug["book-1"].nextStory).toEqual({
+    expect(bySlug["bramble-wall/book-1"].prevStory).toBeNull();
+    expect(bySlug["bramble-wall/book-1"].nextStory).toEqual({
       url: "/Stories/stories/the-bramble-wall/book-2/",
       title: "Book Two",
     });
 
-    expect(bySlug["book-2"].prevStory).toEqual({
+    expect(bySlug["bramble-wall/book-2"].prevStory).toEqual({
       url: "/Stories/stories/the-bramble-wall/book-1/",
       title: "Book One",
     });
-    expect(bySlug["book-2"].nextStory).toBeNull();
+    expect(bySlug["bramble-wall/book-2"].nextStory).toBeNull();
   });
 
   it("gives a story with no series null prevStory/nextStory without crashing", () => {
@@ -116,6 +116,25 @@ describe("computeStories", () => {
       makeStory("stories/standalone-tale.md", { title: "Standalone Tale" }),
     ]);
     expect(stories[0].tags).toEqual([]);
+  });
+
+  it("gives two same-named books in different series distinct slugs, keyed by their folder", () => {
+    const stories = computeStories([
+      makeStory("stories/bramble-wall/book-1.md", {
+        title: "Bramble Book One",
+        series: "The Bramble Wall",
+        seriesOrder: 1,
+      }),
+      makeStory("stories/trio-force/book-1.md", {
+        title: "Trio Book One",
+        series: "Trio Force",
+        seriesOrder: 1,
+      }),
+    ]);
+    expect(stories[0].slug).not.toBe(stories[1].slug);
+    expect(Object.keys(stories.bySlug)).toHaveLength(2);
+    expect(stories.bySlug[stories[0].slug].title).toBe("Bramble Book One");
+    expect(stories.bySlug[stories[1].slug].title).toBe("Trio Book One");
   });
 });
 

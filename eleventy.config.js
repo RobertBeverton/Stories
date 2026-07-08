@@ -21,7 +21,10 @@ export default function (eleventyConfig) {
   for (const filePath of fg.sync("stories/**/*.md")) {
     const content = fs.readFileSync(filePath, "utf8");
     const virtualPath = `virtual-${filePath.replace(/[\\/]/g, "-")}`;
-    const storySlug = filePath.split(/[\\/]/).pop().replace(/\.md$/, "");
+    const storySlug = filePath
+      .replace(/^stories[\\/]/, "")
+      .replace(/\.md$/, "")
+      .replace(/[\\/]/g, "/");
     eleventyConfig.addTemplate(virtualPath, content, {
       tags: ["stories"],
       storySlug,
