@@ -99,7 +99,7 @@ Same shape, beats, rhythm every book — comfort ritual AND re-engagement primer
 - One laugh and one feeling per book minimum. Affirmations woven, never bolted on — ~2–3 seams per book.
 - **STANDING CRAFT RULE — don't let the narrator say the quiet part out loud.** Let beats land; don't announce them. (This tic surfaced once per chapter in the trilogy and was cut each time.)
 ### 12. Length / format (for ElevenLabs narration)
-- **Self-contained short books**, one sitting-sized: **~1,500–2,500 words** (≈8–15 min narrated). Some may run as 2–3 short chapters if the story wants a breath-break.
+- **Self-contained short books**, one sitting-sized: **~2,000–3,000 words** (≈11–17 min narrated). Some may run as 2–3 short chapters if the story wants a breath-break. *(Range widened after Book 4 — 1,500 words read as thin for the sensory/atmospheric register this series wants; expand with real sensory/beat content, never padding, to reach the fuller end.)*
 - Each **stands alone**, best in order.
 - **Layered foreshadowing for re-listen value:** Tier 1 (catch on listen 1 — the emotional payoff), Tier 2 (listen 3–5 — planted objects/lines that resolve once you know the ending; the "makes a kid feel clever" layer — seed several per book), Tier 3 (deep structural rhymes an adult notices, a child absorbs — e.g. *held-then-given*).
 ---
@@ -249,9 +249,9 @@ Same shape, beats, rhythm every book — comfort ritual AND re-engagement primer
 ---
  
 ## PART G — OPEN ITEMS (decide before/while writing)
-1. **Book 1's harder want** — lock the specific edge (gap closing / weather coming / one-afternoon) BEFORE writing. The origin must grip.
+1. **Book 1's harder want** — lock the specific edge (gap closing / weather coming / one-afternoon) BEFORE writing. The origin must grip. *(Resolved — see `ledgers.md`.)*
 2. **Book 5's spring-reveal find** — decide *what* the receding flood uncovers (an old tool? a worked stone? part of the ironworking? a natural wonder — a spring, a nest?).
-3. **Book 4 in-forest parent** — Mum-on-foot may be the natural winter/flood presence (enduro rides poorly in snow/flood); or make Dad's on-foot presence part of the gentle edge.
+3. **Book 4 in-forest parent** — *(Resolved — both Mum and Dad, on foot, clearing storm-fallen branches from the path; see `ledgers.md`.)*
 4. **Cousins beyond Book 2?** Leaning one-book; possible cameo in Book 5's whole-year retelling.
 ---
  

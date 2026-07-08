@@ -60,7 +60,7 @@
 | Standard case file | 900–1,200 | 7–9 min |
 | Full adventure | 1,500–2,000 | 11–15 min |
 | Long special occasion | 2,000–2,500 | 15–18 min |
-| Grounded short book (Bramble Wall) | 1,500–2,500 | 8–15 min |
+| Grounded short book (Bramble Wall) | 2,000–3,000 | 11–17 min |
 
 One story is one component of a longer reading session; 15 min max leaves room for chapter books alongside.
 
