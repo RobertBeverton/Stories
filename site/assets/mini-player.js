@@ -41,12 +41,12 @@ function renderBar(playing) {
   }
   bar.innerHTML = `
     <a href="${playing.url ?? "#"}" class="mini-player-title">${playing.title ?? playing.slug}</a>
-    <button id="mini-player-toggle" type="button" aria-label="Play or pause">${playing.playing ? "⏸" : "▶"}</button>
+    <button id="mini-player-toggle" type="button" aria-label="Play or pause">${playing.playing ? "⏸︎" : "▶︎"}</button>
   `;
 
   const toggle = document.getElementById("mini-player-toggle");
   if (isLocalStory) {
-    const sync = () => { toggle.textContent = localAudio.paused ? "▶" : "⏸"; };
+    const sync = () => { toggle.textContent = localAudio.paused ? "▶︎" : "⏸︎"; };
     localAudio.addEventListener("play", sync);
     localAudio.addEventListener("pause", sync);
     sync();

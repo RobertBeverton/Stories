@@ -46,7 +46,7 @@ if (autoplaySignal && audio) {
 } else if (saved && (saved.audioTime > 5 || saved.scrollY > 200) && banner) {
   banner.hidden = false;
   banner.innerHTML = `
-    <button id="resume-btn" type="button">▶ Resume where you left off</button>
+    <button id="resume-btn" type="button">▶︎ Resume where you left off</button>
     <button id="restart-btn" type="button">🔄 Start over</button>
   `;
   document.getElementById("resume-btn").focus();
