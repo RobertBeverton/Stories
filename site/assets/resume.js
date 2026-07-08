@@ -47,7 +47,7 @@ if (autoplaySignal && audio) {
   banner.hidden = false;
   banner.innerHTML = `
     <button id="resume-btn" type="button">▶︎ Resume where you left off</button>
-    <button id="restart-btn" type="button">↺︎ Start over</button>
+    <button id="restart-btn" type="button">⟲︎ Start over</button>
   `;
   document.getElementById("resume-btn").focus();
   document.getElementById("resume-btn").addEventListener("click", () => {
