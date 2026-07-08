@@ -5,7 +5,7 @@ seriesOrder: 2
 description: "Felix and Alex venture deeper into the bramble maze, discovering ancient pathways and mysterious markings carved into the thorny walls."
 tags: ["adventure", "forest", "mystery", "exploration", "siblings"]
 audio: "book-2.mp3"
-audioDuration: 523
+audioDuration: 1221
 publishDate: 2026-07-08
 draft: false
 ---

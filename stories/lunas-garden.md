@@ -3,8 +3,6 @@ title: "Luna's Moonlit Garden"
 slug: "lunas-moonlit-garden"
 description: "A young gardener discovers that the flowers in her grandmother's garden bloom only under moonlight, revealing a magical secret passed down through generations."
 tags: ["magic", "garden", "family", "discovery", "wonder"]
-audio: "luna.mp3"
-audioDuration: 389
 publishDate: 2026-07-08
 draft: false
 ---

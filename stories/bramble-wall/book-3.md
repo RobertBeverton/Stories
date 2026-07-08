@@ -5,7 +5,7 @@ seriesOrder: 3
 description: "At the heart of the maze lies an unexpected discovery. Felix and Alex must decide whether to reveal what they've found or keep the secret safe."
 tags: ["adventure", "forest", "discovery", "mystery", "friendship"]
 audio: "book-3.mp3"
-audioDuration: 612
+audioDuration: 1221
 publishDate: 2026-07-08
 draft: false
 ---
