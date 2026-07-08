@@ -52,7 +52,7 @@
 
 | Character | Age | Role | Notes |
 |---|---|---|---|
-| **Amelia** | 13 | Neighbour, senior friend | Sensible, plans, carries the notebook. Lets the boys lead — she never solves the case herself. Wry humour. |
+| **Amelia** | 13 | Neighbour, senior friend | **PATCHED for Trio Force — see `reference/trio-force/bible.md` PART C §2 and PART H.** She no longer appears on-scene or carries a notebook on-page; she's an off-screen verifier the boys occasionally radio or visit for thirty seconds to confirm one fact, used at most once per case file. (Older description — "sensible, plans, carries the notebook, lets the boys lead" — is retired for Trio Force; it read too old for the 5-year-old audience.) |
 | **Charlie** | 17 | Amelia's brother | Practical, good with people, knows the right way to do things, quietly excellent. |
 | **Theo** | 14 | Junior Consultant | Brilliant engineer. Writes eleven-page reports with diagrams. Carries a kit. Almost always right — when he isn't, it matters (see Case File #31, where Theo "went slightly wrong" and came back). |
 

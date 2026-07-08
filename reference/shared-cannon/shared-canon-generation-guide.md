@@ -297,7 +297,7 @@ These are the things that, when violated even slightly, made stories feel wrong:
 7. **Felix says the important thing simply.** He always cuts to it. That's who he is.
 8. **Alex doesn't need many words.** His weight is in what he doesn't say.
 9. **The postscript always gets one laugh and one feeling.** In that order if possible.
-10. **Robert makes tea.** In a crisis. Always. It's his love language and his coping mechanism and it should never be changed.
+10. ~~**Robert makes tea.** In a crisis. Always.~~ **RETIRED.** Superseded by `docs/process/craft-standing-rules.md` Non-Negotiable #3 ("adults support, never solve") and the true-but-background parent model patched into `shared-canon-character-directory.md`. Keep this line struck through as a record of the change, not as live guidance.
 
 ---
 

@@ -7,7 +7,7 @@
 ---
 
 ## What this workflow is for
-Generating and rewriting bedtime stories for Felix & Alex (twins, 5, UK) — writing new stories, rewriting old ones from the archive, reviewing them with a persona panel, and producing ElevenLabs narration. Two tracks: the **Bramble Wall** grounded forest series (a finite 5-book set), and the **wider magic/Trio-Force universe** (the big back-catalogue).
+Generating and rewriting bedtime stories for Felix & Alex (twins, 5, UK) — writing new stories, rewriting old ones from the archive, reviewing them with a persona panel, and producing ElevenLabs narration. Three tracks: the **Bramble Wall** grounded forest series (a finite 5-book set, complete), the **restarted Trio Force** series (open-ended, numbered case files, own bible — see below), and the **wider shared-cannon magic universe** (the big pre-restart back-catalogue, unnumbered legacy material).
 
 ---
 
@@ -18,6 +18,13 @@ Generating and rewriting bedtime stories for Felix & Alex (twins, 5, UK) — wri
 2. `reference/bramble-wall/ledgers.md` — **current state** (den, shelf, seeds, what's already used). Check BEFORE writing.
 3. `craft-standing-rules.md` — universal craft rules.
 4. Write against the book's slate entry. Then → review (below). Then → **update `ledgers.md`.** Once locked, add frontmatter and move into `/stories/bramble-wall/` per the site design doc.
+
+### Task: Write a new Trio Force case file
+1. `reference/trio-force/bible.md` — the canonical series spec (frame + slate + rules; RESTARTED, supersedes old archive numbering and Amelia's old on-scene/notebook role).
+2. `reference/trio-force/ledgers.md` — **current state** (case-number assignments, evidence shelf, villain/Thursday-group roster, Amelia-usage count, powers granted, guest cast). Check BEFORE writing — case numbers are assigned here, at lock, never in a draft.
+3. `craft-standing-rules.md` — universal craft rules.
+4. `shared-canon-villain-roster.md` + `shared-canon-magic-and-powers-system.md` — villain anatomy and power-design rules (still valid, referenced by the bible).
+5. Write against the next open slate slot. Then → review (below) → **update `ledgers.md`** (number, evidence shelf, villain, Amelia, powers, guests, all at once). Once locked, add frontmatter and move into `/stories/trio-force/`.
 
 ### Task: Rewrite an old story from the archive
 1. `reference/shared-cannon/felix-alex-story-archive.md` — find and read the original.
@@ -60,7 +67,11 @@ Generating and rewriting bedtime stories for Felix & Alex (twins, 5, UK) — wri
     bible.md                         ← canonical series spec (frame+slate+rules)
     ledgers.md                       ← LIVE STATE — check before writing, update after
 
-  /shared-cannon/                    ← the wider universe (magic/Trio-Force)
+  /trio-force/                       ← RESTARTED case-file series (clean numbering from #1)
+    bible.md                         ← canonical series spec (frame+slate+rules; patches Amelia's role)
+    ledgers.md                       ← LIVE STATE — case #s assigned here at lock, evidence shelf, villains, Amelia usage, powers, guests
+
+  /shared-cannon/                    ← the wider universe (magic) / pre-restart back-catalogue
     shared-canon-character-directory.md    ← who's who (PATCHED — see note)
     shared-canon-generation-guide.md       ← original craft guide (see supersession note)
     felix-alex-story-archive.md            ← full back-catalogue (~85k words)
@@ -72,7 +83,8 @@ Generating and rewriting bedtime stories for Felix & Alex (twins, 5, UK) — wri
 /stories/                            ← LOCKED, published stories (built into the site)
   bramble-wall/
     book-1.md · book-1.mp3           ← reading version + narration, with frontmatter
-    book-2.md, book-3.md, ...
+  trio-force/
+    book-1.md · book-1.mp3           ← Case File #1, reading version + narration, with frontmatter
   some-standalone-story.md
 ```
 
@@ -81,11 +93,12 @@ Note: the folder is spelled `shared-cannon` (not `shared-canon`) in this repo �
 ---
 
 ## CANONICAL SOURCE-OF-TRUTH RULES (prevent drift)
-1. **A series bible is canon for its series.** Bramble Wall's bible overrides the general guide where they differ.
+1. **A series bible is canon for its series.** Bramble Wall's bible and Trio Force's bible each override the general guide where they differ.
 2. **`craft-standing-rules.md` overrides the old `generation-guide.md`** where they conflict — specifically the **Felix/Alex braid** (replaces "Felix does / Alex notices") and **true-but-background parents** (replaces the sitcom-dad / tea versions).
 3. **Ledgers are the live state.** If prose and ledger disagree, the ledger is checked and reconciled — never claim continuity from memory.
-4. **The character directory is PATCHED:** Felix/Alex = the braid; parents = Dad (laid-back enduro rider, espresso, tech/DIY, full bike safety gear) and Magda (UI/UX designer, DJs/dances/exercises, forages); Isla has a documented role (own bike, still learning, wants one like Alex's); Pete added (Dad's riding friend, Isla's dad). Apply this patch to the directory if not already done.
+4. **The character directory is PATCHED:** Felix/Alex = the braid; parents = Dad (laid-back enduro rider, espresso, tech/DIY, full bike safety gear) and Magda (UI/UX designer, DJs/dances/exercises, forages); Isla has a documented role (own bike, still learning, wants one like Alex's); Pete added (Dad's riding friend, Isla's dad); **Amelia is patched for Trio Force** — off-screen verifier only, no notebook, no on-scene appearances (see `reference/trio-force/bible.md` PART C §2). Apply this patch to the directory if not already done.
 5. **Bramble Wall geography:** front gate → footpath → forest. NO fifteen-acre field / leaning gate / "STARBOARD" (those are wider-universe only). The forest is sparse, rideable, floods for months, bare floor, raised dry areas.
+6. **Trio Force case numbering restarted at #1.** Old archive Trio Force stories (colliding numbers, e.g. three different "#33"s) are legacy material — reference by title only, never slot them into the new numbered line. New numbers are assigned in `reference/trio-force/ledgers.md` at lock, never in a draft.
 
 ---
 
@@ -98,4 +111,4 @@ Note: the folder is spelled `shared-cannon` (not `shared-canon`) in this repo �
 
 ---
 
-*Version 1.1. Update this index whenever a new top-level file or series is added.*
+*Version 1.2. Update this index whenever a new top-level file or series is added.*
