@@ -1,3 +1,14 @@
+---
+title: "The Track"
+series: "The Bramble Wall"
+seriesOrder: 3
+description: "Felix imagines a track through the forest that no one can quite build, until he and Alex learn that some ideas have to be seen, not just said."
+tags: ["adventure", "forest", "brothers", "bikes", "friendship", "cooperation"]
+audio: "book-3.mp3"
+publishDate: 2026-07-08
+draft: false
+---
+
 The Bramble Wall. Book Three. The Track.
 
 The first cool morning of the whole summer, and Felix could feel it the second he stepped outside — the air had a different smell, less green, more gold, and somewhere behind his ribs an idea arrived so completely formed that he had to say it out loud immediately or it would burst.
