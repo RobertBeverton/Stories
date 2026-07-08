@@ -3,7 +3,7 @@ title: "The Big Kids Club"
 description: "Felix starts an exclusive club to celebrate his and Alex's big-kid achievements — and has to work out how to undo it once he sees what being left out looks like on his best friends' faces."
 tags: ["friendship", "inclusion", "apology", "brothers", "character-adventure"]
 audio: "the-big-kids-club.mp3"
-audioDuration: 480
+audioDuration: 588
 publishDate: 2026-07-08
 draft: false
 ---

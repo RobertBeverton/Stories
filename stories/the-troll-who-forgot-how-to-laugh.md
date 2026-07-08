@@ -3,7 +3,7 @@ title: "The Troll Who Forgot How To Laugh"
 description: "Felix and Alex notice grey spreading from the hedgerow and follow the trail to the Halloween Troll — whose first laugh, it turns out, wasn't lost. It was stolen."
 tags: ["adventure", "countryside", "trio-force", "villain-redemption", "brothers"]
 audio: "the-troll-who-forgot-how-to-laugh.mp3"
-audioDuration: 1380
+audioDuration: 1358
 publishDate: 2026-07-08
 draft: false
 ---

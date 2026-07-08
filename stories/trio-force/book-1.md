@@ -5,7 +5,7 @@ seriesOrder: 1
 description: "Felix and Alex get their very first powers and race across the field to find out why all the colour is draining out of it."
 tags: ["superheroes", "powers", "adventure", "brothers", "villain"]
 audio: "book-1.mp3"
-audioDuration: 0
+audioDuration: 588
 publishDate: 2026-07-08
 draft: false
 ---
