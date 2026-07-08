@@ -23,10 +23,14 @@ if (entries.length > 0) {
   const row = document.getElementById("continue-row");
   entries.sort((a, b) => b.savedAt - a.savedAt);
   for (const entry of entries) {
-    const card = document.createElement("a");
+    const card = document.createElement("div");
     card.className = "story-card";
-    card.href = entry.url;
-    card.innerHTML = `<h3>${entry.title ?? entry.slug}</h3><p class="card-meta">Continue</p>`;
+    card.innerHTML = `
+      <a class="story-card-link" href="${entry.url}">
+        <h3>${entry.title ?? entry.slug}</h3>
+        <p class="card-meta">Continue</p>
+      </a>
+    `;
     row.appendChild(card);
   }
   section.hidden = false;

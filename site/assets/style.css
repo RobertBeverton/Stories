@@ -10,7 +10,27 @@ main { max-width: 700px; margin: 0 auto; padding: 0 1rem 2rem; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 audio { width: 100%; }
 .resume-badge { font-size: 0.8rem; margin-left: 0.5rem; opacity: 0.8; }
-.resume-banner button { min-height: 44px; min-width: 44px; font-size: 1rem; margin-right: 0.5rem; }
+.resume-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background: color-mix(in srgb, var(--accent-bg, #6b7280) 15%, transparent);
+  border-radius: 16px;
+  padding: 0.75rem;
+  margin: 0 0 1rem;
+}
+.resume-banner[hidden] { display: none; }
+.resume-banner button {
+  min-height: 44px;
+  min-width: 44px;
+  font-size: 1rem;
+  padding: 0.5rem 1.1rem;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+#resume-btn { background: var(--accent-bg, #6b7280); color: #fff; font-weight: 600; }
+#restart-btn { background: transparent; color: inherit; border: 1px solid currentColor; opacity: 0.85; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
 h1 { font-size: 1.75rem; font-weight: 800; }

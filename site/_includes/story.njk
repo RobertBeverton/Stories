@@ -17,7 +17,7 @@ layout: base.njk
   <audio controls preload="none" id="story-audio" src="{{ audioUrl }}"></audio>
   <p id="autoplay-fallback" class="autoplay-fallback" hidden>▶ Tap play above to start listening</p>
 </div>
-<p id="resume-banner" class="resume-banner" hidden></p>
+<p id="resume-banner" class="resume-banner" style="--accent-bg: {{ accentColor.background }};" hidden></p>
 {% endif %}
 
 <article class="story-body">
