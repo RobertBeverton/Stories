@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { computeStories, seriesPageData } from "./stories-lib.mjs";
+import { accentColorFor } from "./accent-colors.mjs";
 
 describe("computeStories", () => {
   it("falls back to the default icon when a story's icon field is missing or invalid", () => {
@@ -26,6 +27,16 @@ describe("computeStories", () => {
     ];
     const result = computeStories(raw);
     expect(result[0].icon).toBe("boat");
+  });
+
+  it("computes each story's own accentColor from its series, so a story-card include renders the right color regardless of which page/loop it appears in", () => {
+    const raw = [
+      { file: "stories/a/one.md", data: { title: "One", series: "Felix & Alex", publishDate: "2026-01-01" }, content: "text" },
+      { file: "stories/standalone.md", data: { title: "Solo", publishDate: "2026-01-02" }, content: "text" },
+    ];
+    const result = computeStories(raw);
+    expect(result.find((s) => s.title === "One").accentColor).toEqual(accentColorFor("Felix & Alex"));
+    expect(result.find((s) => s.title === "Solo").accentColor).toEqual(accentColorFor(undefined));
   });
 });
 

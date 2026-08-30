@@ -1,12 +1,15 @@
-<div class="story-card" data-title="{{ story.title }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}" data-slug="{{ story.slug }}">
-  <div class="story-card-art" style="--accent-bg: {{ story.accentColor.background if story.accentColor else '#6b7280' }};">
-    <svg viewBox="0 0 120 82" aria-hidden="true" class="story-icon">
+<div class="story-card" data-title="{{ story.title }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}" data-slug="{{ story.slug }}" style="--accent-bg: {{ story.accentColor.background if story.accentColor else '#6b7280' }};">
+  <a class="story-card-link" href="{{ story.url }}">
+    <svg class="story-card-wave" viewBox="0 0 320 90" preserveAspectRatio="none" aria-hidden="true">
+      <path class="wave-fill" d="M0 70 C 60 40, 100 90, 160 60 S 260 20, 320 50 L 320 90 L 0 90 Z" />
+    </svg>
+    <svg class="story-icon" viewBox="0 0 120 82" aria-hidden="true">
       <path class="icon-main" d="{{ icons.path(story.icon) }}" />
     </svg>
-  </div>
-  <a class="story-card-link" href="{{ story.url }}">
-    <h3>{{ story.title }}</h3>
-    <p class="card-meta">~{{ story.readMinutes }} min read{% if story.audioMinutes %} · ~{{ story.audioMinutes }} min listen{% endif %}</p>
+    <div class="story-card-text">
+      <h3>{{ story.title }}</h3>
+      <p class="card-meta">~{{ story.readMinutes }} min read{% if story.audioMinutes %} · ~{{ story.audioMinutes }} min listen{% endif %}</p>
+    </div>
   </a>
   <div class="story-card-actions">
     {% if story.audioUrl %}

@@ -105,6 +105,12 @@ export function computeStories(rawStories, audioFileExists = alwaysExists) {
       ...data,
       tags: data.tags ?? [],
       icon: isValidIcon(data.icon) ? data.icon : "sun",
+      // Computed here (not left to each template context to pass down) so
+      // every story card renders its own series' color correctly regardless
+      // of which page it appears on — a story-card include has no reliable
+      // access to the enclosing series group's already-computed accentColor,
+      // and guessing wrong silently fell back to a flat neutral gray.
+      accentColor: accentColorFor(data.series),
       slug,
       url: `${PATH_PREFIX}/stories/${seriesSlug}${basename}/`,
       audioUrl: audioFile
