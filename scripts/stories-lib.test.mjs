@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeStories } from "./stories-lib.mjs";
+import { computeStories, seriesPageData } from "./stories-lib.mjs";
 
 describe("computeStories", () => {
   it("falls back to the default icon when a story's icon field is missing or invalid", () => {
@@ -26,5 +26,21 @@ describe("computeStories", () => {
     ];
     const result = computeStories(raw);
     expect(result[0].icon).toBe("boat");
+  });
+});
+
+describe("seriesPageData", () => {
+  it("groups computed stories by series into page-ready records with slug, accent color, and ordered stories", () => {
+    const raw = [
+      { file: "stories/a/one.md", data: { title: "One", series: "Felix & Alex", seriesOrder: 2, publishDate: "2026-01-02" }, content: "hi" },
+      { file: "stories/a/two.md", data: { title: "Two", series: "Felix & Alex", seriesOrder: 1, publishDate: "2026-01-01" }, content: "hi" },
+      { file: "stories/standalone.md", data: { title: "Solo", publishDate: "2026-01-03" }, content: "hi" },
+    ];
+    const stories = computeStories(raw);
+    const pages = seriesPageData(stories);
+    expect(pages).toHaveLength(1);
+    expect(pages[0].seriesSlug).toBe("felix-alex");
+    expect(pages[0].stories.map((s) => s.title)).toEqual(["Two", "One"]); // ordered by seriesOrder
+    expect(pages[0].accentColor).toBeDefined();
   });
 });

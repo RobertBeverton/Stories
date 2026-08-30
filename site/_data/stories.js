@@ -1,4 +1,9 @@
-import { loadStories, computeStories, groupForLibrary } from "../../scripts/stories-lib.mjs";
+import {
+  loadStories,
+  computeStories,
+  groupForLibrary,
+  seriesPageData,
+} from "../../scripts/stories-lib.mjs";
 
 // IMPORTANT: keep this file's ONLY export as `export default`. Eleventy's
 // global data loader only auto-invokes a data module's default export when
@@ -11,5 +16,6 @@ export default async function () {
   const { seriesGroups, standalone } = groupForLibrary(stories);
   stories.seriesGroups = seriesGroups;
   stories.standalone = standalone;
+  stories.seriesPages = seriesPageData(stories);
   return stories;
 }
