@@ -14,6 +14,7 @@ layout: base.njk
 
 {% if audio %}
 <div class="audio-card" style="--accent-bg: {{ accentColor.background }};">
+  <p class="audio-card-label">🎧 Listen to this story</p>
   <audio controls preload="none" id="story-audio" src="{{ audioUrl }}"
     data-artwork-url="{{ '/assets/generated/icons/' | url }}{{ icon }}-{{ accentColor.background | replace('#', '') }}-512.png"
     data-prev-url="{{ prevStory.url if prevStory else '' }}"
