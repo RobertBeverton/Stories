@@ -4,6 +4,7 @@ import fg from "fast-glob";
 import matter from "gray-matter";
 import { slugify } from "./slugify.mjs";
 import { accentColorFor } from "./accent-colors.mjs";
+import { isValidIcon } from "./icons.mjs";
 
 // Parses one raw story file's frontmatter/content into the shape
 // computeStories() expects: { file, data, content }.
@@ -83,6 +84,7 @@ export function computeStories(rawStories) {
     return {
       ...data,
       tags: data.tags ?? [],
+      icon: isValidIcon(data.icon) ? data.icon : "sun",
       slug,
       url: `${PATH_PREFIX}/stories/${seriesSlug}${basename}/`,
       audioUrl: data.audio
