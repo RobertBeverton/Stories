@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseFile } from "music-metadata";
+import { isValidIcon, ICON_NAMES } from "./icons.mjs";
 
 export function checkRequiredFields(stories) {
   const required = ["title", "description", "publishDate"];
@@ -57,6 +58,18 @@ export function checkAudioFilesExistOrWarn(stories, exists) {
     }
   }
   return warnings;
+}
+
+export function checkValidIcons(stories) {
+  const errors = [];
+  for (const story of stories) {
+    if (story.data.icon !== undefined && !isValidIcon(story.data.icon)) {
+      errors.push(
+        `${story.file}: invalid icon '${story.data.icon}' (must be one of: ${ICON_NAMES.join(", ")})`
+      );
+    }
+  }
+  return errors;
 }
 
 export function checkRepoSize(fileSizes, maxTotalBytes, maxFileBytes) {
@@ -121,6 +134,7 @@ async function main() {
     ...audioDurationErrors,
     ...checkRequiredFields(refreshed),
     ...checkDuplicateSlugs(refreshed),
+    ...checkValidIcons(refreshed),
     ...checkRepoSize(fileSizes, 700 * 1024 * 1024, 90 * 1024 * 1024),
   ];
 
