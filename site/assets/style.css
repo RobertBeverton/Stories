@@ -54,8 +54,6 @@ audio { width: 100%; }
 h1 { font-size: 1.75rem; font-weight: 800; }
 section h2 { font-size: 1.3rem; font-weight: 700; margin: 1.5rem 0 0.75rem; }
 .series-section { background: color-mix(in srgb, var(--accent-bg) 12%, transparent); border-radius: 16px; padding: 1rem; margin: 1rem 0; }
-.card-row { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem; }
-.card-row .story-card { flex: 0 0 220px; }
 .story-card {
   border-radius: 20px;
   overflow: hidden;
@@ -113,3 +111,28 @@ section h2 { font-size: 1.3rem; font-weight: 700; margin: 1.5rem 0 0.75rem; }
 .mini-player-title { color: #fff; text-decoration: none; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #mini-player-toggle { min-width: 44px; min-height: 44px; font-size: 1.25rem; background: none; border: none; color: #fff; }
 main { padding-bottom: 4.5rem; } /* room for the fixed mini-player bar */
+
+.hero { padding: 2rem 1rem 1.5rem; }
+.hero .eyebrow { text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.06em; opacity: 0.7; margin: 0; }
+.hero h1 { font-size: 2.2rem; line-height: 1.15; margin: 0.5rem 0 1rem; }
+.hero h1 .accent { color: var(--coral); }
+.hero-lede { opacity: 0.85; max-width: 32rem; }
+.primary-cta {
+  display: inline-flex; min-height: 44px; align-items: center;
+  padding: 0.6rem 1.4rem; border-radius: 999px;
+  background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 600;
+}
+@media (prefers-color-scheme: dark) { .primary-cta { background: var(--ink-dark); color: var(--paper-dark); } }
+
+.series-row-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+.see-all { text-decoration: none; color: inherit; opacity: 0.8; white-space: nowrap; min-height: 44px; display: inline-flex; align-items: center; }
+
+.card-row {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+.card-row .story-card { flex: 0 0 78vw; max-width: 320px; scroll-snap-align: start; }

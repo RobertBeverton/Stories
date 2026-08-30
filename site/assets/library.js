@@ -25,11 +25,24 @@ if (entries.length > 0) {
   for (const entry of entries) {
     const card = document.createElement("div");
     card.className = "story-card";
+    // No accent color / icon is stored in the progress entry, so this uses a
+    // neutral art panel (falls back to the default --accent-bg in style.css)
+    // rather than the per-story icon SVG used on the full story-card include.
+    // The goal is matching height/structure with the full cards in the same
+    // horizontal .card-row, not full visual parity.
     card.innerHTML = `
+      <div class="story-card-art">
+        <svg viewBox="0 0 120 82" aria-hidden="true" class="story-icon">
+          <path class="icon-main" d="M20 60 Q60 10 100 60" />
+        </svg>
+      </div>
       <a class="story-card-link" href="${entry.url}">
         <h3>${entry.title ?? entry.slug}</h3>
         <p class="card-meta">Continue</p>
       </a>
+      <div class="story-card-actions">
+        <a class="read-link read-link-primary" href="${entry.url}">Continue reading →</a>
+      </div>
     `;
     row.appendChild(card);
   }

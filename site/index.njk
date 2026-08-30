@@ -2,7 +2,13 @@
 layout: base.njk
 title: Library
 ---
-<h1>Isles of Yum</h1>
+<section class="hero">
+  <p class="eyebrow">A storybook archipelago</p>
+  <h1 class="display">Stories with a <span class="accent">sprinkle of wonder</span>.</h1>
+  <p class="hero-lede">Welcome to the Isles of Yum — a cozy corner of the internet for curious kids, kind grown-ups, and stories worth reading twice.</p>
+  <a class="primary-cta" href="#stories">Find a story →</a>
+</section>
+
 <input type="search" id="search-box" placeholder="Search Isles of Yum..." aria-label="Search stories">
 
 <section id="continue-section" aria-labelledby="continue-heading" hidden>
@@ -10,12 +16,18 @@ title: Library
   <div class="card-row" id="continue-row"></div>
 </section>
 
+<div id="stories">
 {% for group in stories.seriesGroups %}
-<section aria-labelledby="series-heading-{{ loop.index }}" class="series-section" style="--accent-bg: {{ group.accentColor.background }}; --accent-text: {{ group.accentColor.text }};">
-  <h2 id="series-heading-{{ loop.index }}">{{ group.series }}</h2>
-  <div class="card-grid">
+<section aria-labelledby="series-heading-{{ loop.index }}" class="series-row-section" style="--accent-bg: {{ group.accentColor.background }}; --accent-text: {{ group.accentColor.text }};">
+  <div class="series-row-heading">
+    <h2 id="series-heading-{{ loop.index }}">{{ group.series }}</h2>
+    <a class="see-all" href="{{ '/series/' | url }}{{ group.series | slugify }}/">See all →</a>
+  </div>
+  <div class="card-row">
     {% for story in group.stories %}
-      {% include "story-card.njk" %}
+      {% if loop.index0 < 4 %}
+        {% include "story-card.njk" %}
+      {% endif %}
     {% endfor %}
   </div>
 </section>
@@ -24,13 +36,14 @@ title: Library
 {% if stories.standalone.length > 0 %}
 <section aria-labelledby="standalone-heading">
   <h2 id="standalone-heading">More Stories</h2>
-  <div class="card-grid">
+  <div class="card-row">
     {% for story in stories.standalone %}
       {% include "story-card.njk" %}
     {% endfor %}
   </div>
 </section>
 {% endif %}
+</div>
 
 <script src="{{ '/assets/search.js' | url }}"></script>
 <script src="{{ '/assets/mini-player.js' | url }}"></script>
