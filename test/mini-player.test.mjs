@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildMediaMetadata } from "./mini-player.js";
+import { buildMediaMetadata } from "../site/assets/mini-player.js";
 
 describe("buildMediaMetadata", () => {
   it("builds MediaMetadata-shaped data from a playing entry", () => {
