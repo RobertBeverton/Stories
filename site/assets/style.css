@@ -85,6 +85,12 @@ section h2 { font-size: 1.3rem; font-weight: 700; margin: 1.5rem 0 0.75rem; }
   z-index: 0;
 }
 .story-card-wave .wave-fill { fill: color-mix(in srgb, var(--accent-bg, #6b7280) 50%, var(--bg)); }
+/* Used by the client-rendered "Continue" card (library.js), which has no
+   series/accentColor available (only title/url/slug are stored in the
+   localStorage progress entry) — same neutral --fg tint as
+   .series-row-section-neutral, at the wave's own 50% mix so it still reads
+   as a wave rather than a flat fill. */
+.story-card-wave-neutral .wave-fill { fill: color-mix(in srgb, var(--fg) 15%, var(--bg)); }
 .story-icon {
   position: absolute;
   right: 0.6rem;

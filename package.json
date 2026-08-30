@@ -9,7 +9,8 @@
   "scripts": {
     "validate": "node scripts/validate-content.mjs",
     "generate-icons": "node scripts/generate-icon-art.mjs",
-    "build": "npm run validate && npm run generate-icons && npx @11ty/eleventy",
+    "check-wave-contrast": "node scripts/check-wave-contrast.mjs",
+    "build": "npm run validate && npm run check-wave-contrast && npm run generate-icons && npx @11ty/eleventy",
     "serve": "npx @11ty/eleventy --serve",
     "narrate": "node audio-pipeline/narrate.mjs"
   },
