@@ -55,6 +55,12 @@ async function main() {
   const outDir = "site/assets/generated/icons";
   const written = await generateAll(combos, outDir);
   console.log(`Generated ${written.length} icon PNGs from ${combos.length} icon/color combos into ${outDir}`);
+
+  const appIconSvg = buildIconSvg({ icon: "sun", background: "#e8735c" });
+  for (const size of [192, 512]) {
+    await sharp(Buffer.from(appIconSvg)).resize(size, size).png().toFile(`site/assets/app-icon-${size}.png`);
+  }
+  console.log("Generated app icons: site/assets/app-icon-192.png, site/assets/app-icon-512.png");
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {

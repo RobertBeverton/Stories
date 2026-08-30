@@ -7,6 +7,7 @@ import { iconSvgPath } from "./scripts/icons.mjs";
 export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("stories/**/*.mp3");
   eleventyConfig.addPassthroughCopy("site/assets");
+  eleventyConfig.addPassthroughCopy("site/manifest.webmanifest");
 
   eleventyConfig.addFilter("slugify", slugify);
   eleventyConfig.addNunjucksGlobal("icons", { path: iconSvgPath });

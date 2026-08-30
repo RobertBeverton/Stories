@@ -3,3 +3,4 @@ _site/
 .DS_Store
 .worktrees/
 site/assets/generated/
+site/assets/app-icon-*.png
