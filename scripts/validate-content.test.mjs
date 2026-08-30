@@ -4,6 +4,7 @@ import {
   checkDuplicateSlugs,
   checkAudioFilesExistOrWarn,
   checkRepoSize,
+  checkValidIcons,
 } from "./validate-content.mjs";
 
 describe("checkRequiredFields", () => {
@@ -84,6 +85,24 @@ describe("checkRepoSize", () => {
   it("flags total size over threshold", () => {
     const errors = checkRepoSize([600, 600], 1000, 900);
     expect(errors.some((e) => e.includes("exceeds guard threshold"))).toBe(true);
+  });
+});
+
+describe("checkValidIcons", () => {
+  it("flags a story with an invalid icon field", () => {
+    const stories = [
+      { file: "stories/bad.md", data: { title: "Bad", description: "d", publishDate: "2026-01-01", icon: "spaceship" }, slug: "bad" },
+    ];
+    const errors = checkValidIcons(stories);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain("spaceship");
+  });
+
+  it("allows a story with no icon field (fallback applies later)", () => {
+    const stories = [
+      { file: "stories/fine.md", data: { title: "Fine", description: "d", publishDate: "2026-01-01" }, slug: "fine" },
+    ];
+    expect(checkValidIcons(stories)).toHaveLength(0);
   });
 });
 

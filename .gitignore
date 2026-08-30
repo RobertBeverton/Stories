@@ -2,3 +2,5 @@ node_modules/
 _site/
 .DS_Store
 .worktrees/
+site/assets/generated/
+site/assets/app-icon-*.png

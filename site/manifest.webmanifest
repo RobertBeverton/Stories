@@ -1,0 +1,14 @@
+{
+  "name": "The Isles of Yum",
+  "short_name": "Isles of Yum",
+  "start_url": "/isles-of-yum/",
+  "scope": "/isles-of-yum/",
+  "id": "/isles-of-yum/",
+  "display": "standalone",
+  "background_color": "#faf3e7",
+  "theme_color": "#e8735c",
+  "icons": [
+    { "src": "/isles-of-yum/assets/app-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/isles-of-yum/assets/app-icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

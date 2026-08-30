@@ -4,6 +4,7 @@ import fg from "fast-glob";
 import matter from "gray-matter";
 import { slugify } from "./slugify.mjs";
 import { accentColorFor } from "./accent-colors.mjs";
+import { isValidIcon } from "./icons.mjs";
 
 // Parses one raw story file's frontmatter/content into the shape
 // computeStories() expects: { file, data, content }.
@@ -103,6 +104,7 @@ export function computeStories(rawStories, audioFileExists = alwaysExists) {
     return {
       ...data,
       tags: data.tags ?? [],
+      icon: isValidIcon(data.icon) ? data.icon : "sun",
       slug,
       url: `${PATH_PREFIX}/stories/${seriesSlug}${basename}/`,
       audioUrl: audioFile
@@ -185,4 +187,26 @@ export function groupForLibrary(stories) {
   for (const group of seriesGroups) delete group._earliestPublish;
 
   return { seriesGroups, standalone };
+}
+
+// Groups the already-computed, non-draft story list into one page-ready
+// record per series, for the series detail pages (site/series-pages.11ty.js).
+// Pure function — mirrors groupForLibrary()'s grouping/sorting logic but
+// keyed for a single series' page rather than the whole library.
+export function seriesPageData(stories) {
+  const bySeries = new Map();
+  for (const story of stories) {
+    if (!story.series) continue;
+    if (!bySeries.has(story.series)) bySeries.set(story.series, []);
+    bySeries.get(story.series).push(story);
+  }
+  return Array.from(bySeries.entries()).map(([series, seriesStories]) => {
+    seriesStories.sort((a, b) => (a.seriesOrder ?? 0) - (b.seriesOrder ?? 0));
+    return {
+      series,
+      seriesSlug: slugify(series),
+      accentColor: accentColorFor(series),
+      stories: seriesStories,
+    };
+  });
 }

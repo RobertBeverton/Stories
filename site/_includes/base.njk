@@ -4,10 +4,20 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ title }} — Isles of Yum</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ '/assets/style.css' | url }}?v={{ buildTime }}">
+  <link rel="manifest" href="{{ '/manifest.webmanifest' | url }}">
+  <meta name="theme-color" content="#e8735c">
+  <link rel="apple-touch-icon" href="{{ '/assets/app-icon-192.png' | url }}">
 </head>
 <body>
   <header class="site-header"><a href="{{ '/' | url }}">📚 Isles of Yum</a></header>
   <main>{{ content | safe }}</main>
+  <nav class="tab-bar" aria-label="Main navigation">
+    <a href="{{ '/' | url }}" class="tab-bar-item">🏠<span>Home</span></a>
+    <a href="{{ '/' | url }}#stories" class="tab-bar-item">📖<span>Library</span></a>
+  </nav>
 </body>
 </html>

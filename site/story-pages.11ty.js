@@ -57,6 +57,7 @@ export const data = {
     audioMinutes: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.audioMinutes,
     readMinutes: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.readMinutes,
     slug: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.slug,
+    icon: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.icon,
     prevStory: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.prevStory ?? null,
     nextStory: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.nextStory ?? null,
     accentColor: (data) => accentColorFor(data.stories.bySlug[data.storyPage.data.storySlug]?.series),
