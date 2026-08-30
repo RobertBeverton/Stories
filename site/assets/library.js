@@ -31,11 +31,7 @@ if (entries.length > 0) {
     // The goal is matching height/structure with the full cards in the same
     // horizontal .card-row, not full visual parity.
     card.innerHTML = `
-      <div class="story-card-art">
-        <svg viewBox="0 0 120 82" aria-hidden="true" class="story-icon">
-          <path class="icon-main" d="M20 60 Q60 10 100 60" />
-        </svg>
-      </div>
+      <div class="story-card-art"></div>
       <a class="story-card-link" href="${entry.url}">
         <h3>${entry.title ?? entry.slug}</h3>
         <p class="card-meta">Continue</p>
