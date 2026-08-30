@@ -5,6 +5,8 @@
   --ink: #2c2a26;
   --ink-dark: #f2ede2;
   --coral: #e8735c;
+  --bg: var(--paper);
+  --fg: var(--ink);
   --font-display: "Fraunces", Georgia, serif;
   --font-body: system-ui, sans-serif;
 }
