@@ -91,8 +91,10 @@ section h2 { font-size: 1.3rem; font-weight: 700; margin: 1.5rem 0 0.75rem; }
 .no-audio-badge { opacity: 0.5; font-size: 0.9rem; }
 .story-header { background: var(--accent-bg); color: var(--accent-text); padding: 1.5rem 1rem; margin: 0 -1rem 1rem; border-radius: 0 0 16px 16px; }
 .story-header .breadcrumb a { color: var(--accent-text); }
+.story-header h1 { font-size: 1.8rem; }
 .story-description { opacity: 0.9; margin: 0.5rem 0; }
-.audio-card { background: color-mix(in srgb, var(--accent-bg) 15%, transparent); border-radius: 16px; padding: 1rem; margin-bottom: 1rem; }
+.audio-card { background: color-mix(in srgb, var(--accent-bg) 15%, transparent); border-radius: 16px; padding: 1rem; margin-bottom: 1rem; text-align: center; }
+.audio-card audio { max-width: 100%; }
 .autoplay-fallback { font-weight: 600; margin-top: 0.5rem; }
 /*
  * The tab bar (below) and the mini-player both anchor to the bottom of the
