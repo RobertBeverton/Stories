@@ -45,6 +45,7 @@ function setupMediaSession(playing, audio) {
       audio.currentTime = Math.max(0, audio.currentTime - (details.seekOffset || 10));
     });
     navigator.mediaSession.setActionHandler("seekforward", (details) => {
+      // audio.duration is NaN until metadata loads; `|| Infinity` avoids poisoning currentTime with NaN.
       audio.currentTime = Math.min(audio.duration || Infinity, audio.currentTime + (details.seekOffset || 10));
     });
     if (playing.prevUrl) {
