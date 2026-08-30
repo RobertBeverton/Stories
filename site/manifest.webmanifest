@@ -3,6 +3,7 @@
   "short_name": "Isles of Yum",
   "start_url": "/isles-of-yum/",
   "scope": "/isles-of-yum/",
+  "id": "/isles-of-yum/",
   "display": "standalone",
   "background_color": "#faf3e7",
   "theme_color": "#e8735c",

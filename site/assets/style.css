@@ -106,7 +106,7 @@ section h2 { font-size: 1.3rem; font-weight: 700; margin: 1.5rem 0 0.75rem; }
   padding: 0.75rem 1rem;
   background: #111;
   color: #fff;
-  z-index: 10;
+  z-index: 20;
 }
 .mini-player-title { color: #fff; text-decoration: none; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #mini-player-toggle { min-width: 44px; min-height: 44px; font-size: 1.25rem; background: none; border: none; color: #fff; }
@@ -117,7 +117,7 @@ main { padding-bottom: 4.5rem; } /* clears both tab bar and mini-player if both 
   display: flex; justify-content: space-around;
   background: var(--bg); border-top: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
   padding: 0.4rem 0 max(0.4rem, env(safe-area-inset-bottom));
-  z-index: 20;
+  z-index: 10;
 }
 .tab-bar-item { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; text-decoration: none; color: inherit; font-size: 0.7rem; min-height: 44px; min-width: 44px; justify-content: center; }
 
