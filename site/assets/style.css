@@ -1,5 +1,21 @@
-:root { color-scheme: light dark; }
-body { font-family: system-ui, sans-serif; font-size: 18px; line-height: 1.5; margin: 0; }
+:root {
+  color-scheme: light dark;
+  --paper: #faf3e7;
+  --paper-dark: #1c1a17;
+  --ink: #2c2a26;
+  --ink-dark: #f2ede2;
+  --coral: #e8735c;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: var(--paper-dark); --fg: var(--ink-dark); }
+}
+@media (prefers-color-scheme: light) {
+  :root { --bg: var(--paper); --fg: var(--ink); }
+}
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 18px; line-height: 1.5; margin: 0; }
+h1, h2, .story-card h3, .display { font-family: var(--font-display); }
 .site-header { padding: 1rem; font-size: 1.25rem; }
 .site-header a { text-decoration: none; color: inherit; }
 main { max-width: 700px; margin: 0 auto; padding: 0 1rem 2rem; }
