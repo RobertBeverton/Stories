@@ -138,5 +138,10 @@ main { padding-bottom: 4.5rem; } /* room for the fixed mini-player bar */
 .card-row .story-card { flex: 0 0 78vw; max-width: 320px; scroll-snap-align: start; }
 
 .card-list { display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0; }
-.card-list .story-card { flex-direction: row; }
-.card-list .story-card-art { flex: 0 0 100px; }
+
+@media (min-width: 480px) {
+  .card-list .story-card { flex-direction: row; }
+  .card-list .story-card-art { flex: 0 0 100px; }
+  .card-list .story-card-link { flex: 1; min-width: 0; }
+  .card-list .story-card-actions { flex-wrap: wrap; }
+}
