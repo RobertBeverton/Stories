@@ -53,7 +53,6 @@ export const data = {
     description: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.description,
     series: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.series,
     seriesOrder: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.seriesOrder,
-    audio: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.audio,
     audioUrl: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.audioUrl,
     audioMinutes: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.audioMinutes,
     readMinutes: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.readMinutes,

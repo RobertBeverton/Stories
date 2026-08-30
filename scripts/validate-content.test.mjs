@@ -41,8 +41,22 @@ describe("checkAudioFilesExistOrWarn", () => {
     expect(warnings).toEqual(["stories/a.md: audio file 'a.mp3' not found (warning only, build not blocked)"]);
   });
 
-  it("is silent when audio field is absent", () => {
+  it("is silent when audio field is absent but the default-named file exists", () => {
     const stories = [{ file: "stories/a.md", data: {} }];
+    const warnings = checkAudioFilesExistOrWarn(stories, () => true);
+    expect(warnings).toEqual([]);
+  });
+
+  it("warns with the derived default filename when audio field is absent and no file exists", () => {
+    const stories = [{ file: "stories/a.md", data: {} }];
+    const warnings = checkAudioFilesExistOrWarn(stories, () => false);
+    expect(warnings).toEqual([
+      "stories/a.md: no audio file found at default location 'a.mp3' (not narrated yet, or filename doesn't match story slug) (warning only, build not blocked)",
+    ]);
+  });
+
+  it("is silent when audio is explicitly set to false (opted out)", () => {
+    const stories = [{ file: "stories/a.md", data: { audio: false } }];
     const warnings = checkAudioFilesExistOrWarn(stories, () => false);
     expect(warnings).toEqual([]);
   });

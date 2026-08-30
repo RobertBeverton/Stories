@@ -51,7 +51,14 @@ export async function loadStories(globPattern = "stories/**/*.md") {
 // disk under `_site/` and must stay unprefixed (see that file's comments).
 export const PATH_PREFIX = "/isles-of-yum";
 
-export function computeStories(rawStories) {
+// Default audio-existence predicate for computeStories() below — always
+// true, so pure/unit-test callers that pass fixture data (no real files on
+// disk) keep working without a filesystem. Real callers (site/_data/stories.js)
+// pass fs.existsSync so a story with no narration yet (the default-derived
+// filename doesn't exist) omits audioUrl instead of rendering a broken player.
+const alwaysExists = () => true;
+
+export function computeStories(rawStories, audioFileExists = alwaysExists) {
   const allStories = rawStories.map(({ file, data, content }) => {
     const basename = path.basename(file, ".md");
     // The full, folder-qualified slug (e.g. "bramble-wall/book-1") is what
@@ -80,13 +87,26 @@ export function computeStories(rawStories) {
     // "the-bramble-wall"), or the <audio> src will 404 even though the
     // story page itself resolves fine.
     const diskDir = path.dirname(file).split(/[\\/]/).slice(1).join("/"); // strip leading "stories"
+    // Audio filename defaults to the story's own basename (e.g.
+    // "marzipans-well.md" -> "marzipans-well.mp3"), colocated with the
+    // story file, so most stories need no `audio` front matter at all.
+    // `audio: false` opts a story out (no narration yet); an explicit
+    // `audio: "whatever.mp3"` string overrides the default for edge cases.
+    const defaultedAudio = data.audio === false ? null : data.audio || `${basename}.mp3`;
+    // An explicit `audio:` value is trusted as-is (author knows it exists);
+    // the *derived* default is only used if that file actually exists on
+    // disk, so stories awaiting narration don't get a broken player.
+    const audioFile =
+      defaultedAudio && (data.audio || audioFileExists(path.join(path.dirname(file), defaultedAudio)))
+        ? defaultedAudio
+        : null;
     return {
       ...data,
       tags: data.tags ?? [],
       slug,
       url: `${PATH_PREFIX}/stories/${seriesSlug}${basename}/`,
-      audioUrl: data.audio
-        ? `${PATH_PREFIX}/stories/${diskDir ? diskDir + "/" : ""}${data.audio}`
+      audioUrl: audioFile
+        ? `${PATH_PREFIX}/stories/${diskDir ? diskDir + "/" : ""}${audioFile}`
         : null,
       readMinutes,
       audioMinutes: data.audioDuration ? Math.round(data.audioDuration / 60) : null,

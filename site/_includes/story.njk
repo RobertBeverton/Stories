@@ -12,7 +12,7 @@ layout: base.njk
   <p class="card-meta">~{{ readMinutes }} min read{% if audioMinutes %} · ~{{ audioMinutes }} min listen{% endif %}</p>
 </div>
 
-{% if audio %}
+{% if audioUrl %}
 <div class="audio-card" style="--accent-bg: {{ accentColor.background }};">
   <audio controls preload="none" id="story-audio" src="{{ audioUrl }}"></audio>
   <p id="autoplay-fallback" class="autoplay-fallback" hidden>▶︎ Tap play above to start listening</p>
