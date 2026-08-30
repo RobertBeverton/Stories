@@ -35,25 +35,34 @@ describe("checkDuplicateSlugs", () => {
 });
 
 describe("checkAudioFilesExistOrWarn", () => {
-  it("returns a warning (not an error) when audio is missing", () => {
+  it("returns a warning when audio is missing", () => {
     const stories = [{ file: "stories/a.md", data: { audio: "a.mp3" } }];
-    const { errors, warnings } = checkAudioFilesExistOrWarn(stories, () => false);
-    expect(errors).toEqual([]);
+    const warnings = checkAudioFilesExistOrWarn(stories, () => false);
     expect(warnings).toEqual(["stories/a.md: audio file 'a.mp3' not found (warning only, build not blocked)"]);
   });
 
   it("is silent when audio field is absent", () => {
     const stories = [{ file: "stories/a.md", data: {} }];
-    const { errors, warnings } = checkAudioFilesExistOrWarn(stories, () => false);
-    expect(errors).toEqual([]);
+    const warnings = checkAudioFilesExistOrWarn(stories, () => false);
     expect(warnings).toEqual([]);
   });
 
   it("is silent when the audio file exists", () => {
     const stories = [{ file: "stories/a.md", data: { audio: "a.mp3" } }];
-    const { errors, warnings } = checkAudioFilesExistOrWarn(stories, () => true);
-    expect(errors).toEqual([]);
+    const warnings = checkAudioFilesExistOrWarn(stories, () => true);
     expect(warnings).toEqual([]);
+  });
+
+  it("aggregates one warning per story missing audio", () => {
+    const stories = [
+      { file: "stories/a.md", data: { audio: "a.mp3" } },
+      { file: "stories/b.md", data: { audio: "b.mp3" } },
+    ];
+    const warnings = checkAudioFilesExistOrWarn(stories, () => false);
+    expect(warnings).toEqual([
+      "stories/a.md: audio file 'a.mp3' not found (warning only, build not blocked)",
+      "stories/b.md: audio file 'b.mp3' not found (warning only, build not blocked)",
+    ]);
   });
 });
 
@@ -61,5 +70,15 @@ describe("checkRepoSize", () => {
   it("flags total size over threshold", () => {
     const errors = checkRepoSize([600, 600], 1000, 900);
     expect(errors.some((e) => e.includes("exceeds guard threshold"))).toBe(true);
+  });
+});
+
+describe("errors and warnings independence", () => {
+  it("a story with both a missing required field and missing audio produces both an error and a warning, independently", () => {
+    const stories = [{ file: "stories/a.md", data: { audio: "a.mp3" }, slug: "a" }];
+    const fieldErrors = checkRequiredFields(stories);
+    const audioWarnings = checkAudioFilesExistOrWarn(stories, () => false);
+    expect(fieldErrors.length).toBeGreaterThan(0);
+    expect(audioWarnings.length).toBe(1);
   });
 });

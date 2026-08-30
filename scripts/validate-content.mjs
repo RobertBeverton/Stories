@@ -48,7 +48,6 @@ export async function loadStories(globPattern = "stories/**/*.md") {
 }
 
 export function checkAudioFilesExistOrWarn(stories, exists) {
-  const errors = [];
   const warnings = [];
   for (const story of stories) {
     if (!story.data.audio) continue;
@@ -57,7 +56,7 @@ export function checkAudioFilesExistOrWarn(stories, exists) {
       warnings.push(`${story.file}: audio file '${story.data.audio}' not found (warning only, build not blocked)`);
     }
   }
-  return { errors, warnings };
+  return warnings;
 }
 
 export function checkRepoSize(fileSizes, maxTotalBytes, maxFileBytes) {
@@ -116,16 +115,12 @@ async function main() {
       return fs.existsSync(p) ? fs.statSync(p).size : 0;
     });
 
-  const { errors: audioErrors, warnings: audioWarnings } = checkAudioFilesExistOrWarn(
-    refreshed,
-    (p) => fs.existsSync(p)
-  );
+  const audioWarnings = checkAudioFilesExistOrWarn(refreshed, (p) => fs.existsSync(p));
 
   const errors = [
     ...audioDurationErrors,
     ...checkRequiredFields(refreshed),
     ...checkDuplicateSlugs(refreshed),
-    ...audioErrors,
     ...checkRepoSize(fileSizes, 700 * 1024 * 1024, 90 * 1024 * 1024),
   ];
 
