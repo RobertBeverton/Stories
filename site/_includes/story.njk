@@ -14,7 +14,11 @@ layout: base.njk
 
 {% if audio %}
 <div class="audio-card" style="--accent-bg: {{ accentColor.background }};">
-  <audio controls preload="none" id="story-audio" src="{{ audioUrl }}"></audio>
+  <audio controls preload="none" id="story-audio" src="{{ audioUrl }}"
+    data-artwork-url="{{ '/assets/generated/icons/' | url }}{{ icon }}-{{ accentColor.background | replace('#', '') }}-512.png"
+    data-prev-url="{{ prevStory.url if prevStory else '' }}"
+    data-next-url="{{ nextStory.url if nextStory else '' }}"
+  ></audio>
   <p id="autoplay-fallback" class="autoplay-fallback" hidden>▶︎ Tap play above to start listening</p>
 </div>
 <p id="resume-banner" class="resume-banner" style="--accent-bg: {{ accentColor.background }};" hidden></p>

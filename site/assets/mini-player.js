@@ -22,12 +22,48 @@ function currentlyPlaying() {
     .sort((a, b) => b.savedAt - a.savedAt)[0];
 }
 
+export function buildMediaMetadata({ title, artworkUrl }) {
+  return {
+    title: title || "The Isles of Yum",
+    artist: "The Isles of Yum",
+    artwork: artworkUrl ? [
+      { src: artworkUrl, sizes: "512x512", type: "image/png" },
+    ] : [],
+  };
+}
+
+function setupMediaSession(playing, audio) {
+  if (!("mediaSession" in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata(buildMediaMetadata({
+    title: playing.title,
+    artworkUrl: playing.artworkUrl,
+  }));
+  if (audio) {
+    navigator.mediaSession.setActionHandler("play", () => audio.play().catch(() => {}));
+    navigator.mediaSession.setActionHandler("pause", () => audio.pause());
+    navigator.mediaSession.setActionHandler("seekbackward", (details) => {
+      audio.currentTime = Math.max(0, audio.currentTime - (details.seekOffset || 10));
+    });
+    navigator.mediaSession.setActionHandler("seekforward", (details) => {
+      audio.currentTime = Math.min(audio.duration || Infinity, audio.currentTime + (details.seekOffset || 10));
+    });
+    if (playing.prevUrl) {
+      navigator.mediaSession.setActionHandler("previoustrack", () => { window.location.href = playing.prevUrl + "?autoplay=1"; });
+    }
+    if (playing.nextUrl) {
+      navigator.mediaSession.setActionHandler("nexttrack", () => { window.location.href = playing.nextUrl + "?autoplay=1"; });
+    }
+  }
+}
+
 function renderBar(playing) {
   let bar = document.getElementById("mini-player");
   if (!playing) {
     if (bar) bar.remove();
+    document.body.classList.remove("has-mini-player");
     return;
   }
+  document.body.classList.add("has-mini-player");
   const localAudio = document.getElementById("story-audio");
   const currentSlug = document.querySelector("script[data-slug]")?.dataset.slug;
   const isLocalStory = localAudio && currentSlug === playing.slug;
@@ -54,6 +90,7 @@ function renderBar(playing) {
       if (localAudio.paused) localAudio.play().catch(() => {});
       else localAudio.pause();
     });
+    setupMediaSession(playing, localAudio);
   } else {
     toggle.addEventListener("click", () => {
       const key = `story-progress:${playing.slug}`;
@@ -68,5 +105,7 @@ function renderBar(playing) {
   }
 }
 
-renderBar(currentlyPlaying());
-window.addEventListener("storage", () => renderBar(currentlyPlaying()));
+if (typeof window !== "undefined") {
+  renderBar(currentlyPlaying());
+  window.addEventListener("storage", () => renderBar(currentlyPlaying()));
+}

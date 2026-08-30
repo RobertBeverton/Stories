@@ -94,11 +94,24 @@ section h2 { font-size: 1.3rem; font-weight: 700; margin: 1.5rem 0 0.75rem; }
 .story-description { opacity: 0.9; margin: 0.5rem 0; }
 .audio-card { background: color-mix(in srgb, var(--accent-bg) 15%, transparent); border-radius: 16px; padding: 1rem; margin-bottom: 1rem; }
 .autoplay-fallback { font-weight: 600; margin-top: 0.5rem; }
+/*
+ * The tab bar (below) and the mini-player both anchor to the bottom of the
+ * viewport and can be visible at the same time (mini-player appears whenever
+ * a story is playing, independent of which page/tab you're on). --tab-bar-height
+ * approximates the tab bar's real rendered height (0.4rem top padding +
+ * 44px min-height content + its bottom padding, which grows with the
+ * device's safe-area-inset-bottom on notched phones) so the mini-player can
+ * sit flush above it instead of overlapping it.
+ */
+:root {
+  --tab-bar-height: calc(0.4rem + 44px + max(0.4rem, env(safe-area-inset-bottom)));
+}
+
 #mini-player {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: var(--tab-bar-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -110,7 +123,12 @@ section h2 { font-size: 1.3rem; font-weight: 700; margin: 1.5rem 0 0.75rem; }
 }
 .mini-player-title { color: #fff; text-decoration: none; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #mini-player-toggle { min-width: 44px; min-height: 44px; font-size: 1.25rem; background: none; border: none; color: #fff; }
-main { padding-bottom: 4.5rem; } /* clears both tab bar and mini-player if both present */
+/* Base clearance for the tab bar alone; JS adds .has-mini-player to <body>
+   when the mini-player is actually rendered so main can clear both. The
+   mini-player's own height is its 0.75rem top+bottom padding plus its
+   44px-min-height toggle button content, i.e. calc(1.5rem + 44px). */
+main { padding-bottom: var(--tab-bar-height); }
+body.has-mini-player main { padding-bottom: calc(var(--tab-bar-height) + 1.5rem + 44px); }
 
 .tab-bar {
   position: fixed; left: 0; right: 0; bottom: 0;

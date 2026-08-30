@@ -22,7 +22,13 @@ function saveProgress(partial) {
   }
 }
 
-saveProgress({ title: document.title.replace(" — Isles of Yum", ""), url: window.location.pathname });
+saveProgress({
+  title: document.title.replace(" — Isles of Yum", ""),
+  url: window.location.pathname,
+  artworkUrl: audio?.dataset.artworkUrl,
+  prevUrl: audio?.dataset.prevUrl || null,
+  nextUrl: audio?.dataset.nextUrl || null,
+});
 
 const autoplayFallback = document.getElementById("autoplay-fallback");
 const autoplaySignal = new URLSearchParams(window.location.search).get("autoplay") === "1";
