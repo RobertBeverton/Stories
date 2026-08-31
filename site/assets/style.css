@@ -61,7 +61,7 @@ audio { width: 100%; }
   min-height: 44px;
   margin: 0 0 1rem;
 }
-/* Stronger tint than .arc-card's 15% (style.css ~227) — the most recent
+/* Stronger tint than .rail-group's 20% (style.css ~230) — the most recent
    in-progress story should visually outrank the muted arc list below it.
    AA-verified (--fg text on this background) across all 8 PALETTE entries
    in scripts/accent-colors.mjs, both light and dark mode: worst case
