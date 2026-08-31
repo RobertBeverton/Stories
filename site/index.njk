@@ -14,25 +14,12 @@ title: Library
 </section>
 
 <div id="stories">
-{% if stories.seriesGroups.length > 0 %}
+{% if stories.groups.length > 0 %}
 <section aria-labelledby="arcs-heading">
-  <h2 id="arcs-heading" class="visually-hidden">Story arcs</h2>
-  <div class="arc-card-list">
-    {% for group in stories.seriesGroups %}
-      {% include "arc-card.njk" %}
-    {% endfor %}
-  </div>
-</section>
-{% endif %}
-
-{% if stories.standalone.length > 0 %}
-<section aria-labelledby="standalone-heading" class="series-row-section series-row-section-neutral">
-  <div class="series-row-heading">
-    <h2 id="standalone-heading">More Stories</h2>
-  </div>
-  <div class="card-row">
-    {% for story in stories.standalone %}
-      {% include "story-card.njk" %}
+  <h2 id="arcs-heading" class="visually-hidden">Stories</h2>
+  <div class="rail-group-list">
+    {% for group in stories.groups %}
+      {% include "arc-group.njk" %}
     {% endfor %}
   </div>
 </section>
