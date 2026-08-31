@@ -18,8 +18,6 @@
 }
 body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 18px; line-height: 1.5; margin: 0; }
 h1, h2, .story-card h3, .display { font-family: var(--font-display); }
-.site-header { padding: 1rem; font-size: 1.25rem; }
-.site-header a { text-decoration: none; color: inherit; }
 main { max-width: 700px; margin: 0 auto; padding: 0 1rem 2rem; }
 #search-box { width: 100%; font-size: 1.1rem; padding: 0.75rem; margin-bottom: 1rem; box-sizing: border-box; min-height: 44px; }
 .card-grid { display: grid; gap: 1rem; }
