@@ -206,25 +206,3 @@ export function groupForLibrary(stories) {
 
   return { groups };
 }
-
-// Groups the already-computed, non-draft story list into one page-ready
-// record per series, for the series detail pages (site/series-pages.11ty.js).
-// Pure function — mirrors groupForLibrary()'s grouping/sorting logic but
-// keyed for a single series' page rather than the whole library.
-export function seriesPageData(stories) {
-  const bySeries = new Map();
-  for (const story of stories) {
-    if (!story.series) continue;
-    if (!bySeries.has(story.series)) bySeries.set(story.series, []);
-    bySeries.get(story.series).push(story);
-  }
-  return Array.from(bySeries.entries()).map(([series, seriesStories]) => {
-    seriesStories.sort((a, b) => (a.seriesOrder ?? 0) - (b.seriesOrder ?? 0));
-    return {
-      series,
-      seriesSlug: slugify(series),
-      accentColor: accentColorFor(series),
-      stories: seriesStories,
-    };
-  });
-}

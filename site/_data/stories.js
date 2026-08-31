@@ -3,7 +3,6 @@ import {
   loadStories,
   computeStories,
   groupForLibrary,
-  seriesPageData,
 } from "../../scripts/stories-lib.mjs";
 
 // IMPORTANT: keep this file's ONLY export as `export default`. Eleventy's
@@ -16,6 +15,5 @@ export default async function () {
   const stories = computeStories(rawStories, fs.existsSync);
   const { groups } = groupForLibrary(stories);
   stories.groups = groups;
-  stories.seriesPages = seriesPageData(stories);
   return stories;
 }
