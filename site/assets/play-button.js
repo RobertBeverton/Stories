@@ -1,4 +1,4 @@
-// Wires up every "▶︎ Listen" button rendered by story-card.njk. The button
+// Wires up every "▶︎ Listen" button rendered by arc-group.njk. The button
 // carries data-play-* attributes (slug/url/title/story-url) instead of being
 // a plain link because a later enhancement may want to start playback
 // in-place without navigating — but no such in-place player exists yet, so
