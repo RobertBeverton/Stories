@@ -1,13 +1,13 @@
 const searchBox = document.getElementById("search-box");
-const cards = Array.from(document.querySelectorAll(".story-card"));
+const rows = Array.from(document.querySelectorAll(".story-row"));
 
 searchBox?.addEventListener("input", () => {
   const query = searchBox.value.trim().toLowerCase();
-  for (const card of cards) {
+  for (const row of rows) {
     const haystack = (
-      card.dataset.title + " " + card.dataset.tags + " " + card.dataset.description
+      row.dataset.title + " " + row.dataset.tags + " " + row.dataset.description
     ).toLowerCase();
     const match = query === "" || haystack.includes(query);
-    card.style.display = match ? "" : "none";
+    row.style.display = match ? "" : "none";
   }
 });
