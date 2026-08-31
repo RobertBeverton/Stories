@@ -14,21 +14,16 @@ title: Library
 </section>
 
 <div id="stories">
-{% for group in stories.seriesGroups %}
-<section aria-labelledby="series-heading-{{ loop.index }}" class="series-row-section" style="--accent-bg: {{ group.accentColor.background }}; --accent-text: {{ group.accentColor.text }};">
-  <div class="series-row-heading">
-    <h2 id="series-heading-{{ loop.index }}">{{ group.series }}</h2>
-    <a class="see-all" href="{{ '/series/' | url }}{{ group.series | slugify }}/">See all →</a>
-  </div>
-  <div class="card-row">
-    {% for story in group.stories %}
-      {% if loop.index0 < 4 %}
-        {% include "story-card.njk" %}
-      {% endif %}
+{% if stories.seriesGroups.length > 0 %}
+<section aria-labelledby="arcs-heading">
+  <h2 id="arcs-heading" class="visually-hidden">Story arcs</h2>
+  <div class="arc-card-list">
+    {% for group in stories.seriesGroups %}
+      {% include "arc-card.njk" %}
     {% endfor %}
   </div>
 </section>
-{% endfor %}
+{% endif %}
 
 {% if stories.standalone.length > 0 %}
 <section aria-labelledby="standalone-heading" class="series-row-section series-row-section-neutral">

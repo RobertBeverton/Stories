@@ -187,7 +187,6 @@ body.has-mini-player main { padding-bottom: calc(var(--tab-bar-height) + 1.5rem 
 .hero h1 .accent { color: var(--coral); font-weight: 600; }
 
 .series-row-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
-.see-all { text-decoration: none; color: inherit; opacity: 0.8; white-space: nowrap; min-height: 44px; display: inline-flex; align-items: center; }
 
 .card-row {
   display: flex;
