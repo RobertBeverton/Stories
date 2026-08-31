@@ -226,18 +226,37 @@ body.has-mini-player main { padding-bottom: calc(var(--tab-bar-height) + 1.5rem 
 .card-list { display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0; }
 .card-list .story-card { max-width: 480px; }
 
-.rail-group-list { display: flex; flex-direction: column; gap: 1rem; margin: 0.5rem 0 1.5rem; }
-
-.rail-group {
-  display: flex;
-  gap: 0.85rem;
-  padding: 0.85rem 1rem;
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--accent-bg) 20%, var(--bg));
-  border: 1px solid color-mix(in srgb, var(--fg) 12%, transparent);
+/* Two-column grid spanning the WHOLE list (not one grid per group) so the
+   rail column forms one continuous strip down the page, like a calendar's
+   date rail, rather than a separate boxed card per arc. The connecting
+   line is a single ::before positioned down the rail column's center;
+   each group only contributes an icon (placed on the line) and a content
+   block (the tinted band) as grid items — see arc-group.njk. */
+.rail-group-list {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  column-gap: 0.85rem;
+  row-gap: 0;
+  margin: 0.5rem 0 1.5rem;
 }
-.rail-group-rail { flex: 0 0 auto; width: 44px; }
+.rail-group-list::before {
+  content: "";
+  position: absolute;
+  top: 22px;
+  bottom: 22px;
+  left: 21px;
+  width: 2px;
+  background: color-mix(in srgb, var(--fg) 15%, transparent);
+}
+
+/* One rail-icon + content pair per group; a top border on the icon cell
+   (skipped for the first group) is the "tick mark" break between arcs. */
+.rail-group-icon-cell { position: relative; padding-top: 0.85rem; }
+.rail-group-icon-cell.rail-group-break { border-top: 1px solid color-mix(in srgb, var(--fg) 15%, transparent); margin-top: 1rem; }
 .rail-group-icon {
+  position: relative;
+  z-index: 1;
   width: 44px;
   height: 44px;
   padding: 8px;
@@ -245,8 +264,15 @@ body.has-mini-player main { padding-bottom: calc(var(--tab-bar-height) + 1.5rem 
   background: var(--accent-bg);
   box-sizing: border-box;
 }
-.rail-group-icon .icon-main { fill: none; stroke: #fff; stroke-width: 6; }
-.rail-group-content { flex: 1 1 auto; min-width: 0; }
+.rail-group-icon .icon-main { fill: none; stroke: var(--accent-text, #2c2a26); stroke-width: 6; }
+
+.rail-group-content {
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--accent-bg) 35%, var(--bg));
+}
+.rail-group-content.rail-group-break { margin-top: 1rem; }
 .rail-group-heading { margin: 0 0 0.3rem; font-size: 1.05rem; line-height: 1.3; }
 
 .rail-group-lozenges { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0 0 0.6rem; }

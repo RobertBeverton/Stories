@@ -1,38 +1,36 @@
-<div class="rail-group" style="--accent-bg: {{ group.accentColor.background }};">
-  <div class="rail-group-rail">
-    <svg class="rail-group-icon" viewBox="0 0 120 82" aria-hidden="true">
-      <path class="icon-main" d="{{ icons.path(group.stories[0].icon) }}" />
-    </svg>
+<div class="rail-group-icon-cell{% if not loop.first %} rail-group-break{% endif %}">
+  <svg class="rail-group-icon" viewBox="0 0 120 82" aria-hidden="true" style="--accent-bg: {{ group.accentColor.background }}; --accent-text: {{ group.accentColor.text }};">
+    <path class="icon-main" d="{{ icons.path(group.stories[0].icon) }}" />
+  </svg>
+</div>
+<div class="rail-group-content{% if not loop.first %} rail-group-break{% endif %}" style="--accent-bg: {{ group.accentColor.background }};">
+  {% if group.series %}
+  <h3 class="rail-group-heading">{{ group.series }}</h3>
+  {% endif %}
+  {% if group.keyIslands.length > 0 or group.characters.length > 0 %}
+  <div class="rail-group-lozenges">
+    {% for character in group.characters %}
+    <span class="lozenge">{{ character }}</span>
+    {% endfor %}
+    {% for island in group.keyIslands %}
+    <span class="lozenge">{{ island }}</span>
+    {% endfor %}
   </div>
-  <div class="rail-group-content">
-    {% if group.series %}
-    <h3 class="rail-group-heading">{{ group.series }}</h3>
-    {% endif %}
-    {% if group.keyIslands.length > 0 or group.characters.length > 0 %}
-    <div class="rail-group-lozenges">
-      {% for character in group.characters %}
-      <span class="lozenge">{{ character }}</span>
-      {% endfor %}
-      {% for island in group.keyIslands %}
-      <span class="lozenge">{{ island }}</span>
-      {% endfor %}
-    </div>
-    {% endif %}
-    <div class="rail-group-rows">
-      {% for story in group.stories %}
-      <div class="story-row" data-title="{{ story.title }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}">
-        <a class="story-row-link" href="{{ story.url }}">{{ story.title }}</a>
-        <div class="story-row-actions">
-          {% if story.audioUrl %}
-          <button type="button" class="play-button-primary" data-play-slug="{{ story.slug }}" data-play-url="{{ story.audioUrl }}" data-play-title="{{ story.title }}" data-play-story-url="{{ story.url }}" aria-label="Listen to {{ story.title }}"><span aria-hidden="true">▶︎</span> Listen</button>
-          <a class="read-link" href="{{ story.url }}">Read →</a>
-          {% else %}
-          <a class="read-link read-link-primary" href="{{ story.url }}">Read story →</a>
-          <span class="no-audio-badge" role="img" aria-label="Text only, no audio">🚫🔊</span>
-          {% endif %}
-        </div>
+  {% endif %}
+  <div class="rail-group-rows">
+    {% for story in group.stories %}
+    <div class="story-row" data-title="{{ story.title }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}">
+      <a class="story-row-link" href="{{ story.url }}">{{ story.title }}</a>
+      <div class="story-row-actions">
+        {% if story.audioUrl %}
+        <button type="button" class="play-button-primary" data-play-slug="{{ story.slug }}" data-play-url="{{ story.audioUrl }}" data-play-title="{{ story.title }}" data-play-story-url="{{ story.url }}" aria-label="Listen to {{ story.title }}"><span aria-hidden="true">▶︎</span> Listen</button>
+        <a class="read-link" href="{{ story.url }}">Read →</a>
+        {% else %}
+        <a class="read-link read-link-primary" href="{{ story.url }}">Read story →</a>
+        <span class="no-audio-badge" role="img" aria-label="Text only, no audio">🚫🔊</span>
+        {% endif %}
       </div>
-      {% endfor %}
     </div>
+    {% endfor %}
   </div>
 </div>

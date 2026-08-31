@@ -12,6 +12,17 @@ describe("buildIconSvg", () => {
   it("throws for an invalid icon name", () => {
     expect(() => buildIconSvg({ icon: "spaceship", background: "#000" })).toThrow();
   });
+
+  it("defaults to white strokes when no stroke color is given", () => {
+    const svg = buildIconSvg({ icon: "boat", background: "#1f5f8b" });
+    expect(svg).toContain('stroke="#ffffff"');
+  });
+
+  it("uses a given stroke color instead of the white default — needed because PALETTE backgrounds are pastel, so white icon strokes would fail contrast", () => {
+    const svg = buildIconSvg({ icon: "boat", background: "#eab09e", stroke: "#2c2a26" });
+    expect(svg).toContain('stroke="#2c2a26"');
+    expect(svg).not.toContain('stroke="#ffffff"');
+  });
 });
 
 describe("iconArtCombosFor", () => {
@@ -23,5 +34,13 @@ describe("iconArtCombosFor", () => {
     ];
     const combos = iconArtCombosFor(stories);
     expect(combos).toHaveLength(2);
+  });
+
+  it("carries each combo's accent text color through as the stroke color", () => {
+    const stories = [
+      { icon: "boat", accentColorBackground: "#eab09e", accentColorText: "#2c2a26" },
+    ];
+    const combos = iconArtCombosFor(stories);
+    expect(combos[0].stroke).toBe("#2c2a26");
   });
 });

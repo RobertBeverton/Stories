@@ -3,13 +3,13 @@ import path from "node:path";
 import sharp from "sharp";
 import { iconSvgPath, iconDetailSvgPath } from "./icons.mjs";
 
-export function buildIconSvg({ icon, background }) {
+export function buildIconSvg({ icon, background, stroke = "#ffffff" }) {
   const main = iconSvgPath(icon); // throws on invalid icon, same as validate-content's check
   const detail = iconDetailSvgPath(icon);
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 82" width="512" height="512">
     <rect width="120" height="82" fill="${background}" />
-    <path d="${main}" fill="none" stroke="#ffffff" stroke-width="4" />
-    <path d="${detail}" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.85" />
+    <path d="${main}" fill="none" stroke="${stroke}" stroke-width="4" />
+    <path d="${detail}" fill="none" stroke="${stroke}" stroke-width="2" opacity="0.85" />
   </svg>`;
 }
 
@@ -17,7 +17,9 @@ export function iconArtCombosFor(stories) {
   const seen = new Map();
   for (const s of stories) {
     const key = `${s.icon}__${s.accentColorBackground}`;
-    if (!seen.has(key)) seen.set(key, { icon: s.icon, background: s.accentColorBackground });
+    if (!seen.has(key)) {
+      seen.set(key, { icon: s.icon, background: s.accentColorBackground, stroke: s.accentColorText });
+    }
   }
   return Array.from(seen.values());
 }
@@ -50,6 +52,7 @@ async function main() {
   const stories = computeStories(raw).map((s) => ({
     icon: s.icon,
     accentColorBackground: accentColorFor(s.series).background,
+    accentColorText: accentColorFor(s.series).text,
   }));
   const combos = iconArtCombosFor(stories);
   const outDir = "site/assets/generated/icons";

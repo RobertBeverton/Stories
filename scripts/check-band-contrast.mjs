@@ -2,13 +2,13 @@ import { pathToFileURL } from "node:url";
 import { PALETTE } from "./accent-colors.mjs";
 
 // The homepage arc/standalone group band background (site/assets/style.css's
-// .rail-group rule) mixes each accent color at BAND_MIX_PERCENT into the
-// page background behind the group's heading, lozenges, and story rows —
+// .rail-group-content rule) mixes each accent color at BAND_MIX_PERCENT into
+// the page background behind the group's heading, lozenges, and story rows —
 // this script is the enforced version of that contrast claim, mirroring
 // check-wave-contrast.mjs's pattern, so a future palette/token edit that
 // breaks contrast fails a check instead of silently shipping unreadable
 // text.
-export const BAND_MIX_PERCENT = 0.2;
+export const BAND_MIX_PERCENT = 0.35;
 const CONTRAST_FLOOR = 4.5; // WCAG AA for normal-size text
 
 const PAPER = { light: "#faf3e7", dark: "#1c1a17" };

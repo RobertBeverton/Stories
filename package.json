@@ -11,7 +11,9 @@
     "generate-icons": "node scripts/generate-icon-art.mjs",
     "check-wave-contrast": "node scripts/check-wave-contrast.mjs",
     "check-band-contrast": "node scripts/check-band-contrast.mjs",
-    "build": "npm run validate && npm run check-wave-contrast && npm run check-band-contrast && npm run generate-icons && npx @11ty/eleventy",
+    "check-continue-banner-contrast": "node scripts/check-continue-banner-contrast.mjs",
+    "check-solid-fill-contrast": "node scripts/check-solid-fill-contrast.mjs",
+    "build": "npm run validate && npm run check-wave-contrast && npm run check-band-contrast && npm run check-continue-banner-contrast && npm run check-solid-fill-contrast && npm run generate-icons && npx @11ty/eleventy",
     "serve": "npx @11ty/eleventy --serve",
     "narrate": "node audio-pipeline/narrate.mjs"
   },
