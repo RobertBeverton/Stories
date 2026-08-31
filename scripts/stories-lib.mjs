@@ -159,40 +159,52 @@ export function computeStories(rawStories, audioFileExists = alwaysExists) {
 }
 
 // Groups the already-computed, non-draft story list (as returned by
-// computeStories()) into series sections and a standalone list, for the
-// library page. Pure function — no localStorage/DOM access, since the
-// "Continue" section (which DOES need localStorage) can only be computed
-// client-side; see site/assets/library.js.
+// computeStories()) into one merged list of groups — one per arc, one per
+// standalone story — ordered by each group's MOST RECENT story's
+// publishDate (so adding a new story to an old arc pushes that whole arc
+// back toward the top of the homepage). Pure function — no localStorage/DOM
+// access, since the "Continue" section (which DOES need localStorage) can
+// only be computed client-side; see site/assets/library.js.
 export function groupForLibrary(stories) {
   const bySeries = new Map();
-  const standalone = [];
+  const groups = [];
   for (const story of stories) {
     if (!story.series) {
-      standalone.push(story);
+      groups.push({
+        series: null,
+        accentColor: accentColorFor(undefined),
+        stories: [story],
+        keyIslands: story.keyIslands ?? [],
+        characters: story.characters ?? [],
+        _latestPublish: new Date(story.publishDate).getTime(),
+      });
       continue;
     }
     if (!bySeries.has(story.series)) bySeries.set(story.series, []);
     bySeries.get(story.series).push(story);
   }
 
-  const seriesGroups = Array.from(bySeries.entries()).map(([series, seriesStories]) => {
+  for (const [series, seriesStories] of bySeries.entries()) {
     seriesStories.sort((a, b) => (a.seriesOrder ?? 0) - (b.seriesOrder ?? 0));
-    const earliestPublish = seriesStories.reduce(
-      (min, s) => Math.min(min, new Date(s.publishDate).getTime()),
-      Infinity
+    const latestPublish = seriesStories.reduce(
+      (max, s) => Math.max(max, new Date(s.publishDate).getTime()),
+      -Infinity
     );
-    return {
+    const firstStory = seriesStories[0];
+    groups.push({
       series,
       accentColor: accentColorFor(series),
       stories: seriesStories,
-      _earliestPublish: earliestPublish,
-    };
-  });
+      keyIslands: firstStory.keyIslands ?? [],
+      characters: firstStory.characters ?? [],
+      _latestPublish: latestPublish,
+    });
+  }
 
-  seriesGroups.sort((a, b) => b._earliestPublish - a._earliestPublish);
-  for (const group of seriesGroups) delete group._earliestPublish;
+  groups.sort((a, b) => b._latestPublish - a._latestPublish);
+  for (const group of groups) delete group._latestPublish;
 
-  return { seriesGroups, standalone };
+  return { groups };
 }
 
 // Groups the already-computed, non-draft story list into one page-ready
