@@ -14,9 +14,8 @@ import {
 export default async function () {
   const rawStories = await loadStories();
   const stories = computeStories(rawStories, fs.existsSync);
-  const { seriesGroups, standalone } = groupForLibrary(stories);
-  stories.seriesGroups = seriesGroups;
-  stories.standalone = standalone;
+  const { groups } = groupForLibrary(stories);
+  stories.groups = groups;
   stories.seriesPages = seriesPageData(stories);
   return stories;
 }
