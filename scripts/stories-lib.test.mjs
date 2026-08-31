@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeStories, seriesPageData } from "./stories-lib.mjs";
+import { computeStories, seriesPageData, groupForLibrary } from "./stories-lib.mjs";
 import { accentColorFor } from "./accent-colors.mjs";
 
 describe("computeStories", () => {
@@ -53,5 +53,20 @@ describe("seriesPageData", () => {
     expect(pages[0].seriesSlug).toBe("felix-alex");
     expect(pages[0].stories.map((s) => s.title)).toEqual(["Two", "One"]); // ordered by seriesOrder
     expect(pages[0].accentColor).toBeDefined();
+  });
+});
+
+describe("groupForLibrary (current behavior, pre-redesign baseline)", () => {
+  it("separates series stories from standalone stories into two lists", () => {
+    const raw = [
+      { file: "stories/a/one.md", data: { title: "One", series: "Arc A", seriesOrder: 1, publishDate: "2026-01-01" }, content: "hi" },
+      { file: "stories/standalone.md", data: { title: "Solo", publishDate: "2026-01-05" }, content: "hi" },
+    ];
+    const stories = computeStories(raw);
+    const { seriesGroups, standalone } = groupForLibrary(stories);
+    expect(seriesGroups).toHaveLength(1);
+    expect(seriesGroups[0].series).toBe("Arc A");
+    expect(standalone).toHaveLength(1);
+    expect(standalone[0].title).toBe("Solo");
   });
 });
