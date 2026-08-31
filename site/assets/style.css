@@ -49,6 +49,22 @@ audio { width: 100%; }
 #restart-btn { background: transparent; color: inherit; border: 1px solid currentColor; opacity: 0.85; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
+.continue-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--fg) 8%, var(--bg));
+  text-decoration: none;
+  color: inherit;
+  min-height: 44px;
+  margin: 0 0 1rem;
+}
+.continue-banner-label { font-weight: 700; opacity: 0.7; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.continue-banner-title { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.continue-banner-arrow { opacity: 0.6; flex: 0 0 auto; }
+
 h1 { font-size: 1.75rem; font-weight: 800; }
 section h2 { font-size: 1.3rem; font-weight: 700; margin: 1.5rem 0 0.75rem; }
 .series-row-section { background: color-mix(in srgb, var(--accent-bg) 12%, transparent); border-radius: 16px; padding: 1rem; margin: 1rem 0; }
