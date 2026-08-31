@@ -10,7 +10,8 @@
     "validate": "node scripts/validate-content.mjs",
     "generate-icons": "node scripts/generate-icon-art.mjs",
     "check-wave-contrast": "node scripts/check-wave-contrast.mjs",
-    "build": "npm run validate && npm run check-wave-contrast && npm run generate-icons && npx @11ty/eleventy",
+    "check-band-contrast": "node scripts/check-band-contrast.mjs",
+    "build": "npm run validate && npm run check-wave-contrast && npm run check-band-contrast && npm run generate-icons && npx @11ty/eleventy",
     "serve": "npx @11ty/eleventy --serve",
     "narrate": "node audio-pipeline/narrate.mjs"
   },
