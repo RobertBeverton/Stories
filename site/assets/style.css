@@ -61,6 +61,15 @@ audio { width: 100%; }
   min-height: 44px;
   margin: 0 0 1rem;
 }
+/* Stronger tint than .arc-card's 15% (style.css ~227) — the most recent
+   in-progress story should visually outrank the muted arc list below it.
+   AA-verified (--fg text on this background) across all 8 PALETTE entries
+   in scripts/accent-colors.mjs, both light and dark mode: worst case
+   6.80:1 light, 9.29:1 dark — comfortably over the 4.5:1 floor. Re-check
+   if PALETTE gains new colors or this percentage changes. */
+.continue-banner.has-accent {
+  background: color-mix(in srgb, var(--accent-bg) 40%, var(--bg));
+}
 .continue-banner-label { font-weight: 700; opacity: 0.7; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.03em; }
 .continue-banner-title { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .continue-banner-arrow { opacity: 0.6; flex: 0 0 auto; }

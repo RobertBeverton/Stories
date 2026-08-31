@@ -1,7 +1,7 @@
 ---
 layout: base.njk
 ---
-<div class="story-header" style="--accent-bg: {{ accentColor.background }}; --accent-text: {{ accentColor.text }};">
+<div class="story-header" data-accent-bg="{{ accentColor.background }}" style="--accent-bg: {{ accentColor.background }}; --accent-text: {{ accentColor.text }};">
   <nav class="breadcrumb">
     <a href="{{ '/' | url }}">← Library</a>
     {% if series %} · {{ series }}{% endif %}

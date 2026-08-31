@@ -3,6 +3,7 @@ const slug = script.dataset.slug;
 const storageKey = `story-progress:${slug}`;
 const audio = document.getElementById("story-audio");
 const banner = document.getElementById("resume-banner");
+const accentBg = document.querySelector(".story-header")?.dataset.accentBg;
 banner.setAttribute("role", "status");
 
 function readProgress() {
@@ -28,6 +29,7 @@ saveProgress({
   artworkUrl: audio?.dataset.artworkUrl,
   prevUrl: audio?.dataset.prevUrl || null,
   nextUrl: audio?.dataset.nextUrl || null,
+  accentBg: accentBg || null,
 });
 
 const autoplayFallback = document.getElementById("autoplay-fallback");

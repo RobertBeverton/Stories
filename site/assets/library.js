@@ -24,8 +24,11 @@ if (entries.length > 0) {
 
   const section = document.getElementById("continue-section");
   const row = document.getElementById("continue-row");
+  const hasAccent = Boolean(mostRecent.accentBg);
+  const bannerClass = hasAccent ? "continue-banner has-accent" : "continue-banner";
+  const bannerStyle = hasAccent ? ` style="--accent-bg: ${mostRecent.accentBg}"` : "";
   row.innerHTML = `
-    <a class="continue-banner" href="${mostRecent.url}">
+    <a class="${bannerClass}" href="${mostRecent.url}"${bannerStyle}>
       <span class="continue-banner-label">Continue</span>
       <span class="continue-banner-title">${mostRecent.title ?? mostRecent.slug}</span>
       <span class="continue-banner-arrow" aria-hidden="true">→</span>
