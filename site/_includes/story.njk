@@ -9,6 +9,16 @@ layout: base.njk
 
   <h1>{{ title }}</h1>
   {% if description %}<p class="story-description">{{ description }}</p>{% endif %}
+  {% if keyIslands.length > 0 or characters.length > 0 %}
+  <div class="lozenges">
+    {% for character in characters %}
+    <span class="lozenge">{{ character }}</span>
+    {% endfor %}
+    {% for island in keyIslands %}
+    <span class="lozenge">{{ island }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
   <p class="card-meta">~{{ readMinutes }} min read{% if audioMinutes %} · ~{{ audioMinutes }} min listen{% endif %}</p>
 </div>
 
