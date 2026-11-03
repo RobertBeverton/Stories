@@ -23,7 +23,7 @@ afterEach(() => {
 });
 
 describe("main.js", () => {
-  it("mounts each data-mount element and tolerates modules that do not exist yet (dock)", async () => {
+  it("mounts each data-mount element, including the dock, without a warning", async () => {
     seed(progressV2);
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     await main.mountAll();
@@ -31,8 +31,7 @@ describe("main.js", () => {
     expect(document.querySelector('[data-mount="world-switcher"] button[data-world]')).not.toBeNull();
     expect(document.querySelector('[data-mount="filters"] [data-filter]')).not.toBeNull();
     expect(document.querySelector('[data-mount="played-lately"] li')).not.toBeNull();
-    // dock is wave 2: its failure is a warning, not a crash.
-    expect(warn.mock.calls.some((c) => String(c[0]).includes("dock"))).toBe(true);
+    expect(warn.mock.calls.filter((c) => /^mount .* failed$/.test(String(c[0])))).toEqual([]);
   });
 
   it("ignores unknown data-mount names and does not mount twice", async () => {

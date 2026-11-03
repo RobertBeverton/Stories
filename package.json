@@ -6,7 +6,7 @@
     "fetch-content": "node scripts/fetch-content.mjs",
     "validate": "node scripts/validate-content.mjs",
     "validate-world-data": "node scripts/validate-world-data.mjs",
-    "test:e2e": "echo \"test:e2e: no e2e tests yet (WP-D)\"",
+    "test:e2e": "playwright test",
     "generate-icons": "node scripts/generate-icon-art.mjs",
     "check-token-contrast": "node scripts/check-token-contrast.mjs",
     "check-solid-fill-contrast": "node scripts/check-solid-fill-contrast.mjs",
@@ -19,6 +19,7 @@
   "description": "The reading and listening site for Felix & Alex's story worlds. Content lives in separate repos (see content-sources.json).",
   "devDependencies": {
     "@11ty/eleventy": "^3.1.6",
+    "@playwright/test": "^1.64.1",
     "ajv": "^8.20.0",
     "fast-glob": "^3.3.3",
     "gray-matter": "^4.0.3",

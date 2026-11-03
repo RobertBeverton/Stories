@@ -41,3 +41,26 @@
   .dock { position: static; }
   main, body.has-mini-player main { padding-bottom: 2rem; }
 }
+
+/* Mini-player row, built by dock.mjs. The title button opens the player sheet;
+   the toggle is a 56px round button. */
+.dock-mini-open {
+  flex: 1 1 auto; min-width: 0; min-height: var(--dock-mini-h);
+  display: flex; align-items: center; text-align: left;
+  padding: 0; border: 0; background: none; color: var(--text);
+  font: inherit; cursor: pointer;
+}
+.dock-mini .btn-icon { flex: none; border-radius: 50%; }
+.dock-mini .btn-icon svg { width: 1.6rem; height: 1.6rem; }
+
+/* Player sheet extras (the sheet itself is in player.css). A closed sheet is
+   `hidden`; the page behind an open one is `inert`. */
+.player-sheet h3 { margin: 0 0 0.5rem; font-size: 1rem; }
+.player-sheet .icon-label { fill: currentColor; stroke: none; font-family: var(--font-body); }
+.player-controls svg, .player-play svg { fill: currentColor; stroke: none; }
+.player-controls .btn svg { width: 1.9rem; height: 1.9rem; }
+.player-play svg { width: 2.4rem; height: 2.4rem; }
+.player-story-link { align-self: center; }
+.player-sleep-wrap { text-align: center; }
+.player-sleep { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+.player-sleep-status { margin: 0.5rem 0 0; color: var(--muted); font-size: var(--text-small); min-height: 1.5em; }

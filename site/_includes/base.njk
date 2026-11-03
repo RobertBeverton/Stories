@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-base="{{ '/' | url | replace(r/\/$/, '') }}">
+<html lang="en" data-base="{{ '/' | url | replace(r/\/$/, '') }}"{% if shell and shell.router === false %} data-router="off"{% endif %}>
 <head>
   <meta charset="utf-8">
   {# Pages sends no headers, so the policy is a meta tag; frame-ancestors cannot be set this way. #}
@@ -25,8 +25,12 @@
 <body>
   {# SLOT view: the only region the router (WP-D) replaces #}
   <main id="view">{{ content | safe }}</main>
-  {# SLOT player: persistent <audio id="player"> lands here in WP-D, outside #view #}
-  {# SLOT dock: static nav (Home, Library); the dock module adds the mini-player row #}
+  {# The persistent player: ONE <audio>, outside #view, so it survives router swaps.
+     On a story page it already holds that story (data-slug and src), which keeps
+     story-resume working on a plain page load; the dock module (player.mjs) owns it
+     from there. No controls: the dock draws them. #}
+  <audio id="player" data-role="shell-audio" preload="{% if audioUrl and slug %}metadata{% else %}none{% endif %}"{% if audioUrl and slug %} data-slug="{{ slug }}" src="{{ audioUrl }}"{% endif %}></audio>
+  {# The dock: static nav (Home, Library); the dock module adds the mini-player row and sheet #}
   {% include "dock-static.njk" %}
 </body>
 </html>

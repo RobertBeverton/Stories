@@ -3,6 +3,7 @@
 // mount(el) returning an unmount() function (see docs/contracts.md).
 // A missing or broken module must never break the page. Not a hook: the world
 // accent (world-accent.mjs) also starts here, so every page follows the world.
+import { startRouter } from "./router.mjs";
 import { startWorldAccent } from "./world-accent.mjs";
 
 export const NAMES = [
@@ -43,4 +44,6 @@ export function unmountAll(root = document) {
 if (typeof document !== "undefined") {
   startWorldAccent();
   mountAll();
+  // The router swaps #view and remounts its modules; see router.mjs for the kill switch.
+  startRouter({ mountAll, unmountAll });
 }

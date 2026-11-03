@@ -1,21 +1,40 @@
 name: Smoke test
 
-# PLACEHOLDER. WP-D (the shell work package, wave 2) fills this in with the
-# Playwright smoke test: build, load a story, start the silent mp3 fixture,
-# navigate, and assert the same <audio> element survives.
-#
-# Until then it is manual only (workflow_dispatch). It deliberately has no
-# pull_request or push trigger, so it can never fail a build or block a merge.
-# WP-D decides the real triggers when it adds real steps.
+# Builds a small fixture site (invented stories, no audio files) and drives it in
+# real Chromium: home loads, the router keeps the same <audio> element across
+# navigation, the kill switch gives plain page loads, no CSP violations.
+# See test/e2e and playwright.config.mjs. Run it locally with `npm run test:e2e`.
 on:
+  pull_request:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Placeholder
-        run: echo "Smoke test placeholder. WP-D fills this in."
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
