@@ -45,12 +45,13 @@ Pushing to `main` builds and deploys to GitHub Pages through `.github/workflows/
 
 ## Status
 
-Built on `feature/app-redesign`: Hearth restyle, world switcher and accents, `library.json`, Home, Library and Story from the index, finished, new and end-of-story states, lore pages and part list, CSP and cache-busted modules, Node 24 CI with a nightly build.
+Built on `feature/app-redesign`: Hearth restyle, world switcher and accents, `library.json`, Home, Library and Story from the index, finished, new and end-of-story states, lore pages and part list, a router with a persistent player, dock, player sheet and sleep timer, CSP and content-hashed, cache-busted modules, and Node 24 CI with a nightly build. Unit tests (`npx vitest run`) and the Playwright smoke test (`npm run test:e2e`) both gate the deploy.
+
+The device spike passed on an Android phone (Firefox, installed) and a desktop browser. Not yet run on iOS. The lock-screen title can stay stale on Firefox for Android after next or previous; the player re-sets it after `playing` and this is a browser limitation.
 
 Waiting on a human:
 
-- **Device spike** ([docs/spikes/audio-spike.md](docs/spikes/audio-spike.md)). Its result decides the router and persistent player (WP-D), or the fallback of a player on each story page.
-- **Narrator run with real audio** on one story (see the audio-pipeline README in Stories_Gods), to produce `parts` and `audioUrl`.
-- **Lore text** in the world repos, and the custom-domain decision.
+- **Publishing the narrated audio.** A real narrator run on one story worked (parts land within 0.06 s of the spoken heading). Uploading to R2 and writing `audioUrl` is the owner's step.
+- **Review of the lore text** in the Stories_Gods repo (branch `wp/lore`), and the custom-domain decision (not recommended: it would reset everyone's saved progress).
 
 Design, plans and contracts: [docs/plans/](docs/plans/), [docs/contracts.md](docs/contracts.md).

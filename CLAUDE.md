@@ -30,9 +30,11 @@ npm run build      # full build into _site/
 ## App layout and contracts
 
 The redesign (`docs/plans/2026-11-03-stories-app-redesign-design.md`, built per
-`...-implementation.md`) is multi-page 11ty plus small ES modules. The router and
-persistent player (WP-D) are **not built yet**: they wait on the device spike
-(`docs/spikes/audio-spike.md`). Until then each page owns its own `<audio>`.
+`...-implementation.md`) is multi-page 11ty plus small ES modules. A router keeps one persistent `<audio>` and the dock alive across
+navigation (`site/assets/js/{router,dock,player,sleep-timer,shell-audio}.mjs`; rules in
+`docs/contracts.md` section 8 and `site/assets/js/README.md`). The build id is a content hash,
+so a nightly rebuild with no changes never forces a reload. `npm run test:e2e` (Playwright,
+Chromium) is the smoke test, and the deploy job in `build.yml` needs it.
 
 - **Contracts** live in `docs/contracts.md` and are machine-checked
   (`scripts/schema/`, `test/contracts.test.mjs`, fixtures in `test/fixtures/`). Change
