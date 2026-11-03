@@ -6,3 +6,5 @@ site/assets/generated/
 site/assets/app-icon-*.png
 inspiration_screens/
 stories/.narrate-cache/
+stories/
+.content/

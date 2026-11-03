@@ -3,7 +3,7 @@ import { buildMediaMetadata } from "../site/assets/mini-player.js";
 
 describe("buildMediaMetadata", () => {
   it("builds MediaMetadata-shaped data from a playing entry", () => {
-    const meta = buildMediaMetadata({ title: "The Pancake Isle", artworkUrl: "/isles-of-yum/assets/generated/icons/sun-e8735c-512.png" });
+    const meta = buildMediaMetadata({ title: "The Pancake Isle", artworkUrl: "/story-shelf/assets/generated/icons/sun-e8735c-512.png" });
     expect(meta.title).toBe("The Pancake Isle");
     expect(meta.artist).toBe("The Isles of Yum");
     expect(meta.artwork[0].src).toContain("sun-e8735c-512.png");
