@@ -41,8 +41,8 @@ export default function (eleventyConfig) {
   }
 
   return {
-    // This repo (RobertBeverton/story-shelf) is not a <user>.github.io user-site
-    // repo, so GitHub Pages serves it from https://robertbeverton.github.io/story-shelf/
+    // This repo (RobertBeverton/Stories) is not a <user>.github.io user-site
+    // repo, so GitHub Pages serves it from https://robertbeverton.github.io/Stories/
     // (a subpath), not the domain root. pathPrefix tells Eleventy's `url`
     // filter (and page/collection-item `.url` properties for content that
     // goes through Eleventy's own page-object system) to prepend this prefix

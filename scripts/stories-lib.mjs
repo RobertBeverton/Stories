@@ -37,8 +37,8 @@ export async function loadStories(globPattern = "stories/**/*.md") {
 // template. Keeping stories.js as a default-export-only wrapper around this
 // module avoids that trap while still making the URL/prevNext logic
 // unit-testable.
-// This repo (RobertBeverton/story-shelf) deploys to GitHub Pages at
-// https://robertbeverton.github.io/story-shelf/ (a project-repo subpath), not
+// This repo (RobertBeverton/Stories) deploys to GitHub Pages at
+// https://robertbeverton.github.io/Stories/ (a project-repo subpath), not
 // the domain root, so every URL/audioUrl this module hands to templates
 // must be prefixed accordingly. This mirrors the `pathPrefix` set in
 // eleventy.config.js: that config prefixes paths run through Nunjucks's
@@ -50,7 +50,7 @@ export async function loadStories(globPattern = "stories/**/*.md") {
 // Exported so story-pages.11ty.js can strip it back off `meta.url` when
 // computing `permalink` — permalinks control where files actually land on
 // disk under `_site/` and must stay unprefixed (see that file's comments).
-export const PATH_PREFIX = "/story-shelf";
+export const PATH_PREFIX = "/Stories";
 
 // Default audio-existence predicate for computeStories() below — always
 // true, so pure/unit-test callers that pass fixture data (no real files on

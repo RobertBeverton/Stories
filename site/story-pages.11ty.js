@@ -21,13 +21,13 @@
 // PATH_PREFIX stripping below).
 //
 // IMPORTANT: `meta.url` (from scripts/stories-lib.mjs) is prefixed with
-// PATH_PREFIX ("/story-shelf") for DISPLAY purposes (it's what ends up in
+// PATH_PREFIX ("/Stories") for DISPLAY purposes (it's what ends up in
 // rendered `href`/`src` attributes, matching the site's GitHub Pages
 // subpath deployment). `permalink`, however, controls where Eleventy
 // actually WRITES the output file under `_site/` — that's a plain relative
 // path from the output root and must NOT include the deployment subpath
-// (there is no literal `story-shelf/` folder inside `_site/`; GitHub Pages
-// serves the *contents* of `_site/` at the `/story-shelf/` subpath
+// (there is no literal `Stories/` folder inside `_site/`; GitHub Pages
+// serves the *contents* of `_site/` at the `/Stories/` subpath
 // automatically). So the prefix must be stripped back off here.
 
 import { PATH_PREFIX } from "../scripts/stories-lib.mjs";

@@ -24,8 +24,8 @@ function currentlyPlaying() {
 
 export function buildMediaMetadata({ title, artworkUrl }) {
   return {
-    title: title || "The Isles of Yum",
-    artist: "The Isles of Yum",
+    title: title || "Stories",
+    artist: "Stories",
     artwork: artworkUrl ? [
       { src: artworkUrl, sizes: "512x512", type: "image/png" },
     ] : [],

@@ -5,5 +5,12 @@
     "ref": "main",
     "storiesPath": "stories",
     "localPath": "../isles-of-yum"
+  },
+  {
+    "name": "bramble-wall",
+    "repo": "https://github.com/RobertBeverton/bramble-wall.git",
+    "ref": "main",
+    "storiesPath": "stories",
+    "localPath": "../bramble-wall"
   }
 ]

@@ -9,10 +9,13 @@
 //   - otherwise shallow-clone `repo` at `ref` into .content/<name>/ and copy
 //     from there.
 //
-// Right now there is one source and its stories are copied straight into
-// `stories/`, which keeps every existing URL unchanged. A second source would
-// need a decision about where its stories land (e.g. `stories/<name>/`) and
-// what that does to slugs and URLs. See README.md.
+// Every source's stories are merged FLAT into one `stories/` folder, not
+// nested under a per-world folder. That keeps each story's slug exactly what
+// it was in its old repo/site, and slugs key reading progress in
+// localStorage (`story-progress:<slug>`), which is shared across the whole
+// robertbeverton.github.io origin. Nesting by world would silently reset
+// everyone's progress. The cost: two worlds must never ship the same path,
+// so the fetch fails loudly if they do (findCollisions below).
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
@@ -22,6 +25,33 @@ const OUT_DIR = "stories";
 const CACHE_DIR = ".content";
 // Copied alongside the stories but never part of the published site.
 const SKIP = new Set([".narrate-cache"]);
+// Harmless if several worlds ship one.
+const PLACEHOLDERS = new Set([".gitkeep"]);
+
+// filesBySource: { sourceName: ["relative/path.md", ...] }
+export function findCollisions(filesBySource) {
+  const owner = new Map();
+  const errors = [];
+  for (const [name, files] of Object.entries(filesBySource)) {
+    for (const file of files) {
+      if (PLACEHOLDERS.has(path.basename(file))) continue;
+      if (owner.has(file)) errors.push(`stories/${file} is in both ${owner.get(file)} and ${name}`);
+      else owner.set(file, name);
+    }
+  }
+  return errors;
+}
+
+function listFiles(root, dir = root) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (SKIP.has(entry.name)) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...listFiles(root, full));
+    else out.push(path.relative(root, full).split(path.sep).join("/"));
+  }
+  return out;
+}
 
 export function resolveSourceDir(source, { isCI, exists }) {
   if (!isCI && source.localPath && exists(source.localPath)) {
@@ -42,17 +72,21 @@ function cloneOrUpdate(source, dir) {
 }
 
 export function fetchContent(sources, { isCI = Boolean(process.env.CI) } = {}) {
-  if (sources.length !== 1) {
-    throw new Error(
-      `content-sources.json lists ${sources.length} sources; only one is supported until multi-source layout is designed.`,
-    );
-  }
-  fs.rmSync(OUT_DIR, { recursive: true, force: true });
-  for (const source of sources) {
+  const resolved = sources.map((source) => {
     const { mode, dir } = resolveSourceDir(source, { isCI, exists: fs.existsSync });
     if (mode === "clone") cloneOrUpdate(source, dir);
     const from = path.join(dir, source.storiesPath || "stories");
     if (!fs.existsSync(from)) throw new Error(`${source.name}: no stories folder at ${from}`);
+    return { source, mode, from, files: listFiles(from) };
+  });
+
+  const collisions = findCollisions(Object.fromEntries(resolved.map((r) => [r.source.name, r.files])));
+  if (collisions.length) {
+    throw new Error(`Story worlds overlap; rename one side:\n  ${collisions.join("\n  ")}`);
+  }
+
+  fs.rmSync(OUT_DIR, { recursive: true, force: true });
+  for (const { source, mode, from } of resolved) {
     fs.cpSync(from, OUT_DIR, {
       recursive: true,
       filter: (src) => !SKIP.has(path.basename(src)),

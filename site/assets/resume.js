@@ -24,7 +24,7 @@ function saveProgress(partial) {
 }
 
 saveProgress({
-  title: document.title.replace(" — Isles of Yum", ""),
+  title: document.title.replace(" — Stories", ""),
   url: window.location.pathname,
   artworkUrl: audio?.dataset.artworkUrl,
   prevUrl: audio?.dataset.prevUrl || null,
