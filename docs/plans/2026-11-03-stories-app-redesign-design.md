@@ -1,6 +1,6 @@
 # Stories app redesign, lore and part sync
 
-Date: 2026-11-03 (revision 3, after adversarial review rounds 1 and 2)
+Date: 2026-11-03 (revision 4, after adversarial review rounds 1 to 3)
 
 ## Background
 
@@ -44,7 +44,7 @@ Findings that drive this design:
 **Router** (only if spike 0a passes). One small vanilla module, no framework. It:
 
 - intercepts same-origin link clicks, ignoring modifier keys, `target` and `download`
-- fetches the target HTML, parses it with `DOMParser`, and never executes fetched scripts
+- fetches the target HTML, parses it with `DOMParser`, removes every `script` element and `on*` attribute before inserting, and never executes fetched scripts
 - swaps `#view`, `<title>` and the active nav state
 - uses `history.pushState` and handles `popstate`, and **owns scroll restoration** on Back and Forward (the reading position saved in progress is applied only on first load of a story)
 - moves focus to the new `h1`; the live region announces page changes and user-triggered actions only, never part changes during playback
@@ -60,7 +60,7 @@ Findings that drive this design:
 
 ## 2. Data and worlds
 
-**World tag.** Worlds are still merged flat into `stories/` and slugs still key progress (`story-progress:<slug>`), as CLAUDE.md requires. `fetch-content` records each story's `world` (the source `name`) at fetch time, since the folders are flattened and the value cannot be inferred later. Duplicate slugs are already rejected by `checkDuplicateSlugs` in [validate-content.mjs](../../scripts/validate-content.mjs).
+**World tag.** Worlds are still merged flat into `stories/` and slugs still key progress (`story-progress:<slug>`), as CLAUDE.md requires. `fetch-content` records each story's `world` (the source `name`) at fetch time, since the folders are flattened and the value cannot be inferred later. It writes a gitignored manifest, `stories/.worlds.json`, mapping each flat story path to its world, so the story files themselves are never modified. Duplicate slugs are already rejected by `checkDuplicateSlugs` in [validate-content.mjs](../../scripts/validate-content.mjs).
 
 **World config.** Presentation details sit with each source in `content-sources.json`:
 
@@ -112,7 +112,7 @@ World-owned, so canon stays out of this repo.
 
 - A world repo may include `lore/` with one markdown file per entry. Front matter: `title`, `tradition`, `summary`, optional `link`, `stories` (list of slugs). Body is short text for curious listeners.
 - A story's `gods:` field already names the figure. It gains an optional `lore:` slug for an exact match.
-- `fetch-content` pulls `lore/` like stories, tagged with `world`. The build emits entries into `library.json`.
+- `content-sources.json` gains an optional `lorePath` per source. `fetch-content` copies it into `lore/<world>/` (namespaced by world, unlike stories, because lore has no legacy progress keys to protect and two worlds may both have an `athena.md`). The build emits entries into `library.json`.
 - The Lore segment lists the current world's entries grouped by tradition. Entries link to stories, and story pages link back. A world with no entries shows no Lore segment. Launching with only new stories covered is expected.
 - **External links** appear only inside a closed "For grown-ups" section at the bottom of an entry, opening in a new tab with `rel="noopener noreferrer"`. They are never in the main reading flow.
 - Lore text is written under the same care as the Story Bible, especially for living traditions.
@@ -121,8 +121,8 @@ World-owned, so canon stays out of this repo.
 
 Two tiers.
 
-1. **Part-level, in scope.** The narrator already builds audio from chunks joined with ffmpeg and speaks "Part N. Title." at each start, so it can record cumulative chunk durations and write `parts: [{title, start}]` into front matter beside `audioDuration`. The reader highlights the current part, lets you tap a part to jump, and follows the audio clock at any speed. Re-narration rewrites `parts` and `audioDuration` together. Stories without `parts` show a plain reader.
-2. **Sentence-level, deferred.** Needs word-level timings, per-sentence alignment and drift correction. If added later, it is an opt-in toggle, off by default.
+1. **Part-level, in scope, but not a small narrator change.** The narrator packs scenes into chunks of up to 9,000 characters, so a story is a few chunks each containing many parts, and chunk durations do not give part starts. The narrator must instead get character-level alignment from the narration service (ElevenLabs offers a with-timestamps variant of text to speech, to be verified in a spike) and convert the character offset of each `## Part` heading, plus the chunk's start time, into a part start. The fallback is synthesising each part as its own request with previous-and-next-text stitching, which costs more calls and risks voice continuity. Either way it writes `parts: [{title, start}]` into front matter beside `audioDuration`. The reader highlights the current part, lets you tap a part to jump, and follows the audio clock at any speed. Re-narration rewrites `parts` and `audioDuration` together. Stories without `parts` show a plain reader.
+2. **Sentence-level, deferred.** If the narrator captures character-level alignment for part starts, sentence timings are available almost for free, so the remaining cost is the reader UI and drift handling. The narrator should save the raw alignment beside the audio so this stays possible. If added later, it is an opt-in toggle, off by default.
 
 ### Validation severity
 
@@ -135,7 +135,7 @@ Data problems are scoped to the world that caused them, so one world's typo cann
 
 ## 4. Delivery, testing, rollout
 
-**Rebuilds.** [build.yml](../../.github/workflows/build.yml) gains a nightly `schedule` trigger alongside the existing manual dispatch. No token is shared with the world repos. GitHub may disable scheduled workflows after a long period without repository activity, so the pipeline is checked as part of the operations list below.
+**Rebuilds.** [build.yml](../../.github/workflows/build.yml) gains a nightly `schedule` trigger alongside the existing manual dispatch. GitHub disables scheduled workflows in a repository with no activity for 60 days, and the commits happen in the world repos, not here, so the nightly build can silently stop while you are busy writing stories. The primary trigger is therefore a small workflow in each world repo that, on push to `main`, calls this repo's `workflow_dispatch` using a fine-grained token with only Actions write access on this repo (it cannot push code; verify the permission when creating it). The nightly build is the backstop, and a quarterly check confirms both are alive. Token expiry goes on the operations calendar.
 
 **Node.** CI moves off Node 20 to a currently supported LTS.
 
@@ -146,8 +146,8 @@ Data problems are scoped to the world that caused them, so one world's typo cann
 **Testing.**
 
 - Vitest plus jsdom (or happy-dom) for page modules, the progress store (including version 1 reads), library index and filters, completed and new rules, the escape helper and, later, the router (link filtering, swap, history, focus, build-id mismatch and loop guard).
-- Shared fixture HTML and a `library.json` fixture, owned by the scaffold, used by every package's tests.
-- A Playwright smoke test in CI (kept small): build, load a story, start audio, navigate, assert the same `<audio>` element and its playback survive. Playwright's WebKit is not iOS standalone, so it does not replace the device spike.
+- **Contracts are machine-checked.** The scaffold owns a JSON Schema for `library.json`, a validator for the progress record, and shared fixtures (story page HTML, `library.json`, progress records of both versions). Every package's tests import them, so parallel work cannot drift from the written contract.
+- A Playwright smoke test in CI (kept small): build, load a story, start a tiny silent mp3 fixture (Chromium with the autoplay-without-gesture flag), navigate, assert the same `<audio>` element survives and its `currentTime` keeps advancing. Playwright's WebKit is not iOS standalone, so it does not replace the device spike.
 - Existing contrast scripts extended for the new tokens and the 3:1 non-text rule.
 - A manual pass on the real devices for lock-screen controls, safe areas, screen-lock audio and the installed home-screen icon.
 
@@ -161,7 +161,7 @@ A custom domain on GitHub Pages gives a clean origin and no `/Stories` prefix. I
 
 Each step ships independently. Step 3 is a complete product.
 
-0. **Spikes** (human, on real devices). (a) A static test page proves persistent audio, lock-screen controls, screen-lock playback, `timeupdate` and `ended` firing while locked, a sleep timer, and the Safari versus installed-icon difference. The result decides the router, the sleep-timer design, progress reconciliation and the manifest `display` value. (b) Confirm `audioUrl` from R2 plays and seeks end to end.
+0. **Spikes** (human, on real devices). (a) A static test page proves persistent audio, lock-screen controls, screen-lock playback, `timeupdate` and `ended` firing while locked, a sleep timer, and the Safari versus installed-icon difference. The result decides the router, the sleep-timer design, progress reconciliation and the manifest `display` value. (b) Confirm `audioUrl` from R2 plays and seeks end to end. (c) Narrator spike on one Gods story: verify the character-alignment API, produce `parts`, and check each start against the audio by ear.
 1. **Foundation:** scaffold and contracts, escape helper and slug-only progress store, page scripts as modules, build-id meta, `noindex`, CI Node and nightly trigger.
 2. **Restyle:** Hearth tokens, accessibility, the dock without the player, finished, new and end-of-story states, large targets, text-size control.
 3. **Worlds and data:** world switcher, world accents, `library.json`, Home and Library from the index, scoped validators.
@@ -176,3 +176,5 @@ Each step ships independently. Step 3 is a complete product.
 - Decide the fate of the world repos' own 11ty sites (preview only, or retired).
 - Cross-repo work (narrator `parts` output, `lore/` entries, `lore:` slugs) belongs in the world repos, each under its own CLAUDE.md.
 - Decide whether the custom domain happens at all, and the subdomain name.
+- `Gods-PrimarySchool` has no git history, so a baseline commit (or a copy) is needed before any agent edits its narrator.
+- Parallel delivery is described in [2026-11-03-stories-app-redesign-implementation.md](2026-11-03-stories-app-redesign-implementation.md).

@@ -43,6 +43,8 @@ Add when the plan touches the area.
 - **Migration / data**: what is lost or duplicated in a move, keys, URLs, bookmarks, installed PWAs.
 - **Cost / licence**: free-tier limits, narration quota, per-request charges, anything that bills.
 - **Future-self at 12 months**: can I still understand and change this?
+- **Cold-start executor**: an agent or new session that receives only the plan. Can it act without asking? Are decisions, file ownership, commands, acceptance checks and stop conditions explicit? What happens if it guesses?
+- **Integrator / merge owner**: when parts are built in parallel, where do they collide (shared files, contracts that drift, fixtures that go stale, merge order)? What check proves the pieces fit before the next wave?
 
 ## Pre-mortem
 
