@@ -445,6 +445,51 @@ describe("player sheet", () => {
     expect(document.activeElement).not.toBe(q("open-player"));
   });
 
+  describe("closing when the opener is gone", () => {
+    // The opener was a control in the page that a router swap removed, and the mini
+    // row is hidden, so the old fallback (focus the hidden mini button) dropped focus on <body>.
+    async function openFromPage() {
+      await setup();
+      clickPlay(B);
+      loaded();
+      await vi.waitFor(() => expect(mini().hidden).toBe(false));
+      const opener = document.getElementById("x");
+      opener.focus();
+      q("open-player").click();
+      expect(q("player-sheet").hidden).toBe(false);
+      opener.remove();
+      mini().hidden = true;
+    }
+
+    it("moves focus to the page's main heading (made programmatically focusable)", async () => {
+      await openFromPage();
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      expect(q("player-sheet").hidden).toBe(true);
+      const heading = document.querySelector("#view h1");
+      expect(document.activeElement).toBe(heading);
+      expect(heading.getAttribute("tabindex")).toBe("-1");
+    });
+
+    it("falls back to the first focusable control when the page has no heading", async () => {
+      await openFromPage();
+      document.querySelector("#view h1").remove();
+      q("close").click();
+      expect(document.activeElement).toBe(document.querySelector('nav[aria-label="Main"] a')); // the dock's Home link
+    });
+
+    it("still returns to the mini player's button when that is what is showing", async () => {
+      await setup();
+      clickPlay(B);
+      loaded();
+      await vi.waitFor(() => expect(mini().hidden).toBe(false));
+      document.getElementById("x").focus();
+      q("open-player").click();
+      document.getElementById("x").remove();
+      q("close").click();
+      expect(document.activeElement).toBe(q("open-player"));
+    });
+  });
+
   it("hides Next when there is no next story", async () => {
     await openSheet(); // B is last in its series
     expect(q("next").hidden).toBe(true);

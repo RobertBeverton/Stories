@@ -1,4 +1,5 @@
-// Playwright smoke test (test/e2e). Run with `npm run test:e2e`. It builds a
+// Playwright smoke test (test/e2e). Run with `npm run test:e2e`; CI runs it as the
+// `verify` job in .github/workflows/build.yml, which the deploy waits for. It builds a
 // small fixture site (invented stories, no audio files) and serves it itself:
 // see test/e2e/support/. Not part of `npx vitest run`.
 import { defineConfig } from "@playwright/test";
@@ -10,7 +11,9 @@ export default defineConfig({
   testMatch: "**/*.e2e.mjs",
   fullyParallel: false,
   workers: 1,
-  retries: process.env.CI ? 1 : 0,
+  // No retries: a test that passes only on the second try is a flaky test, and
+  // build.yml gates the deploy on this suite. Fix the cause instead.
+  retries: 0,
   reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: `http://127.0.0.1:${PORT}`,

@@ -252,8 +252,24 @@ export function mount(el) {
     delete sheet.dataset.open;
     miniOpen.setAttribute("aria-expanded", "false");
     setInert(false);
-    if (restoreFocus) (opener?.isConnected ? opener : miniOpen).focus();
+    if (restoreFocus) (opener?.isConnected ? opener : fallbackFocus())?.focus();
     opener = null;
+  }
+  /**
+   * Where focus goes when the control that opened the sheet is gone (a router swap
+   * removed it). The mini player's button only counts while the mini row is showing;
+   * a hidden button cannot take focus, which would drop it on <body>. Otherwise the
+   * page's main heading (made programmatically focusable, as the router does), then
+   * the first control in the dock.
+   */
+  function fallbackFocus() {
+    if (!mini.hidden) return miniOpen;
+    const heading = document.querySelector("#view h1");
+    if (heading) {
+      if (!heading.hasAttribute("tabindex")) heading.setAttribute("tabindex", "-1");
+      return heading;
+    }
+    return [...el.querySelectorAll(FOCUSABLE)].find((node) => !node.closest("[hidden]") && !sheet.contains(node)) ?? null;
   }
   function trapTab(event) {
     const items = [...sheet.querySelectorAll(FOCUSABLE)].filter((node) => !node.hidden && !node.closest("[hidden]"));

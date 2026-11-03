@@ -15,7 +15,8 @@ const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", ".
 
 export const FIXTURE_STORIES = [
   { file: "e2e-series/tale-one.md", title: "Tale One of the Smoke Test", series: "E2E Series", order: 1, audio: true, date: "2026-10-01" },
-  { file: "e2e-series/tale-two.md", title: "Tale Two of the Smoke Test", series: "E2E Series", order: 2, audio: true, date: "2026-10-02" },
+  // Tale Two has parts (headings in the body, `parts` in front matter) so the e2e can check the part list.
+  { file: "e2e-series/tale-two.md", title: "Tale Two of the Smoke Test", series: "E2E Series", order: 2, audio: true, date: "2026-10-02", parts: [{ title: "Part One. Arrival", start: 0 }, { title: "Part Two. Departure", start: 10 }] },
   { file: "quiet-tale.md", title: "A Quiet Tale Without Audio", series: null, order: null, audio: false, date: "2026-09-01" },
 ];
 
@@ -28,7 +29,18 @@ function storyMarkdown(story) {
   lines.push(`publishDate: ${story.date}`, "draft: false");
   if (story.audio) lines.push(`audioUrl: ${audioUrlOf(story.file)}`, "audioDuration: 20");
   else lines.push("audio: false");
-  lines.push("---", "", "Once upon a smoke test, nothing happened, and everyone was glad.", "");
+  if (story.parts) {
+    lines.push("parts:");
+    for (const part of story.parts) lines.push(`  - title: "${part.title}"`, `    start: ${part.start}`);
+  }
+  lines.push("---", "");
+  // A long body, so a page is tall enough to scroll (the scroll-restore test needs it).
+  const paragraphs = Array.from({ length: 60 }, (_, i) => `Once upon a smoke test (${i + 1}), nothing happened, and everyone was glad.`);
+  if (story.parts) {
+    for (const part of story.parts) lines.push(`## ${part.title}`, "", ...paragraphs.slice(0, 30).flatMap((p) => [p, ""]));
+  } else {
+    lines.push(...paragraphs.flatMap((p) => [p, ""]));
+  }
   return lines.join("\n");
 }
 
