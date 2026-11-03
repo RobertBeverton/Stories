@@ -1,0 +1,45 @@
+/* Lore (WP-E): the Stories | Lore segment, the listing, entry pages, story
+   back-links and the part list's current-part details. Tokens only. */
+
+.lore-segment { display: inline-flex; gap: 0.25rem; padding: 0.25rem; margin: 0 0 1rem; background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius-pill); }
+.lore-segment .btn { border-color: transparent; min-width: 6rem; justify-content: center; }
+.lore-segment .btn[aria-current="page"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.lore-segment-root:empty, .lore-segment-root[hidden] { display: none; }
+
+.lore-intro { color: var(--muted); margin: 0 0 1.5rem; }
+.lore-world { margin: 0 0 2rem; }
+.lore-world h2 { margin: 0 0 0.5rem; }
+.lore-tradition h3 { margin: 1.25rem 0 0.5rem; font-size: var(--text-small); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+
+.lore-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.lore-link {
+  display: flex; flex-direction: column; justify-content: center; gap: 0.15rem;
+  min-height: var(--tap); padding: 0.6rem 1rem;
+  background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius);
+  text-decoration: none; color: var(--text);
+}
+.lore-link-title { font-weight: 700; }
+.lore-link-summary { color: var(--muted); font-size: var(--text-small); }
+.lore-link:focus-visible, .lore-segment .btn:focus-visible, .lore-grownups summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+.lore-entry { max-width: var(--page-max); margin: 0 auto; }
+.lore-header { padding: 0.5rem 0 1rem; }
+.lore-tradition-label { margin: 0; font-size: var(--text-small); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.lore-summary { font-size: 1.15rem; color: var(--muted); margin: 0.5rem 0 0; }
+.lore-body { font-family: var(--font-display); font-size: calc(1.25rem * var(--reading-scale)); line-height: 1.75; max-width: 65ch; }
+.lore-body h2, .lore-body h3 { font-size: 1.3em; margin: 1.75em 0 0.5em; }
+.lore-stories, .story-lore { margin: 2rem auto 0; max-width: 65ch; }
+.lore-stories h2, .story-lore h2 { font-size: 1.2rem; margin: 0 0 0.75rem; }
+
+.lore-grownups { margin: 2.5rem 0 1rem; padding: 0.5rem 1rem; border: 2px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.lore-grownups summary { display: flex; align-items: center; min-height: var(--tap); cursor: pointer; font-weight: 600; }
+.lore-grownups .btn { word-break: break-all; }
+
+/* Parts: the tap target stays 44px; the time sits at the end of the row. */
+.parts-list .btn { min-height: var(--tap); }
+.parts-list .part-time { margin-left: auto; padding-left: 0.75rem; font-variant-numeric: tabular-nums; opacity: 0.85; }
+.parts-list button { justify-content: flex-start; text-align: left; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lore-link, .lore-segment .btn, .parts-list .btn { transition: none; }
+}

@@ -21,7 +21,7 @@ const contractHooks = (() => {
   return [...line.matchAll(/`([a-z-]+)`/g)].map((m) => m[1]);
 })();
 // Hooks whose module is wave 2. Anything else unresolved is a bug.
-const PENDING_WAVE_2 = ["dock", "parts"];
+const PENDING_WAVE_2 = ["dock"];
 
 const pages = {
   home: () => renderHome(stories),
@@ -231,9 +231,10 @@ describe("story page", () => {
     expect(localStorage.getItem("stories-text-size")).toBe("sm");
   });
 
-  it("leaves the parts root empty until the wave 2 module exists (so CSS hides it)", async () => {
+  it("fills the parts root from library.json (one button per part)", async () => {
     await open("story");
-    expect(document.querySelector('[data-mount="parts"]').children).toHaveLength(0);
+    const root = document.querySelector('[data-mount="parts"]');
+    await vi.waitFor(() => expect(root.querySelectorAll("button")).toHaveLength(library.stories[0].parts.length));
   });
 });
 

@@ -54,6 +54,8 @@ layout: base.njk
     {{ content | safe }}
   </div>
 
+  {% include "lore-links.njk" %}
+
   <nav class="series-nav" aria-label="More in this series">
     {% if prevStory %}<a class="prev" href="{{ prevStory.url }}">← {{ prevStory.title }}</a>{% endif %}
     {% if nextStory %}<a class="next" href="{{ nextStory.url }}">Next story: {{ nextStory.title }} →</a>{% endif %}
