@@ -42,6 +42,6 @@ Pushing to `main` builds and deploys to GitHub Pages through `.github/workflows/
 
 ## Next up
 
-- **Audio on Cloudflare R2.** One bucket, a folder per world, behind a custom domain. Each story's front matter carries its `audioUrl` and `audioDuration`. A narrator tool in this repo narrates via ElevenLabs at 64 kbps mono, uploads to R2 and writes the URL back. Then strip the mp3s from every repo's history.
+- **Audio on Cloudflare R2.** One bucket, a folder per world, behind a custom domain. Each story's front matter carries its `audioUrl` and `audioDuration`. A narrator tool in this repo narrates via ElevenLabs at 64 kbps mono, uploads to R2 and writes the URL back. Then strip the mp3s from every repo's history. The bucket, domain, CORS, cache policy and credentials are set up; see [docs/audio-hosting.md](docs/audio-hosting.md).
 - **Content-triggered rebuilds** via `repository_dispatch` from the world repos.
 - **The new UI design.**

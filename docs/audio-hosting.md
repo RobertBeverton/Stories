@@ -1,0 +1,108 @@
+# Audio hosting (Cloudflare R2)
+
+Story audio lives in one Cloudflare R2 bucket, served from a custom domain. Each story's front matter points at its file with `audioUrl` (plus `audioDuration`). The narrator tool in this repo will upload and write those fields back. Until then, nothing reads from the bucket yet.
+
+## At a glance
+
+| | |
+|---|---|
+| Bucket | `stories-audio` |
+| Location hint | `WEUR` (Western Europe), Standard storage class |
+| Public URL | `https://audio.kinly.download` (zone `kinly.download`, minimum TLS 1.2) |
+| r2.dev public access | **Off**. It's rate-limited and meant for development, so don't turn it on. |
+
+## Key layout
+
+One folder per world, named after that world's `name` in `content-sources.json`. Under it, the key mirrors the story's path under the world's `stories/` folder, with `.md` swapped for `.mp3`:
+
+| Story file | Object key |
+|---|---|
+| `isles-of-yum` → `stories/marzipans-well.md` | `isles-of-yum/marzipans-well.mp3` |
+| `bramble-wall` → `stories/bramble-wall/book-1.md` | `bramble-wall/bramble-wall/book-1.mp3` |
+
+Keys are case-sensitive and use forward slashes. Don't percent-encode the slashes.
+
+## URLs and caching
+
+Re-narrating a story **overwrites the same key**. To make sure listeners get the new file, the URL in front matter carries a version query:
+
+```yaml
+audioUrl: https://audio.kinly.download/isles-of-yum/marzipans-well.mp3?v=3f9a2c1e
+audioDuration: 412
+```
+
+- `v` is a short hash of the file's contents (for example, the first 8 hex characters of its SHA-256). A new narration gives a new hash, so a new URL.
+- Objects are uploaded with `Cache-Control: public, max-age=31536000, immutable`. Browsers and Cloudflare's edge can keep a URL forever, because the file behind a given `?v=` never changes in any way that matters.
+- No cache purges are needed. After a re-narration, the new URL goes live with the next site deploy. The old `?v=` URL still works, but it may serve the new file once the edge copy expires, which is harmless.
+- `Content-Type` must be `audio/mpeg`.
+
+The `cf` CLI's object upload can't set `Cache-Control`. A file uploaded with it gets Cloudflare's default caching (a couple of hours at the edge). That's fine for a one-off, but the narrator tool and Wrangler uploads should set the header.
+
+## CORS
+
+The bucket allows:
+
+| | |
+|---|---|
+| Origins | `https://robertbeverton.github.io`, `http://localhost:8080` |
+| Methods | `GET`, `HEAD` |
+| Allowed headers | `Range` |
+| Exposed headers | `Content-Length`, `Content-Range`, `Accept-Ranges`, `ETag` |
+| Preflight max age | 86400 s |
+
+A plain `<audio src>` doesn't need CORS. These rules cover `fetch()`, Web Audio and `crossorigin` audio elements. To change them, run `cf r2 buckets cors get stories-audio` to see the current rules, then `cf r2 buckets cors update stories-audio --rules @rules.json --force`. The update replaces every rule, so include them all.
+
+## Credentials
+
+The narrator tool reads these Windows **user** environment variables. They're set with `setx`, never written to a file.
+
+| Variable | What |
+|---|---|
+| `R2_ACCOUNT_ID` | Cloudflare account ID. The S3 endpoint is `https://<R2_ACCOUNT_ID>.r2.cloudflarestorage.com`. |
+| `R2_ACCESS_KEY_ID` | Access key ID of an R2 API token |
+| `R2_SECRET_ACCESS_KEY` | Secret access key of that token |
+| `R2_BUCKET` | `stories-audio` |
+| `AUDIO_BASE_URL` | `https://audio.kinly.download` (no trailing slash) |
+| `ELEVENLABS_API_KEY` | ElevenLabs key for narration |
+
+The R2 token has **Object Read & Write** on `stories-audio` only. Create a replacement in the dashboard: **R2 Object Storage → Manage API tokens → Create Account API token**. Rotating the token means updating `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`, then opening a new terminal.
+
+## Upload or delete one file by hand
+
+### With Wrangler
+
+Wrangler needs Node 22 or later and `npx wrangler login` once. `--remote` targets the real bucket rather than a local simulation.
+
+```bash
+# Upload (key = world/path-under-stories.mp3)
+npx wrangler r2 object put stories-audio/isles-of-yum/marzipans-well.mp3 \
+  --file ./marzipans-well.mp3 \
+  --content-type audio/mpeg \
+  --cache-control "public, max-age=31536000, immutable" \
+  --remote
+
+# Delete
+npx wrangler r2 object delete stories-audio/isles-of-yum/marzipans-well.mp3 --remote
+```
+
+### With the `cf` CLI
+
+`cf` also needs Node 22 or later and `cf auth login`. It can't set `Cache-Control` (see above).
+
+```bash
+cf r2 objects put isles-of-yum/marzipans-well.mp3 --bucket-name stories-audio \
+  --content-type audio/mpeg --file ./marzipans-well.mp3
+cf r2 objects list --bucket-name stories-audio
+cf r2 objects delete isles-of-yum/marzipans-well.mp3 --bucket-name stories-audio --force
+```
+
+After uploading by hand, update the story's `audioUrl` (with a new `?v=`) and `audioDuration` in its world repo.
+
+## Checking it works
+
+```bash
+URL=https://audio.kinly.download/<key>
+curl -sI "$URL"                                   # 200, Content-Type: audio/mpeg
+curl -s -o /dev/null -w "%{http_code}\n" -H "Range: bytes=0-99" "$URL"   # 206
+curl -sI -H "Origin: https://robertbeverton.github.io" "$URL" | grep -i access-control
+```
