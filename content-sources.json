@@ -12,5 +12,13 @@
     "ref": "main",
     "storiesPath": "stories",
     "localPath": "../bramble-wall"
+  },
+  {
+    "name": "legend-lane",
+    "title": "Legend Lane",
+    "repo": "https://github.com/RobertBeverton/Stories_Gods.git",
+    "ref": "main",
+    "storiesPath": "stories",
+    "localPath": "../Gods-PrimarySchool"
   }
 ]

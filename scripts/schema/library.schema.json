@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "library.schema.json",
+  "title": "library.json",
+  "type": "object",
+  "required": ["stories", "worlds", "lore"],
+  "additionalProperties": false,
+  "properties": {
+    "stories": { "type": "array", "items": { "$ref": "#/definitions/story" } },
+    "worlds": { "type": "array", "items": { "$ref": "#/definitions/world" } },
+    "lore": { "type": "array", "items": { "$ref": "#/definitions/lore" } }
+  },
+  "definitions": {
+    "story": {
+      "type": "object",
+      "required": ["slug", "title", "world", "series", "seriesOrder", "durationSec", "tags", "url", "icon", "publishDate"],
+      "additionalProperties": false,
+      "properties": {
+        "slug": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "world": { "type": "string", "minLength": 1 },
+        "series": { "type": ["string", "null"] },
+        "seriesOrder": { "type": ["integer", "null"] },
+        "durationSec": { "type": ["number", "null"], "minimum": 0 },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "url": { "type": "string", "pattern": "^/" },
+        "icon": { "type": "string", "minLength": 1 },
+        "publishDate": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}" },
+        "parts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["title", "start"],
+            "additionalProperties": false,
+            "properties": {
+              "title": { "type": "string", "minLength": 1 },
+              "start": { "type": "number", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "world": {
+      "type": "object",
+      "required": ["name", "title", "tagline", "accent", "icon", "hasLore"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "tagline": { "type": "string" },
+        "accent": { "type": "string", "minLength": 1 },
+        "icon": { "type": "string", "minLength": 1 },
+        "hasLore": { "type": "boolean" }
+      }
+    },
+    "lore": {
+      "type": "object",
+      "required": ["world", "slug", "title", "tradition", "summary", "stories", "url"],
+      "additionalProperties": false,
+      "properties": {
+        "world": { "type": "string", "minLength": 1 },
+        "slug": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "tradition": { "type": "string" },
+        "summary": { "type": "string" },
+        "link": { "type": "string" },
+        "stories": { "type": "array", "items": { "type": "string" } },
+        "url": { "type": "string", "pattern": "^/" }
+      }
+    }
+  }
+}

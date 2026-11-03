@@ -1,0 +1,60 @@
+{
+  "stories": [
+    {
+      "slug": "test-world/first-tale",
+      "title": "The First Tale of Testing",
+      "world": "test-world",
+      "series": "The Test Series",
+      "seriesOrder": 1,
+      "durationSec": 600,
+      "tags": ["placeholder"],
+      "url": "/Stories/stories/the-test-series/first-tale/",
+      "icon": "sun",
+      "publishDate": "2026-10-01",
+      "parts": [
+        { "title": "Part One. The Start", "start": 0 },
+        { "title": "Part Two. The Middle", "start": 240.5 }
+      ]
+    },
+    {
+      "slug": "test-world/second-tale",
+      "title": "The <Second> & \"Quoted\" Tale",
+      "world": "test-world",
+      "series": "The Test Series",
+      "seriesOrder": 2,
+      "durationSec": 1500,
+      "tags": [],
+      "url": "/Stories/stories/the-test-series/second-tale/",
+      "icon": "boat",
+      "publishDate": "2026-11-01"
+    },
+    {
+      "slug": "other-world/lone-tale",
+      "title": "A Lone Tale",
+      "world": "other-world",
+      "series": null,
+      "seriesOrder": null,
+      "durationSec": null,
+      "tags": ["placeholder"],
+      "url": "/Stories/stories/lone-tale/",
+      "icon": "shell",
+      "publishDate": "2026-09-15"
+    }
+  ],
+  "worlds": [
+    { "name": "test-world", "title": "Test World", "tagline": "Invented for tests.", "accent": "sage", "icon": "sun", "hasLore": true },
+    { "name": "other-world", "title": "Other World", "tagline": "Also invented.", "accent": "sky", "icon": "shell", "hasLore": false }
+  ],
+  "lore": [
+    {
+      "world": "test-world",
+      "slug": "test-figure",
+      "title": "A Test Figure",
+      "tradition": "Invented",
+      "summary": "A made-up entry used only in fixtures.",
+      "link": "https://example.invalid/test-figure",
+      "stories": ["test-world/first-tale"],
+      "url": "/Stories/lore/test-world/test-figure/"
+    }
+  ]
+}

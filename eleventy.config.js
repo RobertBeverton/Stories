@@ -8,6 +8,8 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("stories/**/*.mp3");
   eleventyConfig.addPassthroughCopy("site/assets");
   eleventyConfig.addPassthroughCopy("site/manifest.webmanifest");
+  // site/assets (incl. assets/js and assets/css) is copied wholesale above.
+  // library.json is emitted by site/library.json.11ty.js, a template.
 
   eleventyConfig.addFilter("slugify", slugify);
   eleventyConfig.addNunjucksGlobal("icons", { path: iconSvgPath });

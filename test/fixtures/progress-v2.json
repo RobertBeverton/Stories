@@ -1,0 +1,4 @@
+{
+  "test-world/first-tale": { "v": 2, "audioTime": 300, "scrollY": 1200, "playing": false, "savedAt": 1790000200000 },
+  "test-world/second-tale": { "v": 2, "audioTime": 0, "scrollY": 0, "playing": false, "savedAt": 1790000300000, "completedAt": 1790000300000 }
+}

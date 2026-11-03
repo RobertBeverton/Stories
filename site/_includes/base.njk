@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-base="{{ '/' | url | replace(r/\/$/, '') }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,10 +11,15 @@
   <link rel="manifest" href="{{ '/manifest.webmanifest' | url }}">
   <meta name="theme-color" content="#e8735c">
   <link rel="apple-touch-icon" href="{{ '/assets/app-icon-192.png' | url }}">
+  {# SLOT head-end: WP-B adds meta (noindex, build-id, viewport-fit) and CSS links here #}
+  <script type="module" src="{{ '/assets/js/main.js' | url }}?v={{ buildTime }}"></script>
 </head>
 <body>
-  <main>{{ content | safe }}</main>
-  <nav class="tab-bar" aria-label="Main navigation">
+  {# SLOT view: the only region the router (WP-D) replaces #}
+  <main id="view">{{ content | safe }}</main>
+  {# SLOT player: persistent <audio id="player"> lands here in WP-D, outside #view #}
+  {# SLOT dock: WP-B fills the markup; the nav below is the current placeholder #}
+  <nav class="tab-bar" aria-label="Main navigation" data-mount="dock">
     <a href="{{ '/' | url }}" class="tab-bar-item">🏠<span>Home</span></a>
     <a href="{{ '/' | url }}#stories" class="tab-bar-item">📖<span>Library</span></a>
   </nav>
