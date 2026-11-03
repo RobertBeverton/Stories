@@ -177,3 +177,17 @@ Each step ships independently. Step 3 is a complete product.
 - Cross-repo work (narrator `parts` output, `lore/` entries, `lore:` slugs) belongs in the world repos, each under its own CLAUDE.md.
 - Decide whether the custom domain happens at all, and the subdomain name.
 - Parallel delivery is described in [2026-11-03-stories-app-redesign-implementation.md](2026-11-03-stories-app-redesign-implementation.md).
+
+## Implementation notes (added after wave 1 and the lore and parts work)
+
+What building it taught us. Decisions above are unchanged.
+
+- **Palette and icons are shared client and build code.** `accent-colors.mjs` and `icons.mjs` live in `site/assets/js/` with re-exports in `scripts/`, so the client draws covers and applies world accents from `library.json` names alone. No palette hex values are duplicated in CSS.
+- **`parts` titles are compared to the `## Part` headings with emphasis markers ignored**, because the narrator strips them when recording titles.
+- **A front matter `audioUrl` wins over a sibling mp3** when it is an https URL on the audio origin (`scripts/audio-origin.mjs`). Anything else is dropped with a warning.
+- **Modules are cache-busted by a build-generated import map**, with its sha256 in the CSP, because only `main.js` carried `?v=` before. `library.json` is fetched with the page's build id.
+- **A remembered world that no longer exists is treated as All** and cleared.
+- **Text size** persists through a small `text-size` module (`stories-text-size`), and the Library Lore segment is the `lore` hook. Both were added to the contract.
+- **Narrator finding (Stories_Gods):** `cleanForNarration` strips the `#` from headings before `parseScenes` runs, so the "split at headings" logic never fires and chunks split mid-part at sentence boundaries. Fixing it changes chunk text and invalidates the narration cache (it costs money), so it was left alone. Part timing does not depend on it.
+- **Re-narrating an existing story re-bills the whole story** because old cache entries have no alignment and the request-id chain changes every later chunk's cache key.
+- **Still open:** the router, persistent player and sleep timer (WP-D) wait on the device spike. Until then `main.js` mounts `dock`, whose module does not exist, so the browser logs one 404 per page. It is a tested, expected state.
