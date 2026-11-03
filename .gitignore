@@ -10,3 +10,5 @@ stories/
 .content/
 .claude/worktrees/
 lore/
+playwright-report/
+test-results/

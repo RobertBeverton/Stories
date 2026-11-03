@@ -42,12 +42,10 @@ layout: base.njk
   {# Messages from story-resume (resume prompt, autoplay fallback, audio error). #}
   <div class="resume-prompt" data-role="resume" role="status" hidden></div>
 
-  {# SLOT player: moves to the persistent shell outside #view in wave 2. Native
-     controls keep it usable without script. #}
+  {# The player lives in the shell (base.njk), outside #view. Without script the
+     shell has no controls, so offer the file itself. #}
   {% if audioUrl %}
-  <div class="story-audio">
-    <audio id="player" controls preload="metadata" src="{{ audioUrl }}"></audio>
-  </div>
+  <noscript><p class="story-audio-fallback"><a href="{{ audioUrl }}">Listen to this story</a></p></noscript>
   {% endif %}
 
   <div class="story-body">

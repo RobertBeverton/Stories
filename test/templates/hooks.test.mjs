@@ -152,7 +152,9 @@ describe("what the modules need from the templates", () => {
 
   it("omits the audio element for a story with no audio", () => {
     const d = new JSDOM(renderStory(story(1, { audioUrl: undefined }))).window.document;
-    expect(d.querySelector("audio")).toBeNull();
+    expect(d.querySelector("audio").hasAttribute("src")).toBe(false); // the shell's player stays, empty
+    expect(d.querySelector("audio").hasAttribute("data-slug")).toBe(false);
+    expect(d.querySelector("noscript")).toBeNull();
     expect(d.querySelector('[data-mount="play-button"]')).toBeNull();
   });
 

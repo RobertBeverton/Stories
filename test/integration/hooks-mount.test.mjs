@@ -21,7 +21,7 @@ const contractHooks = (() => {
   return [...line.matchAll(/`([a-z-]+)`/g)].map((m) => m[1]);
 })();
 // Hooks whose module is wave 2. Anything else unresolved is a bug.
-const PENDING_WAVE_2 = ["dock"];
+const PENDING_WAVE_2 = [];
 
 const pages = {
   home: () => renderHome(stories),
@@ -141,15 +141,29 @@ describe("library page", () => {
     expect(document.documentElement.style.getPropertyValue("--accent")).toBe("#97c2d8");
   });
 
-  it("row play buttons keep their icon through progress label updates and navigate with autoplay", async () => {
-    const go = vi.spyOn(nav, "go").mockImplementation(() => {});
+  it("row play buttons keep their icon through progress label updates", async () => {
     await open("library", { progress: progressV2 });
     const button = document.querySelector(`[data-mount="play-button"][data-slug="${FIRST}"]`);
     await vi.waitFor(() => expect(button.dataset.state).toBe("in-progress"));
     expect(button.querySelector("svg")).not.toBeNull();
     expect(button.getAttribute("aria-label")).toBe(`Resume ${library.stories[0].title}`);
+  });
+
+  it("a row play button plays in the persistent player (no navigation) and the dock shows it", async () => {
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
+    const go = vi.spyOn(nav, "go").mockImplementation(() => {});
+    await open("library", { progress: progressV2 });
+    const button = document.querySelector(`[data-mount="play-button"][data-slug="${FIRST}"]`);
+    await vi.waitFor(() => expect(button.dataset.state).toBe("in-progress"));
+    await vi.waitFor(() => expect(document.querySelector('[data-role="mini-toggle"]')).not.toBeNull());
     button.click();
-    await vi.waitFor(() => expect(go).toHaveBeenCalledWith(`${library.stories[0].url}?autoplay=1`));
+    const audio = document.querySelector('audio[data-role="shell-audio"]');
+    expect(audio.dataset.slug).toBe(FIRST);
+    expect(audio.src).toBe(new URL(`${library.stories[0].url.replace(/\/$/, "")}.mp3`, location.href).href);
+    expect(play).toHaveBeenCalledTimes(1);
+    expect(go).not.toHaveBeenCalled();
+    await vi.waitFor(() => expect(document.querySelector('[data-dock-slot="mini"]').hidden).toBe(false));
+    expect(document.querySelector('[data-role="mini-title"]').textContent).toBe(library.stories[0].title);
   });
 });
 

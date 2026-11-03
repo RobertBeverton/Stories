@@ -63,6 +63,19 @@ placeholder text. One fixture title contains HTML on purpose, to test escaping.
 
 `<html data-base="/Stories">`. All client code reads it. No hard-coded `/Stories` in client code.
 
+## 8. Shell (WP-D)
+
+`base.njk` renders `<main id="view">`, then one `<audio id="player" data-role="shell-audio">`
+(with `data-slug` and `src` on a story page that has audio) and the dock, all
+outside `#view`. The router replaces only `#view`: it calls `unmountAll(view)`, swaps
+sanitised markup, then `mountAll(view)`, so every module inside `#view` must unmount
+cleanly and mount again on fresh markup. The dock lives outside `#view` and is mounted
+once. `id="player"` is present only while the audio holds the story the current page is
+about (story-resume binds to `audio#player`). Play buttons and the story article carry
+`data-slug` and `data-audio-url` (the player reads the audio URL from them; it is not in
+`library.json`). Kill switch: `<html data-router="off">`, `localStorage["stories-router"]="off"`,
+or `?router=off` / `?router=on`. Details: `site/assets/js/README.md`.
+
 ## Test conventions
 
 jsdom is opt-in per file: `// @vitest-environment jsdom` on the first line. The global
