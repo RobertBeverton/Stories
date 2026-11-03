@@ -25,7 +25,7 @@ Use the `superpowers:using-git-worktrees`, `superpowers:dispatching-parallel-age
 - Commit messages end with the attribution line from the harness's system reminder, if one is given.
 - Report faithfully. A failing test, a skipped step or a guess is reported as such. Do not claim success without running the acceptance commands and showing their output.
 - The ElevenLabs API, Cloudflare, DNS and any paid or outward-facing action are **mine**. Do not call them. WP-F is dry-run and mocked only.
-- `D:\GitHub\Gods-PrimarySchool` is not a git repo. Before WP-F edits it, copy `audio-pipeline/` to `audio-pipeline.bak-<date>/`. Edit nothing there except `audio-pipeline/`.
+- The local `Gods-PrimarySchool` folder (a sibling of this repo) is the checkout of `RobertBeverton/Stories_Gods` (branch `main`, baseline `cbc1ff8`). WP-F works on a branch `wp/narrator-parts` there, edits only `audio-pipeline/`, and does not push.
 - Worlds' story and lore text stays in the world repos. Do not copy story text into this repo's docs or fixtures (use invented placeholder text in fixtures).
 
 ## Order of work

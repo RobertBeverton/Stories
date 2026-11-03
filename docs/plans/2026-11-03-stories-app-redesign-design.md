@@ -171,10 +171,9 @@ Each step ships independently. Step 3 is a complete product.
 
 ## Open items
 
-- Add `Gods-PrimarySchool` to `content-sources.json`. It is not currently a git repo, so it needs a baseline commit (and a remote) first.
+- Add the Gods world to `content-sources.json`: repo `https://github.com/RobertBeverton/Stories_Gods.git`, local `../Gods-PrimarySchool`, proposed `name` `staff-room-gods`. The `name` keys the world manifest, library worlds and R2 folder, so confirm it before first use.
 - Gods stories have no mp3s yet. Part sync, `audioUrl` and the player need narrated audio to exercise.
 - Decide the fate of the world repos' own 11ty sites (preview only, or retired).
 - Cross-repo work (narrator `parts` output, `lore/` entries, `lore:` slugs) belongs in the world repos, each under its own CLAUDE.md.
 - Decide whether the custom domain happens at all, and the subdomain name.
-- `Gods-PrimarySchool` has no git history, so a baseline commit (or a copy) is needed before any agent edits its narrator.
 - Parallel delivery is described in [2026-11-03-stories-app-redesign-implementation.md](2026-11-03-stories-app-redesign-implementation.md).
