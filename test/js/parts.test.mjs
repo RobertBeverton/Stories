@@ -154,6 +154,33 @@ describe("highlight follows the audio clock", () => {
     expect(audio.currentTime).toBe(300);
   });
 
+  it("follows and jumps once the page's story is loaded into the audio (mounted while another played)", async () => {
+    await mountPage();
+    audio.dataset.slug = "other-world/lone-tale"; // another story held the dock at mount time
+    ctl.tick(300);
+    buttons()[1].click();
+    expect(audio.currentTime).toBe(300);
+    audio.dataset.slug = SLUG; // the page's Play button then loaded this story
+    audio.dispatchEvent(new Event("loadedmetadata"));
+    ctl.tick(250);
+    expect(current()[0].dataset.index).toBe("1");
+    buttons()[0].click();
+    expect(audio.currentTime).toBe(0);
+  });
+
+  it("finds the shell audio by data-role without id=player", async () => {
+    stubLibraryFetch(library);
+    loadPage(storyPageHtml);
+    audio = document.querySelector("audio");
+    audio.removeAttribute("id");
+    ctl = fakeAudio(audio, { duration: 600 });
+    const root = document.querySelector('[data-mount="parts"]');
+    unmount = mount(root);
+    await tick();
+    ctl.tick(250);
+    expect(current()[0].dataset.index).toBe("1");
+  });
+
   it("stops following after unmount", async () => {
     await mountPage();
     unmount();

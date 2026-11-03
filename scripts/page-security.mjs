@@ -6,23 +6,21 @@ import crypto from "node:crypto";
 import path from "node:path";
 import fg from "fast-glob";
 import { AUDIO_ORIGIN } from "./audio-origin.mjs";
+import { BUILD_ID } from "./build-id.mjs";
 import { PATH_PREFIX } from "./stories-lib.mjs";
-
-// Fixed for the life of the process so buildTime, the import map and the CSP hash always agree.
-export const BUILD_TIME = Date.now();
 
 // JSON for an inline <script>: "<" is escaped so no string can close the tag.
 function serialise(value) {
   return JSON.stringify(value).replace(/</g, "\u003c");
 }
 
-/** Maps every site/assets/js/*.mjs URL to itself plus ?v=<buildTime>. Keys are sorted, so output is deterministic. */
-export function buildImportMap(buildTime, jsDir = "site/assets/js") {
+/** Maps every site/assets/js/*.mjs URL to itself plus ?v=<buildId>. Keys are sorted, so output is deterministic. */
+export function buildImportMap(buildId, jsDir = "site/assets/js") {
   const files = fg.sync("*.mjs", { cwd: jsDir }).sort();
   const imports = {};
   for (const file of files) {
     const url = `${PATH_PREFIX}/assets/js/${path.posix.basename(file)}`;
-    imports[url] = `${url}?v=${buildTime}`;
+    imports[url] = `${url}?v=${buildId}`;
   }
   const json = serialise({ imports });
   return { json, hash: scriptHash(json) };
@@ -48,7 +46,7 @@ export function contentSecurityPolicy({ importMapHash, audioOrigin = AUDIO_ORIGI
 }
 
 /** What base.njk renders: the import map script body and the full CSP string. */
-export function pageSecurity(buildTime = BUILD_TIME, options = {}) {
-  const { json, hash } = buildImportMap(buildTime, options.jsDir);
+export function pageSecurity(buildId = BUILD_ID, options = {}) {
+  const { json, hash } = buildImportMap(buildId, options.jsDir);
   return { json, hash, csp: contentSecurityPolicy({ importMapHash: hash, audioOrigin: options.audioOrigin }) };
 }

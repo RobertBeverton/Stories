@@ -173,3 +173,53 @@ describe("sleep timer", () => {
     expect(timer.state().active).toBe(true);
   });
 });
+
+describe("sleep timer while paused near the deadline", () => {
+  it("does not spin a timer storm once the remaining time is inside the fade window", () => {
+    timer.start(1);
+    audio.pause();
+    audio.pause.mockClear();
+    vi.advanceTimersByTime(MIN - FADE_MS + 1000); // paused, 9 s left: inside the fade window
+    const spy = vi.spyOn(globalThis, "setTimeout");
+    vi.advanceTimersByTime(200);
+    expect(spy.mock.calls.length).toBeLessThanOrEqual(1);
+    expect(vi.getTimerCount()).toBeLessThanOrEqual(1);
+    spy.mockRestore();
+  });
+
+  it("still ends quietly at the deadline without touching playback", () => {
+    timer.start(1);
+    audio.pause();
+    audio.pause.mockClear();
+    vi.advanceTimersByTime(MIN - FADE_MS + 1000);
+    expect(timer.state().active).toBe(true);
+    vi.advanceTimersByTime(FADE_MS);
+    expect(timer.state().active).toBe(false);
+    expect(audio.pause).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("fades and pauses when playback resumes inside the window", () => {
+    timer.start(1);
+    audio.pause();
+    audio.pause.mockClear();
+    vi.advanceTimersByTime(MIN - 5000); // paused, 5 s left
+    audio.paused = false;
+    audio.dispatchEvent(new Event("play"));
+    expect(timer.state().fading).toBe(true);
+    vi.advanceTimersByTime(5500);
+    expect(audio.pause).toHaveBeenCalledTimes(1);
+    expect(timer.state().active).toBe(false);
+    expect(audio.volume).toBe(1);
+  });
+
+  it("starting the timer on an already-paused audio does not storm either", () => {
+    audio.paused = true;
+    timer.start(1);
+    vi.advanceTimersByTime(MIN - 3000);
+    const spy = vi.spyOn(globalThis, "setTimeout");
+    vi.advanceTimersByTime(200);
+    expect(spy.mock.calls.length).toBeLessThanOrEqual(1);
+    spy.mockRestore();
+  });
+});

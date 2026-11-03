@@ -32,8 +32,13 @@ with `[data-role="title"]` and `[data-role="state"]` inside. At most three.
 
 ## `story-resume`
 
-On the story `<article data-mount="story-resume" data-slug="<slug>">`. Needs the
-page's `<audio id="player">` (optional: with none it only restores scroll).
+On the story `<article data-mount="story-resume" data-slug="<slug>">`. Uses the shell's
+`<audio data-role="shell-audio">` (found with `shell-audio.mjs`; optional: with none it only
+restores scroll), and only while `audio.dataset.slug` is this story's slug: every handler
+(`timeupdate`, `play`, `pause`, `ended`, `loadedmetadata`, `error`, `stories:play`,
+`pagehide`, the Resume and Start over buttons) re-checks that, so another story playing in
+the dock is never saved into this record. It does not claim `stories:play` while the audio
+holds another story; the player loads it, and this module takes over once it has.
 Optional `[data-role="resume"]` inside the article is used as the message area
 (banner, autoplay fallback, audio error); without it the module inserts one
 (`role="status"`) after the first `h1`. It fills it with
@@ -41,7 +46,8 @@ Optional `[data-role="resume"]` inside the article is used as the message area
 `p[data-role="autoplay-fallback"]`, `p[data-role="audio-error"]` and
 `button[data-role="retry-button"]`. It claims `stories:play` for its own slug.
 It saves progress, marks finished (`ended`, and foreground reconciliation against
-the real `audio.duration`) and sets Media Session metadata.
+the real `audio.duration`) and sets Media Session metadata (only for a loaded story that is
+its own; the player owns Media Session otherwise).
 
 ## `play-button`
 
@@ -112,7 +118,9 @@ story (`data-slug`, `src`), so a plain page load works without the router.
   while open, focus returns to the opener) with a native range seek, back/forward
   15 s, previous/next, speed (remembered in `stories-speed`), the sleep timer and a
   "Read the story" link. The live region announces only user actions (speed,
-  sleep timer).
+  sleep timer). Closing the sheet returns focus to its opener; if that is gone (a router
+  swap removed it) focus goes to the mini button when the mini row shows, else the page's
+  `h1` (given `tabindex="-1"`), else the first dock control, never `<body>`.
 - **`player.mjs`**: owns the audio. Claims `stories:play {slug}` (`preventDefault`)
   when it can find that story's `data-audio-url` on the page or in its cache, so a
   Play button plays in place; otherwise the play-button's `?autoplay=1` navigation
@@ -123,6 +131,8 @@ story (`data-slug`, `src`), so a plain page load works without the router.
   audio URL is taken from the page, or fetched from the story page and prefetched
   once playback starts.
 - **`sleep-timer.mjs`**: 10/15/30/45/60 minutes, fade over the last 10 s, then pause.
+  While paused it waits for the deadline in one timer (never re-arming at zero delay) and
+  `play` re-evaluates.
   Designed from the spike (timers and `timeupdate` kept running with the screen
   locked): a setTimeout, a check on every `timeupdate` against the wall-clock
   deadline AND the audio actually listened to, and a check on
@@ -141,18 +151,40 @@ story (`data-slug`, `src`), so a plain page load works without the router.
 **Build id.** A fetched page whose `<meta name="build-id">` differs from the
 running page triggers a full navigation, at most once per URL per 10 s (a
 `sessionStorage` marker), so a mixed-version CDN cannot reload forever; the second
-time the page is swapped in with a console warning.
+time the page is swapped in with a console warning. The id is a content hash of the
+build inputs (`scripts/build-id.mjs`), not a timestamp, so the nightly rebuild with no
+change keeps it and a page left open never reloads (and loses its audio) for nothing.
+Decision: a real deploy still forces the reload even while audio plays. Swapping new
+markup under old modules and CSS risks a broken page mid-story, which is worse than one
+audible restart after an actual release; revisit only if deploys become frequent.
+
+**Scroll.** `history.scrollRestoration` is `manual`. `history.state.scrollY` is written
+after scrolling stops (150 ms), when the page becomes hidden, and on `pagehide`. A reload,
+a Back after a full-page fallback navigation and a Back from another site never fire
+`popstate`, so `startRouter` also reads `history.state.scrollY` when it starts and scrolls
+there once the first modules have mounted (`ready`, passed from `main.js`).
+
+**Overlapping navigations.** The newest `go()` wins. A view whose modules were still
+mounting (or whose before-mount hooks had not finished) when the next navigation started
+runs no after-mount hooks, focus, scroll or announcement, and is not mounted at all in
+the second case. `mountAll` re-checks, after each module's dynamic import, that its claim
+is still current and the element is still inside the root, so a late import never mounts
+onto a detached element; a mount cancelled during `mount()` is unmounted at once.
 
 **Kill switch** (all leave the plain multi-page site working): `<html data-router="off">`
 (build with `STORIES_ROUTER=off`), `localStorage["stories-router"] = "off"`, or open any
 page with `?router=off` (sets that flag) and `?router=on` (clears it).
 
-**Who may use `audio#player`.** story-resume binds to `audio#player`, so the shell
-keeps `id="player"` on the element only while it holds the story the current page is
-about. On a different story's page while another story is playing, the id is removed:
-story-resume then sees no audio and cannot drive or save progress for the wrong story.
-Arriving with `?autoplay=1`, or with nothing started yet, switches the element to the
-page's story.
+**Who may use the audio.** One `<audio>` holds one story at a time, and the dock's
+Next/Previous or a Play button can swap it at any moment, so ownership is the slug and
+never an id the shell adds or removes (`id="player"` is permanent). `shell-audio.mjs`
+exports `shellAudio()` (the element) and `holdsStory(audio, slug)`; story-resume and
+`parts` resolve the element once and call `holdsStory` inside every handler. On a different
+story's page while another story plays they do nothing to the audio; pressing that page's
+Play makes the player load its story (`stories:play` is claimed by the player), after which
+the same handlers, already attached, follow it: part highlight, part jumps, Resume, Start over,
+progress saving. Arriving with `?autoplay=1`, or with nothing started yet, switches the
+element to the page's story before the modules mount.
 
 **Known browser limitation.** Firefox on Android did not update the lock-screen
 title after next/previous even though metadata was set on each load while the page
@@ -160,7 +192,6 @@ was hidden (device spike). `player.mjs` assigns a fresh `MediaMetadata` again wh
 `playing` fires and on every return to the foreground; there is no other workaround.
 iOS has not been tested.
 
-## Not here yet
+## Missing modules
 
-`parts` and `lore` land with WP-E. `main.js` logs a warning and carries on when a
-module file is missing.
+`main.js` logs a warning and carries on when a module file is missing.

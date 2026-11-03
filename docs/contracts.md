@@ -70,11 +70,24 @@ placeholder text. One fixture title contains HTML on purpose, to test escaping.
 outside `#view`. The router replaces only `#view`: it calls `unmountAll(view)`, swaps
 sanitised markup, then `mountAll(view)`, so every module inside `#view` must unmount
 cleanly and mount again on fresh markup. The dock lives outside `#view` and is mounted
-once. `id="player"` is present only while the audio holds the story the current page is
-about (story-resume binds to `audio#player`). Play buttons and the story article carry
+once. The audio element keeps `id="player"` and `data-role="shell-audio"` for good, and
+holds whichever story was started last, which need not be the page's own. **Ownership is
+the slug, not an id:** a page module (story-resume, parts) finds the audio through
+`site/assets/js/shell-audio.mjs` and may drive or save from it only while
+`audio.dataset.slug` equals its own slug, checked again on every event; it picks the
+audio up on its own once a Play button or the player loads its story. Play buttons and the story article carry
 `data-slug` and `data-audio-url` (the player reads the audio URL from them; it is not in
 `library.json`). Kill switch: `<html data-router="off">`, `localStorage["stories-router"]="off"`,
 or `?router=off` / `?router=on`. Details: `site/assets/js/README.md`.
+
+**Build id.** `<meta name="build-id">`, the `?v=` on CSS and `main.js`, and the import map
+(so also its CSP hash) all carry one build id: the first 12 hex characters of a SHA-256
+over the build inputs (`scripts/build-id.mjs`: stories, lore, `site/`, build scripts,
+`content-sources.json`, the Eleventy config, the lockfile). It is deterministic: identical
+inputs give the same id, so the nightly build with no change keeps it, and any change to
+stories, templates, modules or CSS changes it. A router fetch that sees a different id
+forces one full page load (which restarts the audio); that is acceptable only because the id
+no longer moves without a deploy.
 
 ## Test conventions
 

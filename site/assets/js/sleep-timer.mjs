@@ -21,6 +21,7 @@
 export const SLEEP_MINUTES = [10, 15, 30, 45, 60];
 export const FADE_MS = 10_000;
 const STEP_MS = 250;
+const MIN_PAUSED_WAIT_MS = 1000; // lower bound for the re-check while paused
 const MAX_TICK_JUMP_SEC = 2; // a bigger media-time jump is a seek, not listening
 
 /**
@@ -60,9 +61,15 @@ export function createSleepTimer(audio, { now = () => Date.now(), fadeMs = FADE_
     notify();
   }
 
+  // One timer, never a loop. Playing: wake when the fade should start. Paused:
+  // there is nothing to fade, so wake at the deadline (never sooner than
+  // MIN_PAUSED_WAIT_MS, so a deadline inside the fade window cannot re-arm itself
+  // at zero delay); pressing Play re-evaluates through the `play` event.
   function arm() {
     clearTimeout(run.fadeTimer);
-    run.fadeTimer = setTimeout(evaluate, Math.max(0, remainingMs() - fadeMs));
+    const left = remainingMs();
+    const wait = audio.paused ? Math.max(MIN_PAUSED_WAIT_MS, left) : Math.max(0, left - fadeMs);
+    run.fadeTimer = setTimeout(evaluate, wait);
   }
 
   function fadeStep() {

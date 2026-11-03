@@ -7,6 +7,7 @@ import { resetLibrary } from "../../site/assets/js/library.mjs";
 import { neighbours, playableUrl } from "../../site/assets/js/player.mjs";
 import { read } from "../../site/assets/js/progress.mjs";
 import { startRouter } from "../../site/assets/js/router.mjs";
+import * as storyResume from "../../site/assets/js/story-resume.mjs";
 import { fakeAudio, library, progressV2, seed, stubLibraryFetch, tick, useFixedNow } from "./helpers.mjs";
 
 const [A, B, C] = library.stories.map((s) => s.slug); // A and B share a series; C stands alone
@@ -444,6 +445,51 @@ describe("player sheet", () => {
     expect(document.activeElement).not.toBe(q("open-player"));
   });
 
+  describe("closing when the opener is gone", () => {
+    // The opener was a control in the page that a router swap removed, and the mini
+    // row is hidden, so the old fallback (focus the hidden mini button) dropped focus on <body>.
+    async function openFromPage() {
+      await setup();
+      clickPlay(B);
+      loaded();
+      await vi.waitFor(() => expect(mini().hidden).toBe(false));
+      const opener = document.getElementById("x");
+      opener.focus();
+      q("open-player").click();
+      expect(q("player-sheet").hidden).toBe(false);
+      opener.remove();
+      mini().hidden = true;
+    }
+
+    it("moves focus to the page's main heading (made programmatically focusable)", async () => {
+      await openFromPage();
+      document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      expect(q("player-sheet").hidden).toBe(true);
+      const heading = document.querySelector("#view h1");
+      expect(document.activeElement).toBe(heading);
+      expect(heading.getAttribute("tabindex")).toBe("-1");
+    });
+
+    it("falls back to the first focusable control when the page has no heading", async () => {
+      await openFromPage();
+      document.querySelector("#view h1").remove();
+      q("close").click();
+      expect(document.activeElement).toBe(document.querySelector('nav[aria-label="Main"] a')); // the dock's Home link
+    });
+
+    it("still returns to the mini player's button when that is what is showing", async () => {
+      await setup();
+      clickPlay(B);
+      loaded();
+      await vi.waitFor(() => expect(mini().hidden).toBe(false));
+      document.getElementById("x").focus();
+      q("open-player").click();
+      document.getElementById("x").remove();
+      q("close").click();
+      expect(document.activeElement).toBe(q("open-player"));
+    });
+  });
+
   it("hides Next when there is no next story", async () => {
     await openSheet(); // B is last in its series
     expect(q("next").hidden).toBe(true);
@@ -606,7 +652,7 @@ describe("with the router", () => {
     await router.navigate(`/Stories/stories/${slug}/${query}`);
   }
 
-  it("keeps the same <audio> element and its playback across a swap, and hands the page to story-resume only when it is that story's", async () => {
+  it("keeps the same <audio> element and its playback across a swap; the page's modules follow the slug, not an id", async () => {
     await setup();
     router = startRouter({ mountAll: async () => {}, unmountAll() {} });
     const element = audio;
@@ -616,10 +662,70 @@ describe("with the router", () => {
     await visit(B);
     expect(document.querySelector("audio")).toBe(element);
     expect(audio.dataset.slug).toBe(A); // still playing A
-    expect(audio.hasAttribute("id")).toBe(false); // so story-resume on B's page cannot drive or save A's audio
+    expect(audio.id).toBe("player"); // the id is permanent; story-resume on B's page checks the slug instead
     expect(audio.pause).not.toHaveBeenCalled();
     await visit(A);
-    expect(audio.id).toBe("player"); // A's own page may use it
+    expect(audio.id).toBe("player");
+  });
+
+  /** The router with the real story-resume module mounted on each swapped story page. */
+  const resumeMounts = [];
+  function startRouterWithResume() {
+    router = startRouter({
+      mountAll: async (root) => {
+        for (const el of root.querySelectorAll('[data-mount="story-resume"]')) resumeMounts.push(storyResume.mount(el));
+      },
+      unmountAll() {
+        while (resumeMounts.length) resumeMounts.pop()();
+      },
+    });
+  }
+  afterEach(() => {
+    while (resumeMounts.length) resumeMounts.pop()();
+  });
+
+  it("Play on another story's page while A plays: the page's story-resume follows B once it is loaded, and A's record is never touched", async () => {
+    await setup();
+    startRouterWithResume();
+    clickPlay(A);
+    loaded();
+    fake.tick(30);
+    await visit(B); // story-resume mounts while A holds the audio
+    fake.tick(90); // A keeps playing (the player saves A); B's page must not save anything
+    expect(read(B)).toBeNull();
+    expect(read(A).audioTime).toBe(90);
+    expect(dispatchPlay(B).defaultPrevented).toBe(true); // the player claims it, loading B
+    expect(audio.dataset.slug).toBe(B);
+    loaded();
+    fake.tick(6);
+    expect(read(B)).toMatchObject({ audioTime: 6, playing: true }); // story-resume (and the player) now save B
+    expect(read(A).audioTime).toBe(90);
+    document.dispatchEvent(new Event("visibilitychange"));
+    fake.end();
+    expect(read(B).completedAt).toBeDefined();
+    expect(read(A).completedAt).toBeUndefined();
+  });
+
+  it("dock Next from A's page: A's record keeps its place and is not finished when B ends", async () => {
+    await setup();
+    startRouterWithResume();
+    clickPlay(A); // from the rows on screen: caches both URLs
+    loaded();
+    audio.dispatchEvent(new Event("playing")); // prefetches B's URL
+    await tick();
+    await visit(A);
+    fake.tick(12);
+    await vi.waitFor(() => expect(typeof handlers.nexttrack).toBe("function"));
+    handlers.nexttrack();
+    await vi.waitFor(() => expect(audio.dataset.slug).toBe(B));
+    loaded();
+    fake.tick(100);
+    fake.tick(200);
+    expect(read(A).audioTime).toBe(12);
+    expect(read(B).audioTime).toBe(200);
+    fake.end();
+    expect(read(B).completedAt).toBeDefined();
+    expect(read(A).completedAt).toBeUndefined();
   });
 
   it("binds the audio to a story page when nothing has been started yet", async () => {

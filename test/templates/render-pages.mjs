@@ -38,7 +38,7 @@ export function templateStory(libraryStory, extra = {}) {
 
 function page(templatePath, data, pageUrl, stories) {
   const { content: body, data: front } = matter(fs.readFileSync(templatePath, "utf8"));
-  const ctx = { buildTime: 12345, importMap: pageSecurity(12345), page: { url: pageUrl }, stories, ...front, ...data };
+  const ctx = { buildId: "test12345678", importMap: pageSecurity("test12345678"), page: { url: pageUrl }, stories, ...front, ...data };
   const inner = env.renderString(body, ctx);
   return env.render("base.njk", { ...ctx, content: inner });
 }

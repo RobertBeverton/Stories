@@ -14,10 +14,12 @@
 //     play, pause, seekto, seekbackward, seekforward, previoustrack and
 //     nexttrack (the neighbours in the story's series), plus position state.
 //
-// story-resume (a page module) binds to `audio#player`. The shell keeps that
-// contract by giving the element id="player" ONLY while it holds the story
-// the current page is about (see syncPage), so a page for story B never
-// drives, or saves progress from, the audio of story A that is still playing.
+// Page modules (story-resume, parts) find the audio with shell-audio.mjs and may
+// drive or save from it only while audio.dataset.slug is their own story's slug,
+// re-checked on every event. So a page for story B never drives, or saves
+// progress from, the audio of story A that is still playing, and picks the audio
+// up on its own once start()/load() put B into it. The element keeps id="player"
+// for good: ownership is the slug, never an id that comes and goes.
 //
 // Known browser limitation: Firefox on Android did not update the lock-screen
 // title after next/previous even though metadata was set on each load while the
@@ -342,35 +344,29 @@ export function createPlayer(audio, { doc = document } = {}) {
 
   // --- the page the shell is showing -------------------------------------------
   const wantsAutoplay = () => new URLSearchParams(doc.defaultView?.location.search ?? "").get("autoplay") === "1";
-  function setPageOwnership(owns) {
-    if (owns) audio.id = "player";
-    else audio.removeAttribute("id");
-  }
   /**
    * Called on first mount and before each swapped view's modules mount.
-   * Decides whether story-resume on this page may see the audio (id="player").
+   * Loads the page's story into the audio when nothing has been started (or the
+   * link carries ?autoplay=1); otherwise leaves another story's audio alone.
+   * Page modules decide for themselves, by slug, whether they may use it.
    */
   function syncPage() {
     const article = doc.querySelector('[data-mount="story-resume"][data-slug]');
     const pageSlug = article?.dataset.slug;
     const url = pageSlug ? playableUrl(article.dataset.audioUrl ?? "") ?? knownUrl(pageSlug) : null;
-    if (!pageSlug || !url) {
-      setPageOwnership(!slug()); // no story here: nothing for story-resume to claim
-      return;
-    }
+    if (!pageSlug || !url) return; // no story here
     urlCache.set(pageSlug, url);
     if (slug() === pageSlug) {
       // A ?autoplay=1 arrival makes story-resume seek to the SAVED position; make
       // that the live one so a story already playing does not jump back.
       if (wantsAutoplay() && !audio.paused && !audio.ended) save({ audioTime: audio.currentTime, playing: true });
-      return setPageOwnership(true);
+      return;
     }
     if (!active || wantsAutoplay()) {
       load(pageSlug, url, { startAt: 0 });
       active = false;
-      return setPageOwnership(true);
     }
-    setPageOwnership(false); // another story is in the dock: leave it alone
+    // else: another story is in the dock; leave it alone
   }
 
   // --- events -----------------------------------------------------------------
@@ -378,10 +374,10 @@ export function createPlayer(audio, { doc = document } = {}) {
     const wanted = event.detail?.slug;
     const url = wanted ? knownUrl(wanted) : null;
     if (!url) return; // not ours: the button's own ?autoplay=1 navigation handles it
-    // On that story's own page story-resume holds this very element (id="player")
-    // and claims the event itself; claiming it twice would start playback twice.
+    // On that story's own page, while the audio already holds it, story-resume
+    // claims the event itself; claiming it twice would start playback twice.
     const page = doc.querySelector('[data-mount="story-resume"][data-slug]');
-    if (page?.dataset.slug === wanted && slug() === wanted && audio.id === "player") return;
+    if (page?.dataset.slug === wanted && slug() === wanted) return;
     event.preventDefault();
     if (slug() === wanted && !audio.paused && !audio.ended) return; // already playing it
     start(wanted, url);

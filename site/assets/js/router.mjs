@@ -25,11 +25,20 @@
 // CDN), the router swaps it in with a warning instead of forcing again, so a
 // mismatch can never reload forever.
 //
-// SCROLL AND FOCUS. history.scrollRestoration is set to "manual"; the router
-// stores scrollY in history.state when leaving a page and restores it on
-// Back/Forward. After each swap focus moves to the new <h1> (without scrolling)
-// and a polite live region announces the new title. The reading position saved
-// in progress is applied only on a first load of a story, never by the router.
+// SCROLL AND FOCUS. history.scrollRestoration is set to "manual", so the router
+// owns every restore. It keeps scrollY in history.state (after scrolling stops,
+// when the page is hidden, and on pagehide), restores it on Back/Forward through
+// the router, and, because a reload, a Back after a full-page fallback navigation
+// and a Back from another site never reach popstate, also reads history.state when
+// it starts and applies that position once the first page's modules have mounted.
+// After each swap focus moves to the new <h1> (without scrolling) and a polite
+// live region announces the new title. The reading position saved in progress is
+// applied only on a first load of a story, never by the router.
+//
+// OVERLAPPING NAVIGATIONS. A newer go() wins: a swapped-in view whose modules
+// were still mounting (or whose before-mount hooks were pending) when the next
+// navigation started does not run its after-mount hooks, focus, scroll or
+// announcement, and is not mounted at all if the hooks had not finished.
 import { basePath } from "./dom.mjs";
 import { nav } from "./nav.mjs";
 
@@ -177,11 +186,12 @@ export function interceptTarget(event, { loc = window.location, base = basePath(
 
 /**
  * @param {{mountAll: (root: Element) => Promise<void>, unmountAll: (root: Element) => void,
- *          now?: () => number}} deps
+ *          now?: () => number, ready?: Promise<unknown>}} deps `ready` settles when the first
+ *   page's modules have mounted; the saved scroll position is applied then
  * @returns {{navigate: (href: string, opts?: object) => Promise<void>, stop: () => void}|null}
  *   null when the router is disabled or the browser lacks what it needs
  */
-export function startRouter({ mountAll, unmountAll, now = () => Date.now() }) {
+export function startRouter({ mountAll, unmountAll, now = () => Date.now(), ready = Promise.resolve() }) {
   applyRouterQuery();
   if (routerDisabled()) return null;
   if (!window.history?.pushState || typeof fetch !== "function" || typeof DOMParser === "undefined") return null;
@@ -203,6 +213,7 @@ export function startRouter({ mountAll, unmountAll, now = () => Date.now() }) {
   }
 
   let token = 0;
+  let stopped = false;
   let controller = null;
   let announcer = null;
   let announceTimer = 0;
@@ -278,6 +289,13 @@ export function startRouter({ mountAll, unmountAll, now = () => Date.now() }) {
     window.scrollTo(0, savedY ?? 0);
   }
 
+  /** A reload (and Back after a full navigation or from another site) arrives with no popstate. */
+  function restoreInitialScroll() {
+    const saved = history.state?.scrollY;
+    if (stopped || !(typeof saved === "number" && saved > 0)) return;
+    window.scrollTo(0, saved);
+  }
+
   function rememberScroll() {
     if (`${location.pathname}${location.search}` !== currentDoc) return; // mid-navigation: location already moved
     try {
@@ -340,8 +358,11 @@ export function startRouter({ mountAll, unmountAll, now = () => Date.now() }) {
       currentDoc = `${finalUrl.pathname}${finalUrl.search}`;
       updateNavState(finalUrl);
       await runHooks(beforeMountHooks, { url: finalUrl, view });
+      if (mine !== token) return; // a newer navigation replaced this view; it mounts its own
       await mountAll(view);
+      if (mine !== token) return; // replaced while mounting: the newer one owns focus, scroll and hooks
       await runHooks(afterMountHooks, { url: finalUrl, view });
+      if (mine !== token) return;
       focusHeading();
       scrollTo(finalUrl, scrollY);
       announce(document.title);
@@ -377,10 +398,15 @@ export function startRouter({ mountAll, unmountAll, now = () => Date.now() }) {
   window.addEventListener("popstate", onPopState);
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("pagehide", rememberScroll);
+  // Mobile browsers can discard a hidden page without ever firing pagehide.
+  const onVisibility = () => { if (document.visibilityState === "hidden") rememberScroll(); };
+  document.addEventListener("visibilitychange", onVisibility);
+  Promise.resolve(ready).then(restoreInitialScroll, restoreInitialScroll);
 
   return {
     navigate: (href, options) => go(new URL(href, location.href), options),
     stop() {
+      stopped = true;
       controller?.abort();
       token++;
       clearTimeout(announceTimer);
@@ -390,6 +416,7 @@ export function startRouter({ mountAll, unmountAll, now = () => Date.now() }) {
       window.removeEventListener("popstate", onPopState);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pagehide", rememberScroll);
+      document.removeEventListener("visibilitychange", onVisibility);
       try {
         if (previousRestoration) history.scrollRestoration = previousRestoration;
       } catch {
