@@ -13,6 +13,7 @@
   <link rel="manifest" href="{{ '/manifest.webmanifest' | url }}">
   <link rel="apple-touch-icon" href="{{ '/assets/app-icon-192.png' | url }}">
   {# SLOT head-end: meta (noindex, build-id) and CSS links live here #}
+  <link rel="stylesheet" href="{{ '/assets/css/lore.css' | url }}?v={{ buildTime }}">
   <meta name="robots" content="noindex">
   <meta name="build-id" content="{{ buildTime }}">
   <script type="module" src="{{ '/assets/js/main.js' | url }}?v={{ buildTime }}"></script>
