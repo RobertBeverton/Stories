@@ -23,6 +23,7 @@
     "fast-glob": "^3.3.3",
     "gray-matter": "^4.0.3",
     "jsdom": "^29.1.1",
+    "markdown-it": "^14.3.3",
     "music-metadata": "^11.13.0",
     "nunjucks": "^3.2.4",
     "sharp": "^0.35.4",

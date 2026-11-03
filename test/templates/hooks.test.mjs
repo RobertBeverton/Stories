@@ -57,7 +57,7 @@ describe("template hooks", () => {
   it("reads the hook list from the contract", () => {
     expect(contractHooks).toEqual([
       "continue", "played-lately", "story-resume", "search", "play-button",
-      "filters", "world-switcher", "text-size", "parts", "dock",
+      "filters", "world-switcher", "text-size", "lore", "parts", "dock",
     ]);
   });
 
