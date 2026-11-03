@@ -40,7 +40,7 @@ Written once, checked by code, imported by every package's tests.
 
 Branch `feature/app-redesign`. Do in order:
 
-1. Run `npm ci`, then `npm run fetch-content` once in the main checkout so `stories/` exists (it does not exist today; the world repos are siblings at `../isles-of-yum` and `../bramble-wall`). First add the Gods world to `content-sources.json` (repo `https://github.com/RobertBeverton/Stories_Gods.git`, `localPath` `../Gods-PrimarySchool`, `name` `staff-room-gods` unless the user chose another), so `stories/` includes it.
+1. Run `npm ci`, then `npm run fetch-content` once in the main checkout so `stories/` exists (it does not exist today; the world repos are siblings at `../isles-of-yum` and `../bramble-wall`). First add the Gods world to `content-sources.json` (repo `https://github.com/RobertBeverton/Stories_Gods.git`, `localPath` `../Gods-PrimarySchool`, `name` `legend-lane`, `title` "Legend Lane"), so `stories/` includes it.
 2. Add jsdom (dev dependency) and per-file `// @vitest-environment jsdom` usage. Do not change the global Vitest environment.
 3. Write `docs/contracts.md`, the JSON Schema, the progress interface with failing tests, and the fixtures.
 4. Write the `base.njk` skeleton with named slots and `data-base`, the `main.js` entry that imports page modules by `data-mount`, and the Eleventy passthroughs.

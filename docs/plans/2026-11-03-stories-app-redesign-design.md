@@ -171,7 +171,7 @@ Each step ships independently. Step 3 is a complete product.
 
 ## Open items
 
-- Add the Gods world to `content-sources.json`: repo `https://github.com/RobertBeverton/Stories_Gods.git`, local `../Gods-PrimarySchool`, proposed `name` `staff-room-gods`. The `name` keys the world manifest, library worlds and R2 folder, so confirm it before first use.
+- Add the Gods world to `content-sources.json`: repo `https://github.com/RobertBeverton/Stories_Gods.git`, local `../Gods-PrimarySchool`, `name` `legend-lane` (decided), display `title` "Legend Lane". The `name` keys the world manifest, library worlds and R2 folder, so it is fixed. The display `title` can change any time. The series itself is still "The Staff Room Gods" in story front matter.
 - Gods stories have no mp3s yet. Part sync, `audioUrl` and the player need narrated audio to exercise.
 - Decide the fate of the world repos' own 11ty sites (preview only, or retired).
 - Cross-repo work (narrator `parts` output, `lore/` entries, `lore:` slugs) belongs in the world repos, each under its own CLAUDE.md.
