@@ -92,7 +92,7 @@ describe("page shell", () => {
   it.each(Object.keys(pages))("%s has the required head tags and no external fonts", (name) => {
     const d = doc[name];
     expect(d.querySelector("meta[name=robots]").content).toBe("noindex");
-    expect(d.querySelector("meta[name=build-id]").content).toBe("12345");
+    expect(d.querySelector("meta[name=build-id]").content).toBe("test12345678");
     expect(d.querySelector("meta[name=viewport]").content).toContain("viewport-fit=cover");
     expect(d.documentElement.dataset.base).toBe("/Stories");
     expect(pages[name]).not.toMatch(/fonts\.(googleapis|gstatic)\.com/);

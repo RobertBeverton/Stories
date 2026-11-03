@@ -7,20 +7,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{{ title }} — Stories</title>
   <meta name="theme-color" content="#1c1a17">
-  <link rel="stylesheet" href="{{ '/assets/css/tokens.css' | url }}?v={{ buildTime }}">
-  <link rel="stylesheet" href="{{ '/assets/css/base.css' | url }}?v={{ buildTime }}">
-  <link rel="stylesheet" href="{{ '/assets/css/dock.css' | url }}?v={{ buildTime }}">
-  <link rel="stylesheet" href="{{ '/assets/css/pages.css' | url }}?v={{ buildTime }}">
-  <link rel="stylesheet" href="{{ '/assets/css/player.css' | url }}?v={{ buildTime }}">
+  <link rel="stylesheet" href="{{ '/assets/css/tokens.css' | url }}?v={{ buildId }}">
+  <link rel="stylesheet" href="{{ '/assets/css/base.css' | url }}?v={{ buildId }}">
+  <link rel="stylesheet" href="{{ '/assets/css/dock.css' | url }}?v={{ buildId }}">
+  <link rel="stylesheet" href="{{ '/assets/css/pages.css' | url }}?v={{ buildId }}">
+  <link rel="stylesheet" href="{{ '/assets/css/player.css' | url }}?v={{ buildId }}">
   <link rel="manifest" href="{{ '/manifest.webmanifest' | url }}">
   <link rel="apple-touch-icon" href="{{ '/assets/app-icon-192.png' | url }}">
   {# SLOT head-end: meta (noindex, build-id) and CSS links live here #}
-  <link rel="stylesheet" href="{{ '/assets/css/lore.css' | url }}?v={{ buildTime }}">
+  <link rel="stylesheet" href="{{ '/assets/css/lore.css' | url }}?v={{ buildId }}">
   <meta name="robots" content="noindex">
-  <meta name="build-id" content="{{ buildTime }}">
+  <meta name="build-id" content="{{ buildId }}">
   {# The import map adds ?v=<build> to every module import, so a cached old module can never mix with a new main.js. Its content must stay on one line: the CSP hashes it exactly. #}
   <script type="importmap">{{ importMap.json | safe }}</script>
-  <script type="module" src="{{ '/assets/js/main.js' | url }}?v={{ buildTime }}"></script>
+  <script type="module" src="{{ '/assets/js/main.js' | url }}?v={{ buildId }}"></script>
 </head>
 <body>
   {# SLOT view: the only region the router (WP-D) replaces #}
