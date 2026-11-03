@@ -461,3 +461,109 @@ describe("scroll and focus", () => {
     router = null;
   });
 });
+
+describe("scroll restoration on load (reload, Back after a full navigation, Back from another site)", () => {
+  const setScrollY = (value) => Object.defineProperty(window, "scrollY", { value, configurable: true });
+  afterEach(() => setScrollY(0));
+
+  it("applies the scroll saved in history.state once the first modules have mounted", async () => {
+    window.history.replaceState({ stories: true, scrollY: 480 }, "", "/Stories/");
+    let release;
+    const mounted = new Promise((resolve) => { release = resolve; });
+    router = startRouter({ ...deps, ready: mounted });
+    await settle();
+    expect(window.scrollTo).not.toHaveBeenCalled(); // the page is not built yet
+    release();
+    await settle();
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 480);
+  });
+
+  it("does nothing for a fresh entry with no saved position", async () => {
+    window.history.replaceState(null, "", "/Stories/");
+    start();
+    await settle();
+    window.history.replaceState({ stories: true, scrollY: 0 }, "", "/Stories/library/");
+    expect(window.scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("ignores a saved position that is not a positive number", async () => {
+    for (const scrollY of ["400", -5, NaN, null]) {
+      window.history.replaceState({ stories: true, scrollY }, "", "/Stories/");
+      start();
+      await settle();
+      router.stop();
+      router = null;
+    }
+    expect(window.scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("keeps a restore that was cancelled by stop() from running later", async () => {
+    window.history.replaceState({ stories: true, scrollY: 300 }, "", "/Stories/");
+    let release;
+    router = startRouter({ ...deps, ready: new Promise((resolve) => { release = resolve; }) });
+    router.stop();
+    router = null;
+    release();
+    await settle();
+    expect(window.scrollTo).not.toHaveBeenCalled();
+  });
+
+  it("writes the position into history.state when the page is hidden or leaves (reload, external link, tab kill)", async () => {
+    start();
+    setScrollY(222);
+    document.dispatchEvent(new Event("visibilitychange")); // hidden
+    Object.defineProperty(document, "visibilityState", { value: "hidden", configurable: true });
+    document.dispatchEvent(new Event("visibilitychange"));
+    expect(history.state).toMatchObject({ stories: true, scrollY: 222 });
+    setScrollY(333);
+    window.dispatchEvent(new Event("pagehide"));
+    expect(history.state.scrollY).toBe(333);
+    Object.defineProperty(document, "visibilityState", { value: "visible", configurable: true });
+  });
+
+  it("writes the position after the user stops scrolling", async () => {
+    start();
+    setScrollY(150);
+    window.dispatchEvent(new Event("scroll"));
+    vi.advanceTimersByTime(200);
+    expect(history.state).toMatchObject({ stories: true, scrollY: 150 });
+  });
+});
+
+describe("a second navigation while the first is still mounting", () => {
+  it("lets only the newest navigation run its hooks, focus, scroll and announcement", async () => {
+    const afterUrls = [];
+    const off = onAfterMount(({ url }) => afterUrls.push(url.pathname));
+    let releaseFirst;
+    deps.mountAll
+      .mockImplementationOnce(() => new Promise((resolve) => { releaseFirst = resolve; }))
+      .mockImplementation(async () => {});
+    start();
+    click(document.querySelector("#to-lib"));
+    await settle(); // library is swapped in; its modules are still mounting
+    expect(heading()).toBe("All stories");
+    await router.navigate("/Stories/stories/a/");
+    expect(heading()).toBe("A tale");
+    window.scrollTo.mockClear();
+    releaseFirst();
+    await settle();
+    expect(afterUrls).toEqual(["/Stories/stories/a/"]);
+    expect(window.scrollTo).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(document.querySelector("#view h1"));
+    off();
+  });
+
+  it("does not mount a view that was replaced before its before-mount hooks finished", async () => {
+    let releaseHook;
+    const off = onBeforeMount(() => new Promise((resolve) => { releaseHook = resolve; }));
+    start();
+    click(document.querySelector("#to-lib"));
+    await settle();
+    off();
+    await router.navigate("/Stories/stories/a/");
+    expect(deps.mountAll).toHaveBeenCalledTimes(1); // only the newest view
+    releaseHook();
+    await settle();
+    expect(deps.mountAll).toHaveBeenCalledTimes(1);
+  });
+});

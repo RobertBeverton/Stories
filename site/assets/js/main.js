@@ -17,14 +17,30 @@ export async function mountAll(root = document) {
   for (const el of root.querySelectorAll("[data-mount]")) {
     const name = el.dataset.mount;
     if (!NAMES.includes(name) || unmounts.has(el)) continue;
-    unmounts.set(el, () => {}); // claim the element so concurrent calls do not double-mount
+    // Claim the element so concurrent calls do not double-mount. The claim is also
+    // how a mount learns it was cancelled: unmountAll() removes it.
+    const claim = () => {};
+    unmounts.set(el, claim);
     pending.push((async () => {
       try {
         const mod = await import(/* @vite-ignore */ `./${name}.mjs`);
+        // The router may have swapped the view (unmountAll + new markup) while the
+        // module was loading. Mounting now would attach listeners to a detached
+        // element whose unmount nobody ever calls.
+        if (unmounts.get(el) !== claim) return; // unmounted while importing
+        if (!root.contains(el)) {
+          unmounts.delete(el);
+          return;
+        }
         const unmount = mod.mount(el);
-        unmounts.set(el, typeof unmount === "function" ? unmount : () => {});
+        const release = typeof unmount === "function" ? unmount : () => {};
+        if (unmounts.get(el) !== claim) {
+          release(); // cancelled during mount(): do not leak what it just attached
+          return;
+        }
+        unmounts.set(el, release);
       } catch (err) {
-        unmounts.delete(el); // allow a later retry
+        if (unmounts.get(el) === claim) unmounts.delete(el); // allow a later retry
         console.warn(`mount ${name} failed`, err);
       }
     })());
@@ -43,7 +59,8 @@ export function unmountAll(root = document) {
 
 if (typeof document !== "undefined") {
   startWorldAccent();
-  mountAll();
+  const initialMount = mountAll();
   // The router swaps #view and remounts its modules; see router.mjs for the kill switch.
-  startRouter({ mountAll, unmountAll });
+  // `ready`: the saved scroll position is applied once the first page's modules are mounted.
+  startRouter({ mountAll, unmountAll, ready: initialMount });
 }
