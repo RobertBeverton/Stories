@@ -8,3 +8,5 @@ inspiration_screens/
 stories/.narrate-cache/
 stories/
 .content/
+.claude/worktrees/
+lore/

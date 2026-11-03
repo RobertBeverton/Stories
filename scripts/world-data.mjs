@@ -94,6 +94,18 @@ export function partHeadings(content) {
   return out;
 }
 
+// Heading text as the narrator records it in `parts`: emphasis markers removed
+// (it strips them from the title), whitespace trimmed. Both sides of the
+// comparison go through this, so `## Part One. The *Big* Day` matches a part
+// titled "Part One. The Big Day".
+export function plainHeading(text) {
+  return String(text)
+    .replace(/\*\*([^*\n]+)\*\*/g, "$1")
+    .replace(/\*([^*\n]+)\*/g, "$1")
+    .replace(/(^|[\s(])_([^_\n]+)_(?=[\s).,!?]|$)/g, "$1$2")
+    .trim();
+}
+
 // Validates a story's `parts` front matter against its `## Part` headings and
 // audioDuration. Returns { parts, problems }: `parts` is the cleaned list
 // ({title, start} only) when valid, or null when it must be dropped.
@@ -121,7 +133,7 @@ export function validateParts(parts, { headings, audioDuration }) {
     problems.push(`'parts' has ${parts.length} entries but the story has ${headings.length} '## Part' headings`);
   } else {
     parts.forEach((p, i) => {
-      if (p.title.trim() !== headings[i]) {
+      if (plainHeading(p.title) !== plainHeading(headings[i])) {
         problems.push(`parts[${i}] title '${p.title}' does not match heading '${headings[i]}'`);
       }
     });

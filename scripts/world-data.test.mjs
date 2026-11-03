@@ -94,6 +94,25 @@ describe("validateParts", () => {
     expect(result.problems.join(" ")).toMatch(/does not match heading/);
   });
 
+  it("matches titles the narrator recorded with emphasis markers stripped", () => {
+    const emphasised = { headings: ["Part One. The *Big* Day", "Part Two. _Quiet_ Night"], audioDuration: 600 };
+    const recorded = [
+      { title: "Part One. The Big Day", start: 0 },
+      { title: "Part Two. Quiet Night", start: 100 },
+    ];
+    const result = validateParts(recorded, emphasised);
+    expect(result.problems).toEqual([]);
+    expect(result.parts).toEqual(recorded);
+  });
+
+  it("still drops parts whose words differ, emphasis aside", () => {
+    const result = validateParts(
+      [{ title: "Part One. The Small Day", start: 0 }],
+      { headings: ["Part One. The *Big* Day"], audioDuration: 600 },
+    );
+    expect(result.parts).toBeNull();
+  });
+
   it("drops parts whose starts are not increasing", () => {
     const result = validateParts([parts[0], { ...parts[1], start: 0 }], ctx);
     expect(result.parts).toBeNull();
