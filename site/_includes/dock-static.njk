@@ -1,0 +1,21 @@
+{# Static dock: two real links with aria-current, so it works without script.
+   The dock module (WP-A) adds its mini-player row into .dock-mini. #}
+<div class="dock" data-mount="dock">
+  <div class="dock-mini" data-dock-slot="mini"></div>
+  <nav aria-label="Main">
+    <ul class="dock-nav">
+      <li>
+        <a class="dock-link" href="{{ '/' | url }}"{% if page.url == '/' %} aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+          <span>Home</span>
+        </a>
+      </li>
+      <li>
+        <a class="dock-link" href="{{ '/library/' | url }}"{% if page.url == '/library/' %} aria-current="page"{% endif %}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg>
+          <span>Library</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+</div>

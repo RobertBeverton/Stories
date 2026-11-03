@@ -1,0 +1,4 @@
+{# Expects `coverStory` (icon, accentColor) and optional `coverClass`. #}
+<div class="cover {{ coverClass }}" style="--series: {{ coverStory.accentColor.background }}; --series-ink: {{ coverStory.accentColor.text }};" aria-hidden="true">
+  <svg viewBox="0 0 120 82" focusable="false"><path class="icon-main" d="{{ icons.path(coverStory.icon) }}" /></svg>
+</div>

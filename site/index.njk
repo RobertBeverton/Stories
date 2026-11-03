@@ -1,32 +1,38 @@
 ---
 layout: base.njk
-title: Library
+title: Home
 ---
-<section class="hero">
-  <h1 class="display">Stories</h1>
-</section>
+<h1 class="home-title">Stories</h1>
+<p class="home-tagline">Felix and Alex's story worlds</p>
 
-<input type="search" id="search-box" placeholder="Search stories..." aria-label="Search stories">
-
-<section id="continue-section" aria-labelledby="continue-heading" hidden>
-  <h2 id="continue-heading" class="visually-hidden">Continue</h2>
-  <div id="continue-row"></div>
-</section>
-
-<div id="stories">
-{% if stories.groups.length > 0 %}
-<section aria-labelledby="arcs-heading">
-  <h2 id="arcs-heading" class="visually-hidden">Stories</h2>
-  <div class="rail-group-list">
-    {% for group in stories.groups %}
-      {% include "arc-group.njk" %}
-    {% endfor %}
+{# Server-rendered fallback: the newest story. The continue module replaces it
+   with the most recent unfinished story. #}
+<section aria-labelledby="continue-heading">
+  <h2 id="continue-heading">Up next</h2>
+  <div data-mount="continue">
+    {% if stories.length > 0 %}
+    {% set story = stories[0] %}
+    <a class="card-continue" href="{{ story.url }}" data-slug="{{ story.slug }}">
+      {% set coverStory = story %}{% set coverClass = '' %}
+      {% include "cover.njk" %}
+      <div>
+        <p class="card-continue-label">Newest story</p>
+        <p class="card-continue-title">{{ story.title }}</p>
+        <span class="btn btn-primary btn-lg">Open</span>
+      </div>
+    </a>
+    {% endif %}
   </div>
 </section>
-{% endif %}
-</div>
 
-<script src="{{ '/assets/search.js' | url }}"></script>
-<script src="{{ '/assets/mini-player.js' | url }}" type="module"></script>
-<script src="{{ '/assets/library.js' | url }}"></script>
-<script src="{{ '/assets/play-button.js' | url }}"></script>
+<section aria-labelledby="lately-heading">
+  <h2 id="lately-heading">Played lately</h2>
+  <div class="lately-root" data-mount="played-lately"></div>
+</section>
+
+<section aria-labelledby="worlds-heading">
+  <h2 id="worlds-heading">Choose a world</h2>
+  <div class="world-picker" data-mount="world-switcher" data-variant="picker">
+    <a class="world-tile btn-lg" href="{{ '/library/' | url }}">All stories</a>
+  </div>
+</section>
