@@ -384,3 +384,136 @@ describe("story-resume: errors, Media Session, unmount", () => {
     expect(() => mount(document.createElement("article"))()).not.toThrow();
   });
 });
+
+// The persistent audio can hold ANOTHER story than the page (dock next/previous,
+// or the page was opened while a different story plays). The page must not drive
+// or save that audio. Ownership follows audio.dataset.slug, checked on every event.
+describe("story-resume: the audio holds a different story", () => {
+  const OTHER = "test-world/second-tale";
+
+  function holdOther() {
+    audio.dataset.slug = OTHER;
+  }
+
+  it("does not save the other story's time, play or pause into this record", () => {
+    mountPage();
+    holdOther();
+    audio.play();
+    ctl.tick(30);
+    ctl.pauseAt(31);
+    expect(read(SLUG)).toBeNull();
+  });
+
+  it("does not mark this story finished when the other one ends or reconciles", () => {
+    mountPage({ duration: 100 });
+    holdOther();
+    ctl.end();
+    audio.dispatchEvent(new Event("loadedmetadata"));
+    document.dispatchEvent(new Event("visibilitychange"));
+    window.dispatchEvent(new Event("pageshow"));
+    expect(read(SLUG)?.completedAt).toBeUndefined();
+  });
+
+  it("stops saving when the dock switches to another story after mount", () => {
+    mountPage();
+    audio.play();
+    ctl.tick(6);
+    expect(read(SLUG).audioTime).toBe(6);
+    holdOther(); // dock Next
+    ctl.tick(60);
+    ctl.end();
+    expect(read(SLUG).audioTime).toBe(6);
+    expect(read(SLUG).completedAt).toBeUndefined();
+  });
+
+  it("does not write the other story's position on pagehide", () => {
+    mountPage();
+    holdOther();
+    audio.play();
+    ctl.tick(42);
+    window.dispatchEvent(new Event("pagehide"));
+    expect(read(SLUG)?.audioTime ?? 0).toBe(0);
+  });
+
+  it("shows no audio error for the other story's failure", () => {
+    mountPage();
+    holdOther();
+    audio.dispatchEvent(new Event("error"));
+    expect(document.querySelector('[data-role="audio-error"]')).toBeNull();
+  });
+
+  it("does not claim stories:play for its own slug (the player loads it instead)", () => {
+    mountPage();
+    holdOther();
+    const ev = new CustomEvent("stories:play", { detail: { slug: SLUG }, cancelable: true });
+    expect(document.dispatchEvent(ev)).toBe(true);
+    expect(audio.play).not.toHaveBeenCalled();
+  });
+
+  it("does not autoplay the other story", () => {
+    window.history.replaceState(null, "", "/?autoplay=1");
+    loadPage(storyPageHtml);
+    audio = document.querySelector("audio#player");
+    audio.dataset.slug = OTHER;
+    write(SLUG, { audioTime: 120 });
+    ctl = fakeAudio(audio);
+    unmount = mount(document.querySelector('[data-mount="story-resume"]'));
+    expect(audio.play).not.toHaveBeenCalled();
+    expect(audio.currentTime).toBe(0);
+  });
+
+  it("Resume and Start over work once the page's story has been loaded into the audio", () => {
+    write(SLUG, { audioTime: 120, scrollY: 800 });
+    loadPage(storyPageHtml);
+    audio = document.querySelector("audio#player");
+    audio.dataset.slug = OTHER; // mounted while another story plays
+    ctl = fakeAudio(audio);
+    unmount = mount(document.querySelector('[data-mount="story-resume"]'));
+    audio.dataset.slug = SLUG; // the Play button then loaded this page's story
+    click("resume-button");
+    expect(audio.currentTime).toBe(120);
+    unmount();
+    audio.dataset.slug = OTHER;
+    unmount = mount(document.querySelector('[data-mount="story-resume"]'));
+    audio.dataset.slug = SLUG;
+    click("restart-button");
+    expect(audio.currentTime).toBe(0);
+  });
+
+  it("Resume does not seek the other story's audio", () => {
+    write(SLUG, { audioTime: 120, scrollY: 800 });
+    loadPage(storyPageHtml);
+    audio = document.querySelector("audio#player");
+    audio.dataset.slug = OTHER;
+    ctl = fakeAudio(audio);
+    audio.currentTime = 33;
+    unmount = mount(document.querySelector('[data-mount="story-resume"]'));
+    click("resume-button");
+    expect(audio.currentTime).toBe(33);
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 800, behavior: "smooth" });
+  });
+
+  it("finds the shell audio by data-role even without id=player", () => {
+    loadPage(storyPageHtml);
+    audio = document.querySelector("audio");
+    audio.removeAttribute("id");
+    ctl = fakeAudio(audio);
+    unmount = mount(document.querySelector('[data-mount="story-resume"]'));
+    audio.play();
+    expect(read(SLUG)).toMatchObject({ playing: true });
+  });
+});
+
+describe("story-resume: Media Session", () => {
+  it("does not set Media Session for a page whose story is not the one loaded", async () => {
+    const setActionHandler = vi.fn();
+    vi.stubGlobal("MediaMetadata", class { constructor(init) { Object.assign(this, init); } });
+    Object.defineProperty(navigator, "mediaSession", { value: { setActionHandler, metadata: null }, configurable: true });
+    mountPage();
+    audio.dataset.slug = "test-world/second-tale";
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalled());
+    await new Promise((r) => setTimeout(r, 5));
+    expect(setActionHandler).not.toHaveBeenCalled();
+    delete navigator.mediaSession;
+  });
+});

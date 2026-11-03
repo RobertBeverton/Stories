@@ -1,11 +1,12 @@
 // data-mount="parts" data-slug="<slug>": the part list for a story with
 // `parts` in library.json. Highlights the part the audio clock is in (the
 // button, and the matching heading in the story text) and jumps on tap.
-// Stories without parts leave the root empty. The audio is the page's
-// <audio id="player">. Part changes are never announced: no live region is
+// Stories without parts leave the root empty. The audio is the shell's
+// <audio data-role="shell-audio"> (shell-audio.mjs), followed only while it holds this story. Part changes are never announced: no live region is
 // created, and nothing scrolls the page.
 import { h } from "./dom.mjs";
 import { loadLibrary } from "./library.mjs";
+import { holdsStory, shellAudio } from "./shell-audio.mjs";
 
 const EPSILON = 0.05; // seconds; a tick just before a boundary still counts as inside the part
 
@@ -54,7 +55,7 @@ export function mount(el) {
 }
 
 function build(el, slug, parts) {
-  const audio = document.getElementById("player");
+  const audio = shellAudio();
   const body = (el.closest("article") ?? document).querySelector(".story-body");
   const bodyHeadings = body ? [...body.querySelectorAll("h1, h2, h3, h4, h5, h6")] : [];
   const headings = parts.map(
@@ -78,7 +79,7 @@ function build(el, slug, parts) {
   el.replaceChildren(list);
 
   // The shell's player may be playing another story; only follow our own.
-  const ours = () => audio && (!audio.dataset.slug || audio.dataset.slug === slug);
+  const ours = () => holdsStory(audio, slug);
 
   let shown = -2;
   function show(index) {

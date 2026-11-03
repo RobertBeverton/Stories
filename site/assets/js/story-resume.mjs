@@ -1,7 +1,12 @@
 // data-mount="story-resume" data-slug="<slug>" on the story article.
-// Owns the page's <audio id="player"> for this story: resume banner, ?autoplay=1,
+// Drives the shell's <audio> for this story: resume banner, ?autoplay=1,
 // progress saving, finished detection and Media Session. Replaces resume.js and
 // the in-page half of mini-player.js; there is no document.currentScript.
+//
+// The audio can hold another story (the dock's Next/Previous, or a story already
+// playing when this page opened). Every handler therefore checks
+// audio.dataset.slug === this slug when it runs (see shell-audio.mjs), so this
+// page never saves another story's position into its own record.
 //
 // Finished rules (design doc): completedAt is set on `ended`, and on the next
 // foreground (visibilitychange, pageshow, loadedmetadata) when playback reached
@@ -10,6 +15,7 @@
 import { h } from "./dom.mjs";
 import { loadLibrary } from "./library.mjs";
 import { setupMediaSession } from "./media-session.mjs";
+import { holdsStory, shellAudio } from "./shell-audio.mjs";
 import {
   COMPLETE_WINDOW_SEC, markCompleted, read, toViewModel, write,
 } from "./progress.mjs";
@@ -21,7 +27,7 @@ const RESUME_SCROLL_PX = 200;
 export function mount(el) {
   const slug = el.dataset.slug;
   if (!slug) return () => {};
-  const audio = document.querySelector("audio#player");
+  const audio = shellAudio();
   const disposers = [];
   const on = (target, type, fn) => {
     target.addEventListener(type, fn);
@@ -44,6 +50,11 @@ export function mount(el) {
     if (ownArea) area.remove();
     else area.replaceChildren();
   });
+
+  /** The audio holds THIS page's story right now (re-checked on every event). */
+  const mine = () => holdsStory(audio, slug);
+  /** Wraps an audio/document handler so it only runs while the audio is ours. */
+  const whenMine = (fn) => (event) => { if (mine()) fn(event); };
 
   const duration = () => (audio && Number.isFinite(audio.duration) && audio.duration > 0
     ? audio.duration
@@ -86,7 +97,7 @@ export function mount(el) {
 
   /** Foreground reconciliation: finish a story whose `ended` we never saw. */
   function reconcile() {
-    const total = audio && Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : null;
+    const total = mine() && Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : null;
     if (!total) return;
     if (!audio.paused && !audio.ended) return; // still listening
     const record = read(slug);
@@ -101,7 +112,7 @@ export function mount(el) {
   const record = read(slug);
   const params = new URLSearchParams(window.location.search);
 
-  if (audio && params.get("autoplay") === "1") {
+  if (mine() && params.get("autoplay") === "1") {
     // The listener already chose Play on the previous page, so no resume banner.
     if (record) audio.currentTime = startPosition(record);
     play();
@@ -117,14 +128,14 @@ export function mount(el) {
     const resume = h("button", { type: "button", class: "btn btn-primary", "data-role": "resume-button" }, "Resume where you left off");
     const restart = h("button", { type: "button", class: "btn", "data-role": "restart-button" }, "Start over");
     resume.addEventListener("click", () => {
-      if (audio && record.audioTime) audio.currentTime = record.audioTime;
+      if (mine() && record.audioTime) audio.currentTime = record.audioTime;
       if (record.scrollY) window.scrollTo({ top: record.scrollY, behavior: "smooth" });
       show();
     });
     restart.addEventListener("click", () => {
       // Keep completedAt: starting over is not un-finishing a story.
       write(slug, { audioTime: 0, scrollY: 0, playing: false });
-      if (audio) audio.currentTime = 0;
+      if (mine()) audio.currentTime = 0;
       window.scrollTo({ top: 0, behavior: "smooth" });
       show();
     });
@@ -133,23 +144,23 @@ export function mount(el) {
 
   if (audio) {
     lastSaved = audio.currentTime;
-    on(audio, "timeupdate", () => {
+    on(audio, "timeupdate", whenMine(() => {
       if (Math.abs(audio.currentTime - lastSaved) >= SAVE_EVERY_SEC) {
         write(slug, { audioTime: audio.currentTime, playing: !audio.paused });
         lastSaved = audio.currentTime;
       }
-    });
-    on(audio, "play", () => write(slug, { playing: true }));
-    on(audio, "pause", () => {
+    }));
+    on(audio, "play", whenMine(() => write(slug, { playing: true })));
+    on(audio, "pause", whenMine(() => {
       // `pause` fires just before `ended`; the ended handler records that case.
       if (!audio.ended) write(slug, { audioTime: audio.currentTime, playing: false });
-    });
-    on(audio, "ended", () => {
+    }));
+    on(audio, "ended", whenMine(() => {
       markCompleted(slug);
       lastSaved = 0;
-    });
-    on(audio, "loadedmetadata", reconcile);
-    on(audio, "error", () => {
+    }));
+    on(audio, "loadedmetadata", whenMine(reconcile));
+    on(audio, "error", whenMine(() => {
       const retry = h("button", { type: "button", class: "btn", "data-role": "retry-button" }, "Try again");
       retry.addEventListener("click", () => {
         show();
@@ -157,9 +168,11 @@ export function mount(el) {
         play();
       });
       show(h("p", { class: "resume-note", "data-role": "audio-error" }, "This story's audio would not load."), retry);
-    });
+    }));
     on(document, "stories:play", (event) => {
-      if (event.detail?.slug !== slug) return;
+      // Only when the audio already holds this story. Otherwise the player loads it
+      // (player.mjs claims the event) and this module takes over once it is loaded.
+      if (event.detail?.slug !== slug || !mine()) return;
       event.preventDefault(); // we handle it on this page
       begin();
     });
@@ -173,7 +186,7 @@ export function mount(el) {
 
   function savePosition() {
     const partial = { scrollY: window.scrollY };
-    if (audio && !audio.paused && !audio.ended) {
+    if (mine() && !audio.paused && !audio.ended) {
       partial.audioTime = audio.currentTime;
       partial.playing = true;
     }
@@ -188,13 +201,16 @@ export function mount(el) {
     loadLibrary().then((lib) => {
       if (disposed) return;
       story = lib?.bySlug.get(slug) ?? null;
-      disposeMedia = setupMediaSession(story, audio);
+      // The player (player.mjs) sets Media Session for whatever it holds; this only
+      // covers a page whose own story is the one loaded, never another story's.
+      if (mine()) disposeMedia = setupMediaSession(story, audio);
     });
   }
 
   return () => {
     disposed = true;
-    disposeMedia();
+    // Handlers now belong to whichever story is loaded; clear only our own.
+    if (mine()) disposeMedia();
     for (const dispose of disposers.reverse()) dispose();
   };
 }
