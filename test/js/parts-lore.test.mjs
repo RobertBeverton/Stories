@@ -180,6 +180,8 @@ describe("lore entry page", () => {
     expect(details.querySelector("summary").textContent).toBe("For grown-ups");
     expect(external[0].getAttribute("target")).toBe("_blank");
     expect(external[0].getAttribute("rel")).toBe("noopener noreferrer");
+    expect(external[0].textContent).toMatch(/^Read more on [a-z0-9.-]+$/);
+    expect(external[0].textContent).not.toContain("http");
     expect(doc.querySelector(".lore-body a")).toBeNull();
     expect(details.parentElement.lastElementChild).toBe(details); // at the bottom
   });

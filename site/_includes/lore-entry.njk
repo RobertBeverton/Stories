@@ -37,7 +37,7 @@ layout: base.njk
   <details class="lore-grownups">
     <summary>For grown-ups</summary>
     <p>More reading, on another website. It opens in a new tab.</p>
-    <p><a class="btn" href="{{ entry.link }}" target="_blank" rel="noopener noreferrer">{{ entry.link }}</a></p>
+    <p><a class="btn" href="{{ entry.link }}" target="_blank" rel="noopener noreferrer">Read more on {{ entry.link.split('/')[2] | replace('www.', '') }}</a></p>
   </details>
   {% endif %}
 </article>
