@@ -1,18 +1,24 @@
-# Story Shelf
+# Stories
 
-The site (UI and build) for Felix & Alex's stories. Static 11ty, deployed to
-GitHub Pages at https://robertbeverton.github.io/story-shelf/ (path prefix
-`/story-shelf`, set in `scripts/stories-lib.mjs` and `eleventy.config.js`).
+The app for Felix & Alex's stories: static 11ty site (and, soon, the narration
+tool), deployed to GitHub Pages at https://robertbeverton.github.io/Stories/
+(path prefix `/Stories`, set in `scripts/stories-lib.mjs` and
+`eleventy.config.js`).
 
-**This repo has no stories.** They're pulled in from the repos listed in
-`content-sources.json` by `npm run fetch-content` into a gitignored `stories/`
-folder. Never commit story text or mp3s here. Story writing, world canon and
-narration live in the content repos (e.g. `../isles-of-yum`) and their own
-CLAUDE.md files.
+**This repo has no stories.** `npm run fetch-content` pulls them from the world
+repos in `content-sources.json` (`../isles-of-yum`, `../bramble-wall`) into a
+gitignored `stories/` folder. Never commit story text or mp3s here. Writing,
+canon and process live in each world repo, under its own CLAUDE.md. Keep world
+canon out of this repo's docs.
 
-History was split out of isles-of-yum with `git filter-repo`, so earlier
-commits and `docs/plans/` are the record of UI problems already solved. Check
-them before re-solving something.
+Worlds are merged flat into `stories/` on purpose. Slugs key reading progress
+in localStorage (`story-progress:<slug>`) across the whole
+robertbeverton.github.io origin, so changing a story's path or filename resets
+progress. Don't nest by world without migrating those keys.
+
+`git log` and `docs/plans/` record UI problems already solved, from both the
+original Stories site and the isles-of-yum redesigns. Check them before
+re-solving something.
 
 ```bash
 npm install
@@ -20,6 +26,3 @@ npm run serve      # fetch content + dev server
 npx vitest run     # tests
 npm run build      # full build into _site/
 ```
-
-Story/audio convention (inherited): `stories/x.md` plays `stories/x.mp3` from
-the same folder by default.
