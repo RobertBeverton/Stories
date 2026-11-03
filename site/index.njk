@@ -2,36 +2,31 @@
 layout: base.njk
 title: Library
 ---
-<h1>Stories</h1>
+<section class="hero">
+  <h1 class="display">Stories</h1>
+</section>
+
 <input type="search" id="search-box" placeholder="Search stories..." aria-label="Search stories">
 
 <section id="continue-section" aria-labelledby="continue-heading" hidden>
-  <h2 id="continue-heading">Continue</h2>
-  <div class="card-row" id="continue-row"></div>
+  <h2 id="continue-heading" class="visually-hidden">Continue</h2>
+  <div id="continue-row"></div>
 </section>
 
-{% for group in stories.seriesGroups %}
-<section aria-labelledby="series-heading-{{ loop.index }}" class="series-section" style="--accent-bg: {{ group.accentColor.background }}; --accent-text: {{ group.accentColor.text }};">
-  <h2 id="series-heading-{{ loop.index }}">{{ group.series }}</h2>
-  <div class="card-grid">
-    {% for story in group.stories %}
-      {% include "story-card.njk" %}
-    {% endfor %}
-  </div>
-</section>
-{% endfor %}
-
-{% if stories.standalone.length > 0 %}
-<section aria-labelledby="standalone-heading">
-  <h2 id="standalone-heading">More Stories</h2>
-  <div class="card-grid">
-    {% for story in stories.standalone %}
-      {% include "story-card.njk" %}
+<div id="stories">
+{% if stories.groups.length > 0 %}
+<section aria-labelledby="arcs-heading">
+  <h2 id="arcs-heading" class="visually-hidden">Stories</h2>
+  <div class="rail-group-list">
+    {% for group in stories.groups %}
+      {% include "arc-group.njk" %}
     {% endfor %}
   </div>
 </section>
 {% endif %}
+</div>
 
 <script src="{{ '/assets/search.js' | url }}"></script>
-<script src="{{ '/assets/mini-player.js' | url }}"></script>
+<script src="{{ '/assets/mini-player.js' | url }}" type="module"></script>
 <script src="{{ '/assets/library.js' | url }}"></script>
+<script src="{{ '/assets/play-button.js' | url }}"></script>

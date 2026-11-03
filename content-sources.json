@@ -1,0 +1,16 @@
+[
+  {
+    "name": "isles-of-yum",
+    "repo": "https://github.com/RobertBeverton/isles-of-yum.git",
+    "ref": "main",
+    "storiesPath": "stories",
+    "localPath": "../isles-of-yum"
+  },
+  {
+    "name": "bramble-wall",
+    "repo": "https://github.com/RobertBeverton/bramble-wall.git",
+    "ref": "main",
+    "storiesPath": "stories",
+    "localPath": "../bramble-wall"
+  }
+]

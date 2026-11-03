@@ -2,12 +2,15 @@ import fg from "fast-glob";
 import fs from "node:fs";
 import { slugify } from "./scripts/slugify.mjs";
 import { PATH_PREFIX } from "./scripts/stories-lib.mjs";
+import { iconSvgPath } from "./scripts/icons.mjs";
 
 export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("stories/**/*.mp3");
   eleventyConfig.addPassthroughCopy("site/assets");
+  eleventyConfig.addPassthroughCopy("site/manifest.webmanifest");
 
   eleventyConfig.addFilter("slugify", slugify);
+  eleventyConfig.addNunjucksGlobal("icons", { path: iconSvgPath });
 
   // `stories/**/*.md` lives outside the configured input directory (`site/`),
   // so Eleventy never scans it as part of its normal template discovery —

@@ -4,6 +4,12 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Rebuild by hand from the Actions tab, e.g. after a story repo changes.
+  workflow_dispatch:
+  # Lets a content repo trigger a rebuild (needs a token with access to this
+  # repo, sent as event_type "content-updated"). Not wired up yet.
+  repository_dispatch:
+    types: [content-updated]
 
 permissions:
   contents: read
@@ -24,8 +30,7 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm run validate
-      - run: npx @11ty/eleventy
+      - run: npm run build
       - if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:

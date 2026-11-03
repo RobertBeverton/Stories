@@ -1,3 +1,10 @@
 node_modules/
 _site/
-.cache/
+.DS_Store
+.worktrees/
+site/assets/generated/
+site/assets/app-icon-*.png
+inspiration_screens/
+stories/.narrate-cache/
+stories/
+.content/

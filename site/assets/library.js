@@ -1,4 +1,4 @@
-const STALE_CONTINUE_DAYS = 30; // don't show a "continue" card for a story not touched in a month+
+const STALE_CONTINUE_DAYS = 30; // don't show a "continue" banner for a story not touched in a month+
 
 function readAllProgress() {
   const entries = [];
@@ -19,19 +19,20 @@ const cutoff = Date.now() - STALE_CONTINUE_DAYS * 24 * 60 * 60 * 1000;
 const entries = readAllProgress().filter((e) => e.savedAt && e.savedAt > cutoff && e.url);
 
 if (entries.length > 0) {
+  entries.sort((a, b) => b.savedAt - a.savedAt);
+  const mostRecent = entries[0];
+
   const section = document.getElementById("continue-section");
   const row = document.getElementById("continue-row");
-  entries.sort((a, b) => b.savedAt - a.savedAt);
-  for (const entry of entries) {
-    const card = document.createElement("div");
-    card.className = "story-card";
-    card.innerHTML = `
-      <a class="story-card-link" href="${entry.url}">
-        <h3>${entry.title ?? entry.slug}</h3>
-        <p class="card-meta">Continue</p>
-      </a>
-    `;
-    row.appendChild(card);
-  }
+  const hasAccent = Boolean(mostRecent.accentBg);
+  const bannerClass = hasAccent ? "continue-banner has-accent" : "continue-banner";
+  const bannerStyle = hasAccent ? ` style="--accent-bg: ${mostRecent.accentBg}"` : "";
+  row.innerHTML = `
+    <a class="${bannerClass}" href="${mostRecent.url}"${bannerStyle}>
+      <span class="continue-banner-label">Continue</span>
+      <span class="continue-banner-title">${mostRecent.title ?? mostRecent.slug}</span>
+      <span class="continue-banner-arrow" aria-hidden="true">→</span>
+    </a>
+  `;
   section.hidden = false;
 }

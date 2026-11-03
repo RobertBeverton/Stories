@@ -1,25 +1,28 @@
 {
   "name": "stories",
   "version": "1.0.0",
-  "main": "index.js",
   "type": "module",
-  "directories": {
-    "doc": "docs"
-  },
   "scripts": {
+    "fetch-content": "node scripts/fetch-content.mjs",
     "validate": "node scripts/validate-content.mjs",
-    "build": "npm run validate && npx @11ty/eleventy",
-    "serve": "npx @11ty/eleventy --serve"
+    "generate-icons": "node scripts/generate-icon-art.mjs",
+    "check-wave-contrast": "node scripts/check-wave-contrast.mjs",
+    "check-band-contrast": "node scripts/check-band-contrast.mjs",
+    "check-continue-banner-contrast": "node scripts/check-continue-banner-contrast.mjs",
+    "check-solid-fill-contrast": "node scripts/check-solid-fill-contrast.mjs",
+    "build": "npm run fetch-content && npm run validate && npm run check-wave-contrast && npm run check-band-contrast && npm run check-continue-banner-contrast && npm run check-solid-fill-contrast && npm run generate-icons && npx @11ty/eleventy",
+    "serve": "npm run fetch-content && npx @11ty/eleventy --serve"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "The reading and listening site for Felix & Alex's story worlds. Content lives in separate repos (see content-sources.json).",
   "devDependencies": {
     "@11ty/eleventy": "^3.1.6",
     "fast-glob": "^3.3.3",
     "gray-matter": "^4.0.3",
     "music-metadata": "^11.13.0",
+    "sharp": "^0.35.4",
     "vitest": "^4.1.10"
   }
 }

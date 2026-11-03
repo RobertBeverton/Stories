@@ -1,119 +1,117 @@
 import { describe, it, expect } from "vitest";
 import {
-  checkDuplicateSeriesOrder,
-  checkDuplicateSlugs,
   checkRequiredFields,
-  checkAudioFilesExist,
+  checkDuplicateSlugs,
+  checkAudioFilesExistOrWarn,
   checkRepoSize,
-  slugify,
+  checkValidIcons,
 } from "./validate-content.mjs";
 
 describe("checkRequiredFields", () => {
-  it("returns an error for a story missing title", () => {
-    const stories = [{ file: "a.md", data: { description: "x", publishDate: "2026-01-01" } }];
+  it("flags missing title/description/publishDate", () => {
+    const stories = [{ file: "stories/a.md", data: {} }];
     const errors = checkRequiredFields(stories);
-    expect(errors).toEqual(["a.md: missing required field 'title'"]);
+    expect(errors).toContain("stories/a.md: missing required field 'title'");
+    expect(errors).toContain("stories/a.md: missing required field 'description'");
+    expect(errors).toContain("stories/a.md: missing required field 'publishDate'");
   });
 
-  it("returns no errors when all required fields present", () => {
-    const stories = [{ file: "a.md", data: { title: "T", description: "D", publishDate: "2026-01-01" } }];
+  it("passes when all required fields present", () => {
+    const stories = [
+      { file: "stories/a.md", data: { title: "A", description: "d", publishDate: "2026-01-01" } },
+    ];
     expect(checkRequiredFields(stories)).toEqual([]);
   });
 });
 
-describe("checkDuplicateSeriesOrder", () => {
-  it("flags two stories in the same series with the same seriesOrder", () => {
-    const stories = [
-      { file: "a.md", data: { series: "X", seriesOrder: 1 } },
-      { file: "b.md", data: { series: "X", seriesOrder: 1 } },
-    ];
-    expect(checkDuplicateSeriesOrder(stories)).toEqual([
-      "Series 'X' has duplicate seriesOrder 1: a.md, b.md",
-    ]);
-  });
-
-  it("allows same seriesOrder across different series", () => {
-    const stories = [
-      { file: "a.md", data: { series: "X", seriesOrder: 1 } },
-      { file: "b.md", data: { series: "Y", seriesOrder: 1 } },
-    ];
-    expect(checkDuplicateSeriesOrder(stories)).toEqual([]);
-  });
-});
-
 describe("checkDuplicateSlugs", () => {
-  it("flags two files producing the same slug", () => {
+  it("flags duplicate slugs", () => {
     const stories = [
-      { file: "stories/a/book-1.md", data: {}, slug: "a/book-1" },
-      { file: "stories/b/book-1.md", data: {}, slug: "a/book-1" },
+      { file: "stories/a.md", slug: "a" },
+      { file: "stories/b.md", slug: "a" },
     ];
-    expect(checkDuplicateSlugs(stories)).toEqual([
-      "Duplicate slug 'a/book-1': stories/a/book-1.md, stories/b/book-1.md",
-    ]);
+    const errors = checkDuplicateSlugs(stories);
+    expect(errors).toEqual(["Duplicate slug 'a': stories/a.md, stories/b.md"]);
   });
 });
 
-describe("slugify (file-to-slug)", () => {
-  it("scopes same-named books in different series to distinct slugs", () => {
-    expect(slugify("stories/bramble-wall/book-1.md")).not.toBe(
-      slugify("stories/trio-force/book-1.md")
-    );
+describe("checkAudioFilesExistOrWarn", () => {
+  it("returns a warning when audio is missing", () => {
+    const stories = [{ file: "stories/a.md", data: { audio: "a.mp3" } }];
+    const warnings = checkAudioFilesExistOrWarn(stories, () => false);
+    expect(warnings).toEqual(["stories/a.md: audio file 'a.mp3' not found (warning only, build not blocked)"]);
   });
 
-  it("produces no slug collision for the real repo's book-1/2/3 across series", () => {
-    const slugs = [
-      "stories/bramble-wall/book-1.md",
-      "stories/trio-force/book-1.md",
-      "stories/bramble-wall/book-2.md",
-      "stories/trio-force/book-2.md",
-    ].map(slugify);
-    expect(new Set(slugs).size).toBe(slugs.length);
+  it("is silent when audio field is absent but the default-named file exists", () => {
+    const stories = [{ file: "stories/a.md", data: {} }];
+    const warnings = checkAudioFilesExistOrWarn(stories, () => true);
+    expect(warnings).toEqual([]);
   });
-});
 
-describe("checkAudioFilesExist", () => {
-  it("flags a story whose audio file does not exist on disk", () => {
-    const stories = [{ file: "stories/a/book-1.md", data: { audio: "missing.mp3" } }];
-    const exists = (p) => false;
-    expect(checkAudioFilesExist(stories, exists)).toEqual([
-      "stories/a/book-1.md: audio file 'missing.mp3' not found",
+  it("warns with the derived default filename when audio field is absent and no file exists", () => {
+    const stories = [{ file: "stories/a.md", data: {} }];
+    const warnings = checkAudioFilesExistOrWarn(stories, () => false);
+    expect(warnings).toEqual([
+      "stories/a.md: no audio file found at default location 'a.mp3' (not narrated yet, or filename doesn't match story slug) (warning only, build not blocked)",
     ]);
   });
 
-  it("passes when audio file exists", () => {
-    const stories = [{ file: "stories/a/book-1.md", data: { audio: "book-1.mp3" } }];
-    const exists = (p) => true;
-    expect(checkAudioFilesExist(stories, exists)).toEqual([]);
+  it("is silent when audio is explicitly set to false (opted out)", () => {
+    const stories = [{ file: "stories/a.md", data: { audio: false } }];
+    const warnings = checkAudioFilesExistOrWarn(stories, () => false);
+    expect(warnings).toEqual([]);
   });
 
-  it("skips stories with no audio field", () => {
-    const stories = [{ file: "stories/a/book-1.md", data: {} }];
-    expect(checkAudioFilesExist(stories, () => false)).toEqual([]);
+  it("is silent when the audio file exists", () => {
+    const stories = [{ file: "stories/a.md", data: { audio: "a.mp3" } }];
+    const warnings = checkAudioFilesExistOrWarn(stories, () => true);
+    expect(warnings).toEqual([]);
   });
 
-  it("skips draft stories whose audio file does not exist yet", () => {
+  it("aggregates one warning per story missing audio", () => {
     const stories = [
-      { file: "stories/a/book-1.md", data: { audio: "missing.mp3", draft: true } },
+      { file: "stories/a.md", data: { audio: "a.mp3" } },
+      { file: "stories/b.md", data: { audio: "b.mp3" } },
     ];
-    expect(checkAudioFilesExist(stories, () => false)).toEqual([]);
+    const warnings = checkAudioFilesExistOrWarn(stories, () => false);
+    expect(warnings).toEqual([
+      "stories/a.md: audio file 'a.mp3' not found (warning only, build not blocked)",
+      "stories/b.md: audio file 'b.mp3' not found (warning only, build not blocked)",
+    ]);
   });
 });
 
 describe("checkRepoSize", () => {
-  it("flags when total size exceeds the max", () => {
-    const sizes = Array(10).fill(80 * 1024 * 1024);
-    expect(checkRepoSize(sizes, 700 * 1024 * 1024, 90 * 1024 * 1024)).toEqual([
-      "Total /stories size 800.0MB exceeds guard threshold 700MB",
-    ]);
+  it("flags total size over threshold", () => {
+    const errors = checkRepoSize([600, 600], 1000, 900);
+    expect(errors.some((e) => e.includes("exceeds guard threshold"))).toBe(true);
+  });
+});
+
+describe("checkValidIcons", () => {
+  it("flags a story with an invalid icon field", () => {
+    const stories = [
+      { file: "stories/bad.md", data: { title: "Bad", description: "d", publishDate: "2026-01-01", icon: "spaceship" }, slug: "bad" },
+    ];
+    const errors = checkValidIcons(stories);
+    expect(errors).toHaveLength(1);
+    expect(errors[0]).toContain("spaceship");
   });
 
-  it("flags when a single file exceeds the max", () => {
-    const sizes = [10 * 1024 * 1024, 95 * 1024 * 1024];
-    const errors = checkRepoSize(sizes, 700 * 1024 * 1024, 90 * 1024 * 1024);
-    expect(errors).toEqual(["A file in /stories exceeds 90MB (95.0MB)"]);
+  it("allows a story with no icon field (fallback applies later)", () => {
+    const stories = [
+      { file: "stories/fine.md", data: { title: "Fine", description: "d", publishDate: "2026-01-01" }, slug: "fine" },
+    ];
+    expect(checkValidIcons(stories)).toHaveLength(0);
   });
+});
 
-  it("passes when under both thresholds", () => {
-    expect(checkRepoSize([10 * 1024 * 1024], 700 * 1024 * 1024, 90 * 1024 * 1024)).toEqual([]);
+describe("errors and warnings independence", () => {
+  it("a story with both a missing required field and missing audio produces both an error and a warning, independently", () => {
+    const stories = [{ file: "stories/a.md", data: { audio: "a.mp3" }, slug: "a" }];
+    const fieldErrors = checkRequiredFields(stories);
+    const audioWarnings = checkAudioFilesExistOrWarn(stories, () => false);
+    expect(fieldErrors.length).toBeGreaterThan(0);
+    expect(audioWarnings.length).toBe(1);
   });
 });

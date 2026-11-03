@@ -4,6 +4,7 @@ import fg from "fast-glob";
 import matter from "gray-matter";
 import { slugify } from "./slugify.mjs";
 import { accentColorFor } from "./accent-colors.mjs";
+import { isValidIcon } from "./icons.mjs";
 
 // Parses one raw story file's frontmatter/content into the shape
 // computeStories() expects: { file, data, content }.
@@ -51,7 +52,14 @@ export async function loadStories(globPattern = "stories/**/*.md") {
 // disk under `_site/` and must stay unprefixed (see that file's comments).
 export const PATH_PREFIX = "/Stories";
 
-export function computeStories(rawStories) {
+// Default audio-existence predicate for computeStories() below — always
+// true, so pure/unit-test callers that pass fixture data (no real files on
+// disk) keep working without a filesystem. Real callers (site/_data/stories.js)
+// pass fs.existsSync so a story with no narration yet (the default-derived
+// filename doesn't exist) omits audioUrl instead of rendering a broken player.
+const alwaysExists = () => true;
+
+export function computeStories(rawStories, audioFileExists = alwaysExists) {
   const allStories = rawStories.map(({ file, data, content }) => {
     const basename = path.basename(file, ".md");
     // The full, folder-qualified slug (e.g. "bramble-wall/book-1") is what
@@ -80,13 +88,33 @@ export function computeStories(rawStories) {
     // "the-bramble-wall"), or the <audio> src will 404 even though the
     // story page itself resolves fine.
     const diskDir = path.dirname(file).split(/[\\/]/).slice(1).join("/"); // strip leading "stories"
+    // Audio filename defaults to the story's own basename (e.g.
+    // "marzipans-well.md" -> "marzipans-well.mp3"), colocated with the
+    // story file, so most stories need no `audio` front matter at all.
+    // `audio: false` opts a story out (no narration yet); an explicit
+    // `audio: "whatever.mp3"` string overrides the default for edge cases.
+    const defaultedAudio = data.audio === false ? null : data.audio || `${basename}.mp3`;
+    // An explicit `audio:` value is trusted as-is (author knows it exists);
+    // the *derived* default is only used if that file actually exists on
+    // disk, so stories awaiting narration don't get a broken player.
+    const audioFile =
+      defaultedAudio && (data.audio || audioFileExists(path.join(path.dirname(file), defaultedAudio)))
+        ? defaultedAudio
+        : null;
     return {
       ...data,
       tags: data.tags ?? [],
+      icon: isValidIcon(data.icon) ? data.icon : "sun",
+      // Computed here (not left to each template context to pass down) so
+      // every story card renders its own series' color correctly regardless
+      // of which page it appears on — a story-card include has no reliable
+      // access to the enclosing series group's already-computed accentColor,
+      // and guessing wrong silently fell back to a flat neutral gray.
+      accentColor: accentColorFor(data.series),
       slug,
       url: `${PATH_PREFIX}/stories/${seriesSlug}${basename}/`,
-      audioUrl: data.audio
-        ? `${PATH_PREFIX}/stories/${diskDir ? diskDir + "/" : ""}${data.audio}`
+      audioUrl: audioFile
+        ? `${PATH_PREFIX}/stories/${diskDir ? diskDir + "/" : ""}${audioFile}`
         : null,
       readMinutes,
       audioMinutes: data.audioDuration ? Math.round(data.audioDuration / 60) : null,
@@ -131,38 +159,50 @@ export function computeStories(rawStories) {
 }
 
 // Groups the already-computed, non-draft story list (as returned by
-// computeStories()) into series sections and a standalone list, for the
-// library page. Pure function — no localStorage/DOM access, since the
-// "Continue" section (which DOES need localStorage) can only be computed
-// client-side; see site/assets/library.js.
+// computeStories()) into one merged list of groups — one per arc, one per
+// standalone story — ordered by each group's MOST RECENT story's
+// publishDate (so adding a new story to an old arc pushes that whole arc
+// back toward the top of the homepage). Pure function — no localStorage/DOM
+// access, since the "Continue" section (which DOES need localStorage) can
+// only be computed client-side; see site/assets/library.js.
 export function groupForLibrary(stories) {
   const bySeries = new Map();
-  const standalone = [];
+  const groups = [];
   for (const story of stories) {
     if (!story.series) {
-      standalone.push(story);
+      groups.push({
+        series: null,
+        accentColor: accentColorFor(undefined),
+        stories: [story],
+        keyIslands: story.keyIslands ?? [],
+        characters: story.characters ?? [],
+        _latestPublish: new Date(story.publishDate).getTime(),
+      });
       continue;
     }
     if (!bySeries.has(story.series)) bySeries.set(story.series, []);
     bySeries.get(story.series).push(story);
   }
 
-  const seriesGroups = Array.from(bySeries.entries()).map(([series, seriesStories]) => {
+  for (const [series, seriesStories] of bySeries.entries()) {
     seriesStories.sort((a, b) => (a.seriesOrder ?? 0) - (b.seriesOrder ?? 0));
-    const earliestPublish = seriesStories.reduce(
-      (min, s) => Math.min(min, new Date(s.publishDate).getTime()),
-      Infinity
+    const latestPublish = seriesStories.reduce(
+      (max, s) => Math.max(max, new Date(s.publishDate).getTime()),
+      -Infinity
     );
-    return {
+    const firstStory = seriesStories[0];
+    groups.push({
       series,
       accentColor: accentColorFor(series),
       stories: seriesStories,
-      _earliestPublish: earliestPublish,
-    };
-  });
+      keyIslands: firstStory.keyIslands ?? [],
+      characters: firstStory.characters ?? [],
+      _latestPublish: latestPublish,
+    });
+  }
 
-  seriesGroups.sort((a, b) => b._earliestPublish - a._earliestPublish);
-  for (const group of seriesGroups) delete group._earliestPublish;
+  groups.sort((a, b) => b._latestPublish - a._latestPublish);
+  for (const group of groups) delete group._latestPublish;
 
-  return { seriesGroups, standalone };
+  return { groups };
 }

@@ -1,37 +1,47 @@
 # Stories
 
-A small family project: a static site for hosting original children's stories as text and ElevenLabs-narrated audio, with search, series navigation, and resume-from-where-you-left-off for both reading and listening.
+**Site: https://robertbeverton.github.io/Stories/**
 
-**Live site:** https://robertbeverton.github.io/Stories/
+The reading and listening app for Felix and Alex's stories. This repo holds the site (layout, styles, player, search, build) and will hold the narration tool. The stories themselves live in one repo per story world and are pulled in at build time:
 
-## What this is
+| World | Repo |
+|---|---|
+| Isles of Yum | [isles-of-yum](https://github.com/RobertBeverton/isles-of-yum) |
+| Bramble Wall, Trio Force and shared-canon standalones | [bramble-wall](https://github.com/RobertBeverton/bramble-wall) |
 
-Built for reading (and listening) to bedtime stories on a phone or PC — pick a story, either read it or tap play and have it narrated, and pick up right where you left off next time. The library groups stories into series, each with its own accent color, and every card has an always-visible Play button so starting a story never takes more than one tap.
+## History
 
-## How it's built
+This repo started as the original Stories site with its content alongside. The isles-of-yum site was scaffolded from it and then redesigned. That newer UI was split out of isles-of-yum with its history and merged back in here, and this repo's own story content moved to bramble-wall. `git log` and `docs/plans/` cover both lines of UI work.
 
-- **[11ty](https://www.11ty.dev/)** static site generator — no server, no database, just markdown in, HTML out.
-- Stories live as markdown files with frontmatter (title, series, description, audio file, publish date) under `stories/`.
-- Audio is narrated via [ElevenLabs](https://elevenlabs.io/) and committed alongside each story.
-- Reading/listening progress is tracked client-side in `localStorage` — nothing is sent to a server.
-- Deployed automatically to GitHub Pages on every push to `main` via GitHub Actions.
+## How content gets in
 
-## Interesting bits
+`content-sources.json` lists the world repos. `npm run fetch-content` copies each one's `stories/` folder into a local, gitignored `stories/` folder.
 
-- **Per-series accent colors** are deterministically derived from the series name (hashed into a small, pre-vetted palette), so new series automatically get a distinct look without any manual color-picking, and every pairing is checked for WCAG AA contrast in both light and dark mode.
-- **A cross-page "mini-player" bar** simulates continuous playback across a fully static, multi-page site — there's no single-page app here, so it hands off player state through `localStorage` between page loads instead of holding audio in memory.
-- **Tapping a card's Play button vs. its title** are two independent, non-nested click targets — an early version accidentally nested them, which browsers silently "fix" by breaking the DOM structure, so this was rebuilt and verified against the real rendered output rather than just the template source.
-- Content is validated on every PR (required frontmatter, duplicate slugs, matching audio files, repo size) before it's allowed to merge.
+- **Locally**, if a source's `localPath` exists (sibling checkouts at `../isles-of-yum` and `../bramble-wall`), it copies from there, so unpushed story edits show up.
+- **In CI**, or with no local checkout, it shallow-clones each repo into `.content/<name>/`.
 
-## Writing workflow
+All worlds are merged **flat** into `stories/`, not nested by world. That keeps every story's slug (and so its URL and saved reading progress) exactly as it was before the split. The catch is that two worlds can't ship the same path, so the fetch stops with an error if they do.
 
-Story drafting, review, and canon/lore reference docs live under `docs/process/` and `reference/` — see [docs/process/README.md](docs/process/README.md) for the full index. These are working notes, never built into the site.
+`npm run build` and `npm run serve` run the fetch first. `serve` copies a snapshot, so after editing a story re-run it (or `npm run fetch-content`).
+
+A story's audio is the `.mp3` next to it with the same name (`some-story.md` plays `some-story.mp3`) until audio moves to Cloudflare R2.
 
 ## Local development
 
 ```bash
 npm install
-npm run serve     # local dev server with live reload
-npm run validate   # check story content for common mistakes
+npm run serve      # fetch content, then local dev server with live reload
+npm run validate   # check story content (missing audio is a warning, not a failure)
 npx vitest run     # run the test suite
+npm run build      # fetch, validate, contrast checks, icons, build into _site/
 ```
+
+## Deploying
+
+Pushing to `main` builds and deploys to GitHub Pages through `.github/workflows/build.yml`. Pull requests build without deploying. A world repo changing doesn't redeploy the site on its own yet. Run the workflow by hand from the Actions tab, or have the world repo send a `repository_dispatch` event of type `content-updated`.
+
+## Next up
+
+- **Audio on Cloudflare R2.** One bucket, a folder per world, behind a custom domain. Each story's front matter carries its `audioUrl` and `audioDuration`. A narrator tool in this repo narrates via ElevenLabs at 64 kbps mono, uploads to R2 and writes the URL back. Then strip the mp3s from every repo's history.
+- **Content-triggered rebuilds** via `repository_dispatch` from the world repos.
+- **The new UI design.**

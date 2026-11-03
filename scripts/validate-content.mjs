@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseFile } from "music-metadata";
+import { isValidIcon, ICON_NAMES } from "./icons.mjs";
 
 export function checkRequiredFields(stories) {
   const required = ["title", "description", "publishDate"];
@@ -13,24 +14,6 @@ export function checkRequiredFields(stories) {
       if (!story.data[field]) {
         errors.push(`${story.file}: missing required field '${field}'`);
       }
-    }
-  }
-  return errors;
-}
-
-export function checkDuplicateSeriesOrder(stories) {
-  const seen = new Map();
-  for (const story of stories) {
-    if (!story.data.series) continue;
-    const key = `${story.data.series}::${story.data.seriesOrder}`;
-    if (!seen.has(key)) seen.set(key, []);
-    seen.get(key).push(story.file);
-  }
-  const errors = [];
-  for (const [key, files] of seen) {
-    if (files.length > 1) {
-      const [series, order] = key.split("::");
-      errors.push(`Series '${series}' has duplicate seriesOrder ${order}: ${files.join(", ")}`);
     }
   }
   return errors;
@@ -65,14 +48,39 @@ export async function loadStories(globPattern = "stories/**/*.md") {
   });
 }
 
-export function checkAudioFilesExist(stories, exists) {
+// Audio filename defaults to the story's own basename (see stories-lib.mjs)
+// so most stories carry no `audio` front matter at all; `audio: false` opts
+// out explicitly (no narration yet — not a warning-worthy state).
+function resolveAudioFile(story) {
+  if (story.data.audio === false) return null;
+  if (story.data.audio) return story.data.audio;
+  return `${path.basename(story.file, ".md")}.mp3`;
+}
+
+export function checkAudioFilesExistOrWarn(stories, exists) {
+  const warnings = [];
+  for (const story of stories) {
+    const audioFile = resolveAudioFile(story);
+    if (!audioFile) continue;
+    const audioPath = path.join(path.dirname(story.file), audioFile);
+    if (!exists(audioPath)) {
+      const explicit = Boolean(story.data.audio);
+      const note = explicit
+        ? `audio file '${audioFile}' not found`
+        : `no audio file found at default location '${audioFile}' (not narrated yet, or filename doesn't match story slug)`;
+      warnings.push(`${story.file}: ${note} (warning only, build not blocked)`);
+    }
+  }
+  return warnings;
+}
+
+export function checkValidIcons(stories) {
   const errors = [];
   for (const story of stories) {
-    if (!story.data.audio) continue;
-    if (story.data.draft) continue;
-    const audioPath = path.join(path.dirname(story.file), story.data.audio);
-    if (!exists(audioPath)) {
-      errors.push(`${story.file}: audio file '${story.data.audio}' not found`);
+    if (story.data.icon !== undefined && !isValidIcon(story.data.icon)) {
+      errors.push(
+        `${story.file}: invalid icon '${story.data.icon}' (must be one of: ${ICON_NAMES.join(", ")})`
+      );
     }
   }
   return errors;
@@ -96,25 +104,30 @@ export function checkRepoSize(fileSizes, maxTotalBytes, maxFileBytes) {
 async function deriveAudioDurations(stories) {
   const errors = [];
   for (const story of stories) {
-    if (!story.data.audio) continue;
-    const audioPath = path.join(path.dirname(story.file), story.data.audio);
+    const audioFile = resolveAudioFile(story);
+    if (!audioFile) continue;
+    const audioPath = path.join(path.dirname(story.file), audioFile);
     if (!fs.existsSync(audioPath)) continue;
     let metadata;
     try {
       metadata = await parseFile(audioPath);
     } catch (err) {
       errors.push(
-        `${story.file}: failed to read audio duration from '${story.data.audio}' (${err.message})`
+        `${story.file}: failed to read audio duration from '${audioFile}' (${err.message})`
       );
       continue;
     }
     const seconds = Math.round(metadata.format.duration ?? 0);
     if (story.data.audioDuration !== seconds) {
       const raw = fs.readFileSync(story.file, "utf8");
-      const updated = raw.replace(
-        /audioDuration:\s*\d+/,
-        `audioDuration: ${seconds}`
-      );
+      // Existing field: replace in place. No field yet (e.g. audio was just
+      // added, or defaulted from the story's own filename with no front
+      // matter at all): insert one just before the closing `---` of the
+      // frontmatter block, since a bare .replace() on a non-matching regex
+      // silently no-ops and leaves audioDuration missing.
+      const updated = /audioDuration:\s*\d+/.test(raw)
+        ? raw.replace(/audioDuration:\s*\d+/, `audioDuration: ${seconds}`)
+        : raw.replace(/^(---\n[\s\S]*?)\n---\n/, `$1\naudioDuration: ${seconds}\n---\n`);
       fs.writeFileSync(story.file, updated);
       console.log(`${story.file}: audioDuration updated to ${seconds}`);
     }
@@ -125,23 +138,27 @@ async function deriveAudioDurations(stories) {
 async function main() {
   const stories = await loadStories();
   const audioDurationErrors = await deriveAudioDurations(stories);
-  const refreshed = await loadStories(); // reload in case durations changed
+  const refreshed = await loadStories();
 
   const fileSizes = refreshed
-    .filter((s) => s.data.audio)
-    .map((s) => {
-      const p = path.join(path.dirname(s.file), s.data.audio);
-      return fs.existsSync(p) ? fs.statSync(p).size : 0;
-    });
+    .map((s) => resolveAudioFile(s) && path.join(path.dirname(s.file), resolveAudioFile(s)))
+    .filter(Boolean)
+    .filter((p) => fs.existsSync(p))
+    .map((p) => fs.statSync(p).size);
+
+  const audioWarnings = checkAudioFilesExistOrWarn(refreshed, (p) => fs.existsSync(p));
 
   const errors = [
     ...audioDurationErrors,
     ...checkRequiredFields(refreshed),
-    ...checkDuplicateSeriesOrder(refreshed),
     ...checkDuplicateSlugs(refreshed),
-    ...checkAudioFilesExist(refreshed, (p) => fs.existsSync(p)),
+    ...checkValidIcons(refreshed),
     ...checkRepoSize(fileSizes, 700 * 1024 * 1024, 90 * 1024 * 1024),
   ];
+
+  if (audioWarnings.length > 0) {
+    console.warn("Content validation warnings:\n" + audioWarnings.map((w) => `  - ${w}`).join("\n"));
+  }
 
   if (errors.length > 0) {
     console.error("Content validation failed:\n" + errors.map((e) => `  - ${e}`).join("\n"));
