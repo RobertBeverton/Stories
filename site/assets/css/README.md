@@ -50,7 +50,19 @@ native `input[type=range]` and `.player-time`, `.player-controls` with
 
 ## Text size
 
-`fieldset.textsize` on the story page is three real radios (`#ts-sm`, `#ts-md`,
-`#ts-lg`). The size works with CSS only (`.story:has(#ts-lg:checked)` sets
-`--reading-scale`). Persisting the choice needs a small script; it is not in the
-contract's hook list.
+`fieldset.textsize[data-mount="text-size"]` on the story page is three real radios
+(`#ts-sm`, `#ts-md`, `#ts-lg`). The size works with CSS only
+(`.story:has(#ts-lg:checked)` sets `--reading-scale`); the `text-size` module
+only remembers the choice.
+
+## Module output
+
+Modules emit these classes (plus their `data-role` hooks): `card-continue`,
+`card-continue-text`, `card-continue-label`, `card-continue-title`,
+`card-continue-bar` (a `<progress>`), `lately`, `lately-item`, `lately-title`,
+`lately-state`, `cover` (svg from the shared icon set, series colours inline),
+`world-tiles` / `world-tile` (Home picker, `--tile`/`--tile-ink` inline),
+`world-chips` (Library filter), `filter-chips`, `filter-select`, `btn`,
+`resume-prompt` (the story page template provides it, outside the coloured
+hero), `resume-note`. The group wrapper a module builds is the grid or flex
+container, not the mount root.

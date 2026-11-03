@@ -19,7 +19,8 @@ export function setHiddenReason(row, reason, hidden) {
 /**
  * Shows a polite "no stories match" message when every row is hidden. Uses a
  * template-provided `[data-role="no-results"]` if present, otherwise creates one
- * after the rows' list.
+ * after the rows' list. Also fills an optional `[data-role="results-status"]`
+ * with "n of N stories" while a search or filter hides rows.
  */
 export function updateNoResults(root = document) {
   const rows = storyRows(root);
@@ -33,6 +34,12 @@ export function updateNoResults(root = document) {
     rows[0].parentElement.after(note);
   }
   const none = rows.every((r) => r.hidden);
+  // Result count for a polite live region: quiet while nothing is filtered.
+  const status = root.querySelector('[data-role="results-status"]');
+  if (status) {
+    const shown = rows.filter((r) => !r.hidden).length;
+    status.textContent = shown === rows.length ? "" : `${shown} of ${rows.length} stories`;
+  }
   if (none) note.textContent = "No stories match. Try fewer words or clear the filters.";
   else note.textContent = "";
   note.hidden = !none;

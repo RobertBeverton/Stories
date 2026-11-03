@@ -25,10 +25,10 @@ layout: base.njk
       {% if audioUrl %}
       <button type="button" class="btn btn-primary btn-lg" data-mount="play-button" data-slug="{{ slug }}" data-audio-url="{{ audioUrl }}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-        <span>Play</span>
+        <span data-role="label">Play</span>
       </button>
       {% endif %}
-      <fieldset class="textsize">
+      <fieldset class="textsize" data-mount="text-size">
         <legend class="visually-hidden">Text size</legend>
         <input type="radio" name="textsize" id="ts-sm" value="sm"><label for="ts-sm"><span class="visually-hidden">Smaller text </span><span aria-hidden="true">A−</span></label>
         <input type="radio" name="textsize" id="ts-md" value="md" checked><label for="ts-md"><span class="visually-hidden">Normal text </span><span aria-hidden="true">A</span></label>
@@ -39,12 +39,15 @@ layout: base.njk
     <div class="parts-root" data-mount="parts" data-slug="{{ slug }}"></div>
   </header>
 
+  {# Messages from story-resume (resume prompt, autoplay fallback, audio error). #}
+  <div class="resume-prompt" data-role="resume" role="status" hidden></div>
+
+  {# SLOT player: moves to the persistent shell outside #view in wave 2. Native
+     controls keep it usable without script. #}
   {% if audioUrl %}
-  <noscript>
-    <div class="story-audio-fallback">
-      <audio controls preload="none" src="{{ audioUrl }}"></audio>
-    </div>
-  </noscript>
+  <div class="story-audio">
+    <audio id="player" controls preload="metadata" src="{{ audioUrl }}"></audio>
+  </div>
   {% endif %}
 
   <div class="story-body">

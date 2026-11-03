@@ -1,6 +1,6 @@
 {# One compact Library row. Expects `story`. #}
 {% set pub = story.publishDate.toISOString().slice(0, 10) if story.publishDate.toISOString else story.publishDate %}
-<li class="row" data-slug="{{ story.slug }}" data-title="{{ story.title }}" data-series="{{ story.series or '' }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}" data-published="{{ pub }}" data-duration="{{ story.audioDuration or '' }}">
+<li class="row" data-role="story-row" data-slug="{{ story.slug }}" data-title="{{ story.title }}" data-series="{{ story.series or '' }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}" data-published="{{ pub }}" data-duration="{{ story.audioDuration or '' }}">
   {% set coverStory = story %}{% set coverClass = '' %}
   {% include "cover.njk" %}
   <div class="row-text">

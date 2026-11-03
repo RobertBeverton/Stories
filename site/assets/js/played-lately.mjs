@@ -1,6 +1,7 @@
 // data-mount="played-lately": the three most recently played stories, finished
 // or not, so a replayed favourite never disappears. Hidden when there is no
 // history. Titles, links and art come from library.json only.
+import { cover } from "./cover.mjs";
 import { h, onProgressChange, renderIfChanged } from "./dom.mjs";
 import { safeHref } from "./escape.mjs";
 import { loadLibrary } from "./library.mjs";
@@ -25,7 +26,7 @@ export function mount(el) {
     el.hidden = false;
     const signature = picks.map((p) => `${p.story.slug}:${p.state}`).join("|");
     renderIfChanged(el, signature, () => {
-      const list = h("ul", { "data-role": "list" });
+      const list = h("ul", { class: "lately", "data-role": "list" });
       for (const { story, state } of picks) {
         const world = library.worlds.find((w) => w.name === story.world);
         list.append(
@@ -35,6 +36,7 @@ export function mount(el) {
             h(
               "a",
               {
+                class: "lately-item",
                 href: safeHref(story.url),
                 "data-slug": story.slug,
                 "data-state": state,
@@ -42,8 +44,9 @@ export function mount(el) {
                 "data-icon": story.icon,
                 "data-accent": world?.accent,
               },
-              h("span", { "data-role": "title" }, story.title),
-              h("span", { "data-role": "state" }, STATE_LABEL[state]),
+              cover(story),
+              h("span", { class: "lately-title", "data-role": "title" }, story.title),
+              h("span", { class: "lately-state", "data-role": "state" }, STATE_LABEL[state]),
             ),
           ),
         );

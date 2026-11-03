@@ -67,7 +67,7 @@ export function mount(el) {
   }
 
   function chip(key, label) {
-    const button = h("button", { type: "button", "aria-pressed": "false", "data-filter": key }, label);
+    const button = h("button", { type: "button", class: "btn", "aria-pressed": "false", "data-filter": key }, label);
     button.addEventListener("click", () => toggle(key, button, button.getAttribute("aria-pressed") !== "true"));
     buttons.set(key, button);
     return button;
@@ -85,14 +85,14 @@ export function mount(el) {
     if (disposed || !lib) return;
     library = lib;
     if (state.world && !lib.worlds.some((w) => w.name === state.world)) state.world = "";
-    seriesSelect = h("select", { "aria-label": "Series", "data-role": "series" });
+    seriesSelect = h("select", { class: "filter-select", "aria-label": "Series", "data-role": "series" });
     seriesSelect.addEventListener("change", () => {
       state.series = seriesSelect.value;
       apply();
     });
     const group = h(
       "div",
-      { role: "group", "aria-label": "Filter stories", "data-role": "filters" },
+      { role: "group", "aria-label": "Filter stories", class: "filter-chips", "data-role": "filters" },
       seriesSelect,
       chip("under15", `Under ${UNDER_MINUTES} minutes`),
       ...STATUSES.map(([key, label]) => chip(key, label)),

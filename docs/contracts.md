@@ -35,7 +35,7 @@ fields, and rewritten as v2 on the next save. Title, URL and art always come fro
 ## 3. DOM hooks
 
 Behaviour attaches through `data-mount="<name>"`. Names: `continue`, `played-lately`,
-`story-resume`, `search`, `play-button`, `filters`, `world-switcher`, `parts`, `dock`.
+`story-resume`, `search`, `play-button`, `filters`, `world-switcher`, `text-size`, `parts`, `dock`.
 Each name maps to `site/assets/js/<name>.mjs`, which exports `mount(el)` and returns
 `unmount()`. `site/assets/js/main.js` mounts them. Templates (WP-B) emit the
 attributes; modules implement them. CSS class names are WP-B's private business.

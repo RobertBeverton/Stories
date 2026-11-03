@@ -13,16 +13,27 @@
 .card-continue .cover { aspect-ratio: 1; }
 .card-continue-label { color: var(--muted); font-size: var(--text-small); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
 .card-continue-title { font-family: var(--font-display); font-size: 1.5rem; line-height: 1.2; font-weight: 700; margin: 0.25rem 0 0.75rem; overflow-wrap: anywhere; }
+.card-continue-text { min-width: 0; }
 .card-continue .btn { display: inline-flex; }
+.card-continue-bar {
+  display: block; width: 100%; height: 0.6rem; margin: 0 0 0.75rem;
+  border: 0; border-radius: var(--radius-pill); overflow: hidden;
+  background: var(--raised); accent-color: var(--accent);
+}
+.card-continue-bar::-webkit-progress-bar { background: var(--raised); }
+.card-continue-bar::-webkit-progress-value { background: var(--accent); border-radius: var(--radius-pill); }
+.card-continue-bar::-moz-progress-bar { background: var(--accent); }
 
 .lately { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin: 0; padding: 0; list-style: none; }
 .lately-item { display: block; color: inherit; text-decoration: none; min-width: 0; }
 .lately-item .cover { aspect-ratio: 1; }
+.lately-state { display: block; color: var(--muted); font-size: 0.8125rem; }
 .lately-title { display: block; margin-top: 0.4rem; font-size: var(--text-small); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
 /* No history yet: hide the whole section */
 section:has(> .lately-root:empty) { display: none; }
 
-.world-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: 0.75rem; }
+.world-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: 0.75rem; }
+.world-picker > .world-tile { max-width: 14rem; } /* the no-script link tile */
 .world-tile {
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 0.5rem;
   min-height: 9.5rem; padding: 1rem 0.75rem;
@@ -45,10 +56,17 @@ section:has(> .lately-root:empty) { display: none; }
 }
 .search-box::placeholder { color: var(--muted); opacity: 1; }
 
-.world-filter { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 0.75rem; }
+.world-filter { margin: 0 0 0.75rem; }
 .world-filter:empty { display: none; }
-.filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0 0.5rem; }
+.world-chips, .filter-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.filters { margin: 0.75rem 0 0.5rem; }
 .filters:empty { display: none; }
+.filter-select {
+  min-height: var(--tap); padding: 0 1rem; max-width: 100%;
+  background: var(--raised); color: var(--text);
+  border: 2px solid var(--line); border-radius: var(--radius-pill);
+  font: inherit; font-weight: 600;
+}
 
 .library-status { color: var(--muted); font-size: var(--text-small); min-height: 1.5rem; margin: 0.5rem 0; }
 .empty { padding: 2rem 0; text-align: center; color: var(--muted); }
@@ -132,8 +150,8 @@ section:has(> .lately-root:empty) { display: none; }
 .story-body hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
 .story-body .part-current { background: color-mix(in srgb, var(--accent) 22%, transparent); }
 
-.story-audio-fallback { margin: 1rem 0; }
-.story-audio-fallback audio { width: 100%; }
+.story-audio { margin: 1rem 0 0; }
+.story-audio audio { width: 100%; }
 
 .series-nav { display: grid; gap: 0.75rem; max-width: 65ch; margin: 2rem auto 0; }
 .series-nav a {
@@ -144,7 +162,13 @@ section:has(> .lately-root:empty) { display: none; }
 }
 .series-nav a.next { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 
-.resume-prompt { margin: 1rem 0 0; padding: 0.75rem; background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); }
+.resume-prompt {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem;
+  margin: 1rem 0 0; padding: 0.75rem;
+  background: var(--surface); color: var(--text);
+  border: 2px solid var(--line); border-radius: var(--radius);
+}
+.resume-note { flex: 1 1 100%; margin: 0; }
 
 @media (min-width: 720px) {
   main { padding-left: 1.5rem; padding-right: 1.5rem; }

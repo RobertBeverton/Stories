@@ -5,7 +5,8 @@ mounts `site/assets/js/<name>.mjs` for every element with `data-mount="<name>"`.
 Modules build their own inner DOM with `createElement` and text nodes, so a
 template only needs the `data-mount` root. Everything displayed (title, link,
 icon, world, accent) comes from `<base>/library.json`; `<html data-base="/Stories">`
-is required. CSS class names are not used by the modules, only `data-*` hooks.
+is required. Modules emit the CSS classes listed in `../css/README.md` next to their `data-role`/`data-*`
+hooks (tests use the hooks; CSS uses the classes).
 
 Common rules:
 
@@ -45,8 +46,10 @@ the real `audio.duration`) and sets Media Session metadata.
 ## `play-button`
 
 `<button type="button" data-mount="play-button" data-slug="<slug>">Play</button>`
-(an `<a>` also works). Optional `[data-role="label"]` child holds the text,
-otherwise the whole element's text is replaced. Label becomes "Resume" or
+(an `<a>` also works). Optional `[data-role="label"]` child holds the text; a button
+holding only text uses itself; a button with other children and no label child
+(an icon-only row button) keeps its content and has the verb in its `aria-label`
+("Play X", "Resume X", "Play again X") swapped. Label becomes "Resume" or
 "Play again" by progress; `data-state="new|in-progress|finished"` is set. Click
 fires `stories:play`; if nothing claims it, navigates to `<url>?autoplay=1`.
 
@@ -66,8 +69,24 @@ filters OR together; everything else ANDs. It follows the world from
 
 `<div data-mount="world-switcher"></div>`. Builds `div[role="group"]` with
 `button[data-world="<name>"]` per world plus `button[data-world=""]` for All
-(`aria-pressed`). Remembers the choice in `localStorage["stories-world"]` and
-emits `stories:world`.
+(`aria-pressed`). `data-variant="picker"` (Home) draws `.world-tile` buttons with
+the world's icon and PALETTE colours (`--tile`, `--tile-ink`) and, after a choice,
+goes to `<base>/library/`; otherwise `.btn` chips. Remembers the choice in
+`localStorage["stories-world"]` and emits `stories:world`.
+
+## `text-size`
+
+`<fieldset data-mount="text-size">` holding three `input[type=radio]` (`sm|md|lg`).
+The size is CSS; the module restores the remembered radio on mount and stores
+changes in `localStorage["stories-text-size"]`.
+
+## World accent (not a hook)
+
+`main.js` also starts `world-accent.mjs` on every page. It sets `--accent` and
+`--accent-ink` on `<html>` from the current world's PALETTE entry (from
+`library.json`'s `world.accent` name; the palette is `accent-colors.mjs`, shared
+with the build scripts) on load and on `stories:world`. All worlds restores the
+tokens.css default.
 
 ## Library rows (needed by `search` and `filters`)
 
@@ -76,7 +95,9 @@ modules toggle `hidden` on rows (via `data-hidden-by`) and set
 `data-state="new|in-progress|finished"` and `data-new="true"` (published in the
 last 14 days with no progress) on each row. An optional
 `[data-role="no-results"]` element is used for the "no stories match" message,
-otherwise one is inserted after the rows' list.
+otherwise one is inserted after the rows' list. An optional
+`[data-role="results-status"]` live region gets "n of N stories" while a search
+or filter hides rows.
 
 ## Not here yet
 

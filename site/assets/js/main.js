@@ -1,10 +1,13 @@
 // Single entry point. Mounts a module for every element carrying
 // data-mount="<name>". Each module is site/assets/js/<name>.mjs and exports
 // mount(el) returning an unmount() function (see docs/contracts.md).
-// A missing or broken module must never break the page.
+// A missing or broken module must never break the page. Not a hook: the world
+// accent (world-accent.mjs) also starts here, so every page follows the world.
+import { startWorldAccent } from "./world-accent.mjs";
+
 export const NAMES = [
   "continue", "played-lately", "story-resume", "search", "play-button",
-  "filters", "world-switcher", "parts", "dock",
+  "filters", "world-switcher", "text-size", "parts", "dock",
 ];
 const unmounts = new Map();
 
@@ -37,4 +40,7 @@ export function unmountAll(root = document) {
   }
 }
 
-if (typeof document !== "undefined") mountAll();
+if (typeof document !== "undefined") {
+  startWorldAccent();
+  mountAll();
+}

@@ -34,7 +34,7 @@ export function mount(el) {
   let area = el.querySelector('[data-role="resume"]');
   const ownArea = !area;
   if (ownArea) {
-    area = h("div", { "data-role": "resume", role: "status" });
+    area = h("div", { class: "resume-prompt", "data-role": "resume", role: "status" });
     const heading = el.querySelector("h1");
     if (heading) heading.after(area);
     else el.prepend(area);
@@ -67,7 +67,7 @@ export function mount(el) {
       result.catch(() => {
         // The browser does not carry a tap on the previous page over to this
         // one, so play() can be blocked. Say so instead of staying silent.
-        show(h("p", { "data-role": "autoplay-fallback" }, "Tap Play to start listening."));
+        show(h("p", { class: "resume-note", "data-role": "autoplay-fallback" }, "Tap Play to start listening."));
       });
     }
   }
@@ -114,8 +114,8 @@ export function mount(el) {
     }
   } else if (record && viewModel(record).state === "in-progress"
     && (record.audioTime > RESUME_AUDIO_SEC || record.scrollY > RESUME_SCROLL_PX)) {
-    const resume = h("button", { type: "button", "data-role": "resume-button" }, "Resume where you left off");
-    const restart = h("button", { type: "button", "data-role": "restart-button" }, "Start over");
+    const resume = h("button", { type: "button", class: "btn btn-primary", "data-role": "resume-button" }, "Resume where you left off");
+    const restart = h("button", { type: "button", class: "btn", "data-role": "restart-button" }, "Start over");
     resume.addEventListener("click", () => {
       if (audio && record.audioTime) audio.currentTime = record.audioTime;
       if (record.scrollY) window.scrollTo({ top: record.scrollY, behavior: "smooth" });
@@ -150,13 +150,13 @@ export function mount(el) {
     });
     on(audio, "loadedmetadata", reconcile);
     on(audio, "error", () => {
-      const retry = h("button", { type: "button", "data-role": "retry-button" }, "Try again");
+      const retry = h("button", { type: "button", class: "btn", "data-role": "retry-button" }, "Try again");
       retry.addEventListener("click", () => {
         show();
         audio.load();
         play();
       });
-      show(h("p", { "data-role": "audio-error" }, "This story's audio would not load."), retry);
+      show(h("p", { class: "resume-note", "data-role": "audio-error" }, "This story's audio would not load."), retry);
     });
     on(document, "stories:play", (event) => {
       if (event.detail?.slug !== slug) return;

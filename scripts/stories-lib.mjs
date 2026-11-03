@@ -164,7 +164,7 @@ export function computeStories(rawStories, audioFileExists = alwaysExists) {
 // publishDate (so adding a new story to an old arc pushes that whole arc
 // back toward the top of the homepage). Pure function — no localStorage/DOM
 // access, since the "Continue" section (which DOES need localStorage) can
-// only be computed client-side; see site/assets/library.js.
+// only be computed client-side; see site/assets/js/continue.mjs.
 export function groupForLibrary(stories) {
   const bySeries = new Map();
   const groups = [];

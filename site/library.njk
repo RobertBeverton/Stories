@@ -12,7 +12,7 @@ permalink: /library/
 
 <div class="filters" data-mount="filters" role="group" aria-label="Filter stories"></div>
 
-<p class="library-status" id="library-status" role="status" aria-live="polite"></p>
+<p class="library-status" id="library-status" role="status" aria-live="polite" data-role="results-status"></p>
 
 {% if stories.length > 0 %}
 <ul id="stories" class="rows">
@@ -21,4 +21,4 @@ permalink: /library/
   {% endfor %}
 </ul>
 {% endif %}
-<p class="empty" id="no-results" hidden>No stories match. Try a different word or clear a filter.</p>
+<p class="empty" id="no-results" data-role="no-results" hidden>No stories match. Try a different word or clear a filter.</p>

@@ -1,6 +1,7 @@
 // data-mount="continue": the big Continue card on Home. Shows the most recent
 // unfinished story; with no history, the newest story. Everything displayed
 // comes from library.json; storage only decides which story and how far.
+import { cover } from "./cover.mjs";
 import { h, onProgressChange, renderIfChanged } from "./dom.mjs";
 import { safeHref } from "./escape.mjs";
 import { loadLibrary } from "./library.mjs";
@@ -30,6 +31,7 @@ export function mount(el) {
       const card = h(
         "a",
         {
+          class: "card-continue",
           "data-role": "card",
           "data-state": kind,
           "data-slug": story.slug,
@@ -38,12 +40,19 @@ export function mount(el) {
           "data-accent": world?.accent,
           href: `${safeHref(story.url)}?autoplay=1`,
         },
-        h("span", { "data-role": "kicker" }, KICKER[kind]),
-        h("span", { "data-role": "title" }, story.title),
-        kind === "resume"
-          ? h("progress", { "data-role": "bar", max: 100, value: percent, "aria-label": `${percent}% listened` })
-          : null,
-        h("span", { "data-role": "action" }, ACTION[kind]),
+        cover(story),
+        h(
+          "div",
+          { class: "card-continue-text" },
+          h("p", { class: "card-continue-label", "data-role": "kicker" }, KICKER[kind]),
+          h("p", { class: "card-continue-title", "data-role": "title" }, story.title),
+          kind === "resume"
+            ? h("progress", {
+              class: "card-continue-bar", "data-role": "bar", max: 100, value: percent, "aria-label": `${percent}% listened`,
+            })
+            : null,
+          h("span", { class: "btn btn-primary btn-lg", "data-role": "action" }, ACTION[kind]),
+        ),
       );
       return [card];
     });

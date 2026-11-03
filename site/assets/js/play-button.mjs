@@ -3,7 +3,9 @@
 // story (story-resume on its own page, the wave 2 player) calls preventDefault().
 // If nobody does, the button navigates to the story with ?autoplay=1, which
 // story-resume handles on arrival. The label follows progress: "Resume" while in
-// progress, "Play again" when finished, otherwise the template's own label.
+// progress, "Play again" when finished, otherwise the template's own label. A
+// button with child elements but no [data-role="label"] (an icon-only row
+// button) keeps its content and only has its aria-label verb ("Play ...") swapped.
 import { onProgressChange } from "./dom.mjs";
 import { safeHref } from "./escape.mjs";
 import { loadLibrary } from "./library.mjs";
@@ -13,15 +15,19 @@ import { read, toViewModel } from "./progress.mjs";
 export function mount(el) {
   const slug = el.dataset.slug;
   if (!slug) return () => {};
-  const labelEl = el.querySelector('[data-role="label"]') ?? el;
-  const original = labelEl.textContent;
+  // The label child, else the button itself when it holds only text.
+  const labelEl = el.querySelector('[data-role="label"]') ?? (el.children.length === 0 ? el : null);
+  const original = labelEl?.textContent;
+  const originalAria = el.getAttribute("aria-label");
   let library = null;
   let disposed = false;
 
   function syncLabel() {
     const state = toViewModel(read(slug), { durationSec: library?.bySlug.get(slug)?.durationSec }).state;
     el.dataset.state = state;
-    labelEl.textContent = state === "finished" ? "Play again" : state === "in-progress" ? "Resume" : original;
+    const verb = state === "finished" ? "Play again" : state === "in-progress" ? "Resume" : "Play";
+    if (labelEl) labelEl.textContent = verb === "Play" ? original : verb;
+    if (originalAria?.startsWith("Play")) el.setAttribute("aria-label", verb + originalAria.slice("Play".length));
   }
 
   function onClick(event) {
@@ -47,7 +53,8 @@ export function mount(el) {
     disposed = true;
     el.removeEventListener("click", onClick);
     stop();
-    labelEl.textContent = original;
+    if (labelEl) labelEl.textContent = original;
+    if (originalAria !== null) el.setAttribute("aria-label", originalAria);
     delete el.dataset.state;
   };
 }

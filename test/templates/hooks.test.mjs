@@ -6,11 +6,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
-import matter from "gray-matter";
-import nunjucks from "nunjucks";
 import { JSDOM } from "jsdom";
 import { accentColorFor } from "../../scripts/accent-colors.mjs";
-import { iconSvgPath } from "../../scripts/icons.mjs";
+import { renderHome, renderLibrary, renderStory } from "./render-pages.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const site = path.join(root, "site");
@@ -20,10 +18,6 @@ const contractHooks = (() => {
   const line = md.match(/Names:\s*([^.]+)\./s)?.[1];
   return [...line.matchAll(/`([a-z-]+)`/g)].map((m) => m[1]);
 })();
-
-const env = new nunjucks.Environment(new nunjucks.FileSystemLoader(path.join(site, "_includes")), { autoescape: true });
-env.addFilter("url", (p) => "/Stories" + p);
-env.addGlobal("icons", { path: iconSvgPath });
 
 function story(n, extra = {}) {
   const series = n === 3 ? undefined : "The Placeholder Series";
@@ -48,23 +42,13 @@ function story(n, extra = {}) {
 }
 const stories = [story(3), story(2), story(1)];
 
-function page(templatePath, data, pageUrl) {
-  const { content: body, data: front } = matter(fs.readFileSync(templatePath, "utf8"));
-  const ctx = { buildTime: 12345, page: { url: pageUrl }, stories, ...front, ...data };
-  const inner = env.renderString(body, ctx);
-  return env.render("base.njk", { ...ctx, content: inner });
-}
-
 const pages = {
-  home: page(path.join(site, "index.njk"), {}, "/"),
-  library: page(path.join(site, "library.njk"), {}, "/library/"),
-  story: page(path.join(site, "_includes", "story.njk"), {
-    ...story(1),
+  home: renderHome(stories),
+  library: renderLibrary(stories),
+  story: renderStory(story(1), {
     title: "Tale 1 of Testing",
-    content: "<p>Invented placeholder text.</p>",
-    prevStory: null,
     nextStory: { url: "/Stories/stories/tale-2/", title: "Tale 2 of Testing" },
-  }, "/stories/tale-1/"),
+  }, stories),
 };
 const doc = Object.fromEntries(Object.entries(pages).map(([k, html]) => [k, new JSDOM(html).window.document]));
 const hooksIn = (d) => new Set([...d.querySelectorAll("[data-mount]")].map((el) => el.dataset.mount));
@@ -73,7 +57,7 @@ describe("template hooks", () => {
   it("reads the hook list from the contract", () => {
     expect(contractHooks).toEqual([
       "continue", "played-lately", "story-resume", "search", "play-button",
-      "filters", "world-switcher", "parts", "dock",
+      "filters", "world-switcher", "text-size", "parts", "dock",
     ]);
   });
 
@@ -89,7 +73,7 @@ describe("template hooks", () => {
   it.each([
     ["home", ["continue", "played-lately", "world-switcher", "dock"]],
     ["library", ["search", "filters", "world-switcher", "play-button", "dock"]],
-    ["story", ["story-resume", "play-button", "parts", "dock"]],
+    ["story", ["story-resume", "play-button", "text-size", "parts", "dock"]],
   ])("%s carries its hooks", (name, expected) => {
     for (const hook of expected) expect(hooksIn(doc[name]), `${name}: ${hook}`).toContain(hook);
   });
@@ -145,7 +129,35 @@ describe("page shell", () => {
   it("escapes story titles in rendered attributes", () => {
     const rows = doc.library.querySelectorAll(".row");
     expect(rows.length).toBe(3);
-    const html = page(path.join(site, "library.njk"), { stories: [story(1, { title: '<b>"x"</b>' })] }, "/library/");
+    const html = renderLibrary([story(1, { title: '<b>"x"</b>' })]);
     expect(html).not.toContain("<b>\"x\"</b>");
+  });
+});
+
+describe("what the modules need from the templates", () => {
+  it("marks every library row and the empty states the way search and filters look for them", () => {
+    const rows = [...doc.library.querySelectorAll('[data-role="story-row"][data-slug]')];
+    expect(rows.map((r) => r.dataset.slug)).toEqual(stories.map((s) => s.slug));
+    expect(doc.library.querySelector('[data-role="no-results"]').hidden).toBe(true);
+    expect(doc.library.querySelector('[data-role="results-status"]')).not.toBeNull();
+  });
+
+  it("gives the story page the audio element story-resume claims, with the story's audio", () => {
+    const audio = doc.story.querySelector("audio#player");
+    expect(audio.getAttribute("src")).toBe("/Stories/stories/test-world/tale-1.mp3");
+    expect(doc.story.querySelectorAll("audio")).toHaveLength(1);
+    expect(doc.story.querySelector('[data-mount="story-resume"] [data-role="resume"]')).not.toBeNull();
+    expect(doc.story.querySelector('[data-mount="play-button"] [data-role="label"]').textContent).toBe("Play");
+  });
+
+  it("omits the audio element for a story with no audio", () => {
+    const d = new JSDOM(renderStory(story(1, { audioUrl: undefined }))).window.document;
+    expect(d.querySelector("audio")).toBeNull();
+    expect(d.querySelector('[data-mount="play-button"]')).toBeNull();
+  });
+
+  it("draws covers with the main and detail icon paths", () => {
+    const paths = [...doc.library.querySelectorAll(".row .cover svg")[0].querySelectorAll("path")];
+    expect(paths.map((p) => p.getAttribute("class"))).toEqual(["icon-main", "icon-detail"]);
   });
 });
