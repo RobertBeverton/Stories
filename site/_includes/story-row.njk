@@ -1,0 +1,15 @@
+{# One compact Library row. Expects `story`. #}
+{% set pub = story.publishDate.toISOString().slice(0, 10) if story.publishDate.toISOString else story.publishDate %}
+<li class="row" data-slug="{{ story.slug }}" data-title="{{ story.title }}" data-series="{{ story.series or '' }}" data-tags="{{ story.tags | join(' ') }}" data-description="{{ story.description }}" data-published="{{ pub }}" data-duration="{{ story.audioDuration or '' }}">
+  {% set coverStory = story %}{% set coverClass = '' %}
+  {% include "cover.njk" %}
+  <div class="row-text">
+    <a class="row-title" href="{{ story.url }}">{{ story.title }}</a><span class="badge-new">New</span>
+    <p class="row-meta">{% if story.series %}{{ story.series }} · {% endif %}{% if story.audioMinutes %}~{{ story.audioMinutes }} min listen{% else %}~{{ story.readMinutes }} min read{% endif %}</p>
+  </div>
+  {% if story.audioUrl %}
+  <button type="button" class="btn btn-primary btn-icon" data-mount="play-button" data-slug="{{ story.slug }}" data-audio-url="{{ story.audioUrl }}" aria-label="Play {{ story.title }}">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+  </button>
+  {% endif %}
+</li>

@@ -1,0 +1,43 @@
+/* One fixed container at the bottom: an optional mini-player row above a
+   two-item nav. About 112px plus the safe area at most. */
+.dock {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  background: var(--surface);
+  border-top: 2px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+/* Filled by the dock module while a story is loaded */
+.dock-mini {
+  display: flex; align-items: center; gap: 0.75rem;
+  min-height: var(--dock-mini-h);
+  padding: 0 var(--gutter);
+  border-bottom: 1px solid var(--line);
+}
+.dock-mini:empty { display: none; }
+.dock-mini-title {
+  flex: 1 1 auto; min-width: 0; font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dock-nav {
+  display: flex; margin: 0 auto; padding: 0; list-style: none;
+  max-width: var(--page-max);
+}
+.dock-nav li { flex: 1 1 0; }
+.dock-link {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: var(--dock-nav-h); min-width: var(--tap);
+  color: var(--muted); text-decoration: none;
+  font-size: 0.8125rem; font-weight: 600;
+}
+.dock-link svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.dock-link[aria-current="page"] { color: var(--text); }
+.dock-link[aria-current="page"] svg { stroke: var(--accent); }
+.dock-link[aria-current="page"] span { box-shadow: 0 3px 0 var(--accent); }
+
+/* Landscape and 200% zoom: never cover content */
+@media (max-height: 480px) {
+  .dock { position: static; }
+  main, body.has-mini-player main { padding-bottom: 2rem; }
+}

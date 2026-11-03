@@ -1,0 +1,161 @@
+/* ---------- Home ---------- */
+.home-title { padding: 1.5rem 0 0.25rem; }
+.home-tagline { color: var(--muted); margin: 0.25rem 0 0; }
+
+.card-continue {
+  display: grid; grid-template-columns: minmax(7rem, 38%) 1fr; gap: 1rem; align-items: center;
+  padding: 0.75rem; min-height: 9rem;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  color: inherit; text-decoration: none;
+}
+.card-continue .cover { aspect-ratio: 1; }
+.card-continue-label { color: var(--muted); font-size: var(--text-small); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
+.card-continue-title { font-family: var(--font-display); font-size: 1.5rem; line-height: 1.2; font-weight: 700; margin: 0.25rem 0 0.75rem; overflow-wrap: anywhere; }
+.card-continue .btn { display: inline-flex; }
+
+.lately { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin: 0; padding: 0; list-style: none; }
+.lately-item { display: block; color: inherit; text-decoration: none; min-width: 0; }
+.lately-item .cover { aspect-ratio: 1; }
+.lately-title { display: block; margin-top: 0.4rem; font-size: var(--text-small); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+/* No history yet: hide the whole section */
+section:has(> .lately-root:empty) { display: none; }
+
+.world-picker { display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: 0.75rem; }
+.world-tile {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 0.5rem;
+  min-height: 9.5rem; padding: 1rem 0.75rem;
+  background: var(--tile, var(--accent)); color: var(--tile-ink, var(--accent-ink));
+  border: 3px solid transparent; border-radius: var(--radius);
+  font: inherit; font-weight: 700; text-align: center; text-decoration: none; cursor: pointer;
+}
+.world-tile svg { width: 4.5rem; height: auto; }
+.world-tile[aria-pressed="true"], .world-tile[aria-current="true"] { border-color: var(--text); }
+
+/* ---------- Library ---------- */
+.page-title { padding: 1.5rem 0 1rem; }
+
+.search-box {
+  display: block; width: 100%; min-height: var(--tap-lg);
+  padding: 0 1rem;
+  background: var(--surface); color: var(--text);
+  border: 2px solid var(--line); border-radius: var(--radius);
+  font: inherit;
+}
+.search-box::placeholder { color: var(--muted); opacity: 1; }
+
+.world-filter { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 0.75rem; }
+.world-filter:empty { display: none; }
+.filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0 0.5rem; }
+.filters:empty { display: none; }
+
+.library-status { color: var(--muted); font-size: var(--text-small); min-height: 1.5rem; margin: 0.5rem 0; }
+.empty { padding: 2rem 0; text-align: center; color: var(--muted); }
+
+.rows { list-style: none; margin: 0; padding: 0; }
+.row {
+  display: grid; grid-template-columns: 3.5rem 1fr auto; gap: 0.75rem; align-items: center;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--line);
+}
+.row:first-child { border-top: 0; }
+.row .cover { width: 3.5rem; aspect-ratio: 1; border-radius: 12px; }
+.row-text { min-width: 0; }
+.row-title {
+  display: inline-flex; align-items: center; min-height: var(--tap);
+  font-weight: 700; line-height: 1.3; text-decoration: none; overflow-wrap: anywhere;
+}
+.row-title:hover { text-decoration: underline; }
+.row-meta { margin: 0; color: var(--muted); font-size: var(--text-small); }
+/* The New marker is emitted hidden-by-CSS; the filters module sets
+   data-new="true" on the row when the story is new and unplayed. */
+.row .badge-new { display: none; margin-left: 0.5rem; }
+.row[data-new="true"] .badge-new { display: inline-flex; }
+
+/* ---------- Story ---------- */
+.story-hero {
+  margin: 0 calc(var(--gutter) * -1);
+  padding: 1rem var(--gutter) 1.5rem;
+  background: var(--series); color: var(--series-ink);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.crumbs { display: flex; flex-wrap: wrap; gap: 0 0.5rem; align-items: center; margin: 0 0 0.75rem; font-size: var(--text-small); font-weight: 600; }
+.crumbs a { display: inline-flex; align-items: center; min-height: var(--tap); }
+.story-cover {
+  width: min(100%, 22rem); aspect-ratio: 4 / 3; margin: 0 auto 1rem;
+  background: color-mix(in srgb, var(--series-ink) 12%, var(--series));
+}
+.story-cover svg { width: 58%; }
+.story-hero h1 { font-size: 2rem; }
+.story-description { margin: 0.5rem 0 0.75rem; }
+.lozenges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.75rem; padding: 0; list-style: none; }
+.lozenge {
+  padding: 0.15rem 0.7rem; border-radius: var(--radius-pill);
+  border: 1px solid var(--series-ink); font-size: var(--text-small);
+}
+.story-meta { margin: 0 0 1rem; font-size: var(--text-small); font-weight: 600; }
+
+.story-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+/* The play button sits on the series colour, so it inverts the series pair
+   instead of using the world accent. */
+.story-hero .btn-primary { background: var(--series-ink); color: var(--series); border-color: var(--series-ink); }
+
+/* Text size: a real radio group, pure CSS, works without script */
+.textsize { position: relative; display: inline-flex; border: 0; margin: 0; padding: 0; gap: 0.25rem; align-items: center; }
+.textsize legend { padding: 0; }
+.textsize input { position: absolute; opacity: 0; width: var(--tap); height: var(--tap); margin: 0; }
+.textsize label {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: var(--tap); min-height: var(--tap);
+  border: 2px solid var(--series-ink); border-radius: var(--radius-pill);
+  font-family: var(--font-display); font-weight: 700; cursor: pointer;
+}
+.textsize label[for="ts-sm"] { font-size: 0.9rem; }
+.textsize label[for="ts-md"] { font-size: 1.1rem; }
+.textsize label[for="ts-lg"] { font-size: 1.4rem; }
+.textsize input:checked + label { background: var(--series-ink); color: var(--series); }
+.textsize input:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 3px; }
+.story:has(#ts-sm:checked) { --reading-scale: 0.9; }
+.story:has(#ts-lg:checked) { --reading-scale: 1.25; }
+
+.parts-list { list-style: none; margin: 1rem 0 0; padding: 0; }
+.parts-list button { width: 100%; justify-content: flex-start; margin-bottom: 0.4rem; }
+
+.story-body {
+  max-width: 65ch; margin: 1.5rem auto 0;
+  font-family: var(--font-display);
+  font-size: calc(1.25rem * var(--reading-scale));
+  line-height: 1.75;
+}
+.story-body h2, .story-body h3 { font-size: 1.3em; margin: 2em 0 0.5em; }
+.story-body hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
+.story-body .part-current { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+
+.story-audio-fallback { margin: 1rem 0; }
+.story-audio-fallback audio { width: 100%; }
+
+.series-nav { display: grid; gap: 0.75rem; max-width: 65ch; margin: 2rem auto 0; }
+.series-nav a {
+  display: flex; align-items: center; min-height: var(--tap-lg);
+  padding: 0.5rem 1.25rem;
+  background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius);
+  font-weight: 600; text-decoration: none;
+}
+.series-nav a.next { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+.resume-prompt { margin: 1rem 0 0; padding: 0.75rem; background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); }
+
+@media (min-width: 720px) {
+  main { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .story-hero { margin: 1rem 0 0; border-radius: var(--radius); padding: 1.5rem; display: grid; grid-template-columns: 16rem 1fr; gap: 0 1.5rem; align-items: start; }
+  .story-hero .crumbs { grid-column: 1 / -1; }
+  .story-cover { grid-column: 1; grid-row: 2 / span 6; width: 100%; margin: 0; }
+  .story-hero > :not(.crumbs):not(.story-cover) { grid-column: 2; }
+  .card-continue { grid-template-columns: 11rem 1fr; }
+}
+
+.parts-root:empty { display: none; }
+
+/* Focus ring on the pastel series colour: dark ink, not the page yellow */
+.story-hero :focus-visible { outline-color: var(--series-ink); }
