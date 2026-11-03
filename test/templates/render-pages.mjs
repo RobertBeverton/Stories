@@ -9,6 +9,7 @@ import matter from "gray-matter";
 import nunjucks from "nunjucks";
 import { accentColorFor } from "../../scripts/accent-colors.mjs";
 import { iconDetailSvgPath, iconSvgPath } from "../../scripts/icons.mjs";
+import { pageSecurity } from "../../scripts/page-security.mjs";
 
 export const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const site = path.join(root, "site");
@@ -37,7 +38,7 @@ export function templateStory(libraryStory, extra = {}) {
 
 function page(templatePath, data, pageUrl, stories) {
   const { content: body, data: front } = matter(fs.readFileSync(templatePath, "utf8"));
-  const ctx = { buildTime: 12345, page: { url: pageUrl }, stories, ...front, ...data };
+  const ctx = { buildTime: 12345, importMap: pageSecurity(12345), page: { url: pageUrl }, stories, ...front, ...data };
   const inner = env.renderString(body, ctx);
   return env.render("base.njk", { ...ctx, content: inner });
 }

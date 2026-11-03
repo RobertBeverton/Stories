@@ -239,6 +239,19 @@ describe("sanitizeWorldData", () => {
     expect(rawStories[1].data.lore).toBeUndefined();
   });
 
+  it("warns about and drops a front matter audioUrl that is not on the audio origin", () => {
+    const input = base();
+    input.rawStories[0].data.audioUrl = "http://audio.kinly.download/one.mp3";
+    input.rawStories[1].data.audioUrl = "https://audio.kinly.download/beta/two.mp3?v=1";
+    const { rawStories, warnings } = sanitizeWorldData(input);
+    expect(rawStories[0].data.audioUrl).toBeUndefined();
+    expect(rawStories[1].data.audioUrl).toBe("https://audio.kinly.download/beta/two.mp3?v=1");
+    expect(warnings.map(formatWarning)).toContain(
+      "alpha: stories/one.md: audioUrl ignored: must be an absolute https URL on https://audio.kinly.download",
+    );
+    expect(warnings.filter((w) => w.file === "stories/b/two.md").map((w) => w.message).join()).not.toContain("audioUrl");
+  });
+
   it("does not mutate its input", () => {
     const input = base();
     sanitizeWorldData(input);

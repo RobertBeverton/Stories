@@ -23,6 +23,7 @@ import { PALETTE, PALETTE_NAMES, paletteByName } from "./accent-colors.mjs";
 import { ICON_NAMES, isValidIcon } from "./icons.mjs";
 import { checkDuplicateSlugs } from "./validate-content.mjs";
 import { checkLibrary } from "./schema/validate.mjs";
+import { AUDIO_ORIGIN, isAudioUrl } from "./audio-origin.mjs";
 
 // ---------------------------------------------------------------------------
 // Small helpers
@@ -292,6 +293,11 @@ export function sanitizeWorldData({ rawStories, manifest, worldNames, loreFiles 
     if (parts) s.data.parts = parts;
     else delete s.data.parts;
     if (problems.length) warn(`parts dropped: ${problems.join("; ")}`);
+
+    if (s.data.audioUrl !== undefined && !isAudioUrl(s.data.audioUrl)) {
+      warn(`audioUrl ignored: must be an absolute https URL on ${AUDIO_ORIGIN}`);
+      delete s.data.audioUrl;
+    }
 
     if (s.data.lore !== undefined) {
       const wanted = s.data.lore;

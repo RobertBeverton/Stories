@@ -26,10 +26,10 @@ export function seed(records) {
   }
 }
 
-/** Makes fetch return the fixture library for `<base>/library.json`. */
+/** Makes fetch return the fixture library for `<base>/library.json` (with or without the `?v=<build id>` the page adds). */
 export function stubLibraryFetch(data = library) {
   const fetchMock = vi.fn(async (url) => {
-    if (String(url) !== "/Stories/library.json") return { ok: false, status: 404, json: async () => ({}) };
+    if (String(url).split("?")[0] !== "/Stories/library.json") return { ok: false, status: 404, json: async () => ({}) };
     return { ok: true, status: 200, json: async () => structuredClone(data) };
   });
   vi.stubGlobal("fetch", fetchMock);

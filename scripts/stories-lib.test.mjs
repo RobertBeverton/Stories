@@ -91,3 +91,38 @@ describe("groupForLibrary", () => {
     expect(groups[0].characters).toEqual(["Nib"]);
   });
 });
+
+describe("computeStories front matter audioUrl", () => {
+  const R2 = "https://audio.kinly.download/isles-of-yum/tale.mp3?v=3f9a2c1e";
+  const story = (data) => [{ file: "stories/tale.md", data: { title: "T", publishDate: "2026-01-01", ...data }, content: "text" }];
+
+  it("uses a valid audio-origin URL instead of the local file", () => {
+    expect(computeStories(story({ audioUrl: R2 }))[0].audioUrl).toBe(R2);
+  });
+
+  it("wins even when no local file exists and audio is opted out", () => {
+    expect(computeStories(story({ audioUrl: R2, audio: false }), () => false)[0].audioUrl).toBe(R2);
+  });
+
+  it("ignores http and foreign origins, keeping the local file", () => {
+    for (const audioUrl of [
+      "http://audio.kinly.download/tale.mp3",
+      "https://evil.example/tale.mp3",
+      "https://audio.kinly.download.evil.example/tale.mp3",
+      "//audio.kinly.download/tale.mp3",
+      "/Stories/stories/other.mp3",
+      42,
+    ]) {
+      expect(computeStories(story({ audioUrl }))[0].audioUrl).toBe("/Stories/stories/tale.mp3");
+    }
+  });
+
+  it("is unchanged without front matter audioUrl", () => {
+    expect(computeStories(story({}))[0].audioUrl).toBe("/Stories/stories/tale.mp3");
+    expect(computeStories(story({}), () => false)[0].audioUrl).toBeNull();
+  });
+
+  it("leaves audioMinutes to audioDuration", () => {
+    expect(computeStories(story({ audioUrl: R2, audioDuration: 600 }))[0].audioMinutes).toBe(10);
+  });
+});

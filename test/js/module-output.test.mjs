@@ -129,6 +129,13 @@ describe("world accent", () => {
     await vi.waitFor(() => expect(style().getPropertyValue("--accent")).toBe(paletteByName("sky").background));
   });
 
+  it("ignores and clears a remembered world that no longer exists", async () => {
+    localStorage.setItem("stories-world", "deleted-world");
+    unmounts.push(startWorldAccent());
+    await vi.waitFor(() => expect(localStorage.getItem("stories-world")).toBeNull());
+    expect(style().getPropertyValue("--accent")).toBe("");
+  });
+
   it("uses only palette names for the fixture worlds", () => {
     for (const world of library.worlds) expect(PALETTE.map((p) => p.name)).toContain(world.accent);
   });

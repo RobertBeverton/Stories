@@ -9,7 +9,7 @@ import { loadLibrary } from "./library.mjs";
 import { readAll, toViewModel } from "./progress.mjs";
 import { isNew, matchesFilters, UNDER_MINUTES } from "./selectors.mjs";
 import { setHiddenReason, storyRows, updateNoResults } from "./visibility.mjs";
-import { getWorld } from "./world-state.mjs";
+import { getWorld, knownWorld } from "./world-state.mjs";
 
 const STATUSES = [
   ["in-progress", "In progress"],
@@ -84,7 +84,7 @@ export function mount(el) {
   loadLibrary().then((lib) => {
     if (disposed || !lib) return;
     library = lib;
-    if (state.world && !lib.worlds.some((w) => w.name === state.world)) state.world = "";
+    state.world = knownWorld(state.world, lib.worlds); // a stale choice becomes All
     seriesSelect = h("select", { class: "filter-select", "aria-label": "Series", "data-role": "series" });
     seriesSelect.addEventListener("change", () => {
       state.series = seriesSelect.value;

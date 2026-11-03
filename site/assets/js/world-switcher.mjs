@@ -7,7 +7,7 @@ import { iconSvg } from "./cover.mjs";
 import { basePath, h } from "./dom.mjs";
 import { loadLibrary } from "./library.mjs";
 import { nav } from "./nav.mjs";
-import { getWorld, setWorld } from "./world-state.mjs";
+import { getWorld, knownWorld, setWorld } from "./world-state.mjs";
 
 export function mount(el) {
   let disposed = false;
@@ -54,7 +54,7 @@ export function mount(el) {
 
   loadLibrary().then((lib) => {
     if (disposed || !lib) return;
-    if (current && !lib.worlds.some((w) => w.name === current)) current = ""; // stale choice
+    current = knownWorld(current, lib.worlds); // a stale choice becomes All
     const group = h("div", {
       role: "group",
       "aria-label": "Choose a world",

@@ -8,7 +8,7 @@
 // follow the current world when that world has a section.
 import { basePath, h } from "./dom.mjs";
 import { loadLibrary } from "./library.mjs";
-import { getWorld } from "./world-state.mjs";
+import { getWorld, knownWorld } from "./world-state.mjs";
 
 export function mount(el) {
   let disposed = false;
@@ -57,6 +57,7 @@ export function mount(el) {
   loadLibrary().then((data) => {
     if (disposed || !data) return;
     lib = data;
+    world = knownWorld(world, lib.worlds); // a stale choice becomes All
     render();
   });
 

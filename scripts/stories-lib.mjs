@@ -5,6 +5,7 @@ import matter from "gray-matter";
 import { slugify } from "./slugify.mjs";
 import { accentColorFor } from "./accent-colors.mjs";
 import { isValidIcon } from "./icons.mjs";
+import { isAudioUrl } from "./audio-origin.mjs";
 
 // Parses one raw story file's frontmatter/content into the shape
 // computeStories() expects: { file, data, content }.
@@ -113,9 +114,14 @@ export function computeStories(rawStories, audioFileExists = alwaysExists) {
       accentColor: accentColorFor(data.series),
       slug,
       url: `${PATH_PREFIX}/stories/${seriesSlug}${basename}/`,
-      audioUrl: audioFile
-        ? `${PATH_PREFIX}/stories/${diskDir ? diskDir + "/" : ""}${audioFile}`
-        : null,
+      // A front matter `audioUrl` on the audio origin (docs/audio-hosting.md)
+      // wins; anything else is ignored (world-data reports it) and the local
+      // file is used as before.
+      audioUrl: isAudioUrl(data.audioUrl)
+        ? data.audioUrl.trim()
+        : audioFile
+          ? `${PATH_PREFIX}/stories/${diskDir ? diskDir + "/" : ""}${audioFile}`
+          : null,
       readMinutes,
       audioMinutes: data.audioDuration ? Math.round(data.audioDuration / 60) : null,
     };

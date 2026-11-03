@@ -6,7 +6,7 @@ import { loadLibrary, resetLibrary } from "../../site/assets/js/library.mjs";
 import { markCompleted, write } from "../../site/assets/js/progress.mjs";
 import { mount as mountSearch } from "../../site/assets/js/search.mjs";
 import { mount as mountSwitcher } from "../../site/assets/js/world-switcher.mjs";
-import { getWorld } from "../../site/assets/js/world-state.mjs";
+import { getWorld, knownWorld } from "../../site/assets/js/world-state.mjs";
 import { library, libraryPageHtml, loadPage, stubLibraryFetch, useFixedNow } from "./helpers.mjs";
 
 const SLUGS = library.stories.map((s) => s.slug);
@@ -310,5 +310,47 @@ describe("world-switcher", () => {
     document.addEventListener("stories:world", (e) => seen.push(e.detail.world));
     button("test-world").click();
     expect(seen).toEqual(["test-world"]);
+  });
+});
+
+describe("library.json request", () => {
+  it("carries the page's build id so page and index come from the same build", async () => {
+    document.head.insertAdjacentHTML("beforeend", '<meta name="build-id" content="12345">');
+    const fetchMock = stubLibraryFetch();
+    expect(await loadLibrary()).not.toBeNull();
+    expect(fetchMock).toHaveBeenCalledWith("/Stories/library.json?v=12345");
+    document.head.querySelector('meta[name="build-id"]').remove();
+  });
+
+  it("asks for the bare URL when the page has no build id", async () => {
+    const fetchMock = stubLibraryFetch();
+    await loadLibrary();
+    expect(fetchMock).toHaveBeenCalledWith("/Stories/library.json");
+  });
+});
+
+describe("a remembered world that no longer exists", () => {
+  it("is cleared and treated as All by filters", async () => {
+    localStorage.setItem("stories-world", "deleted-world");
+    mountOn({ mount: mountFilters }, '[data-mount="filters"]');
+    await vi.waitFor(() => expect(document.querySelector('[data-role="filters"]')).not.toBeNull());
+    expect(visible()).toEqual(SLUGS);
+    expect(localStorage.getItem("stories-world")).toBeNull();
+  });
+
+  it("is cleared by world-switcher, which then shows All pressed", async () => {
+    localStorage.setItem("stories-world", "deleted-world");
+    mountOn({ mount: mountSwitcher }, '[data-mount="world-switcher"]');
+    await vi.waitFor(() => expect(document.querySelectorAll("button[data-world]").length).toBe(3));
+    expect(document.querySelector('button[data-world=""]').getAttribute("aria-pressed")).toBe("true");
+    expect(localStorage.getItem("stories-world")).toBeNull();
+  });
+
+  it("leaves a different value alone when it is not the stored one", () => {
+    localStorage.setItem("stories-world", "test-world");
+    expect(knownWorld("deleted-world", library.worlds)).toBe("");
+    expect(localStorage.getItem("stories-world")).toBe("test-world");
+    expect(knownWorld("test-world", library.worlds)).toBe("test-world");
+    expect(knownWorld("", library.worlds)).toBe("");
   });
 });

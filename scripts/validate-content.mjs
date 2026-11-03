@@ -5,6 +5,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseFile } from "music-metadata";
 import { isValidIcon, ICON_NAMES } from "./icons.mjs";
+import { isAudioUrl } from "./audio-origin.mjs";
 
 export function checkRequiredFields(stories) {
   const required = ["title", "description", "publishDate"];
@@ -62,6 +63,7 @@ export function checkAudioFilesExistOrWarn(stories, exists) {
   for (const story of stories) {
     const audioFile = resolveAudioFile(story);
     if (!audioFile) continue;
+    if (isAudioUrl(story.data.audioUrl)) continue; // narration is hosted, no local file expected
     const audioPath = path.join(path.dirname(story.file), audioFile);
     if (!exists(audioPath)) {
       const explicit = Boolean(story.data.audio);

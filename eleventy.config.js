@@ -8,6 +8,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("stories/**/*.mp3");
   eleventyConfig.addPassthroughCopy("site/assets");
   eleventyConfig.addPassthroughCopy("site/manifest.webmanifest");
+  eleventyConfig.addPassthroughCopy("site/robots.txt");
   // site/assets (incl. assets/js and assets/css) is copied wholesale above.
   // library.json is emitted by site/library.json.11ty.js, a template.
 

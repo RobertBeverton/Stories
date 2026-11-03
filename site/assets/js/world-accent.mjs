@@ -4,7 +4,7 @@
 // default from tokens.css.
 import { paletteByName } from "./accent-colors.mjs";
 import { loadLibrary } from "./library.mjs";
-import { getWorld } from "./world-state.mjs";
+import { getWorld, knownWorld } from "./world-state.mjs";
 
 export function applyAccent(entry) {
   const style = document.documentElement.style;
@@ -36,7 +36,10 @@ export function startWorldAccent() {
   document.addEventListener("stories:world", onWorld);
   function load() {
     return loadLibrary().then((lib) => {
-      if (lib) worlds = lib.worlds;
+      if (lib) {
+        worlds = lib.worlds;
+        current = knownWorld(current, worlds); // a stale choice becomes All
+      }
       sync();
     });
   }
