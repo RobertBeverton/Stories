@@ -12,14 +12,18 @@
 // >=7.3:1 for every entry — comfortably over the 4.5:1 floor — in
 // scripts/check-band-contrast.mjs-style checks; do not swap this back to a
 // scheme-dependent color.
+//
+// Each entry has a stable `name`. World config (`content-sources.json`) refers
+// to an accent by that name, never by hex, so contrast stays guaranteed. Do
+// not rename an entry: it would break every world that points at it.
 export const PALETTE = [
-  { background: "#babec4", text: "#2c2a26" }, // neutral pastel slate (default)
-  { background: "#a5c695", text: "#2c2a26" }, // pastel sage green
-  { background: "#c4b3db", text: "#2c2a26" }, // pastel lavender
-  { background: "#d7b975", text: "#2c2a26" }, // pastel butter yellow
-  { background: "#97c2d8", text: "#2c2a26" }, // pastel sky blue
-  { background: "#e0aebe", text: "#2c2a26" }, // pastel raspberry
-  { background: "#eab09e", text: "#2c2a26" }, // pastel coral/peach
+  { name: "neutral", background: "#babec4", text: "#2c2a26" }, // neutral pastel slate (default)
+  { name: "sage", background: "#a5c695", text: "#2c2a26" }, // pastel sage green
+  { name: "lavender", background: "#c4b3db", text: "#2c2a26" }, // pastel lavender
+  { name: "butter", background: "#d7b975", text: "#2c2a26" }, // pastel butter yellow
+  { name: "sky", background: "#97c2d8", text: "#2c2a26" }, // pastel sky blue
+  { name: "raspberry", background: "#e0aebe", text: "#2c2a26" }, // pastel raspberry
+  { name: "coral", background: "#eab09e", text: "#2c2a26" }, // pastel coral/peach
 ];
 
 function hashString(str) {
@@ -34,4 +38,12 @@ export function accentColorFor(seriesName) {
   if (!seriesName) return PALETTE[0];
   const index = 1 + (hashString(seriesName) % (PALETTE.length - 1));
   return PALETTE[index];
+}
+
+export const PALETTE_NAMES = PALETTE.map((entry) => entry.name);
+
+// Looks an accent up by its palette name. Returns undefined for an unknown
+// name (callers decide whether that is a build failure).
+export function paletteByName(name) {
+  return PALETTE.find((entry) => entry.name === name);
 }
