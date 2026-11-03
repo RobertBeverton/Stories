@@ -1,0 +1,21 @@
+name: Smoke test
+
+# PLACEHOLDER. WP-D (the shell work package, wave 2) fills this in with the
+# Playwright smoke test: build, load a story, start the silent mp3 fixture,
+# navigate, and assert the same <audio> element survives.
+#
+# Until then it is manual only (workflow_dispatch). It deliberately has no
+# pull_request or push trigger, so it can never fail a build or block a merge.
+# WP-D decides the real triggers when it adds real steps.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "Smoke test placeholder. WP-D fills this in."
