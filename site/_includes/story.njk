@@ -1,0 +1,49 @@
+---
+layout: base.njk
+---
+<div class="story-header" data-accent-bg="{{ accentColor.background }}" style="--accent-bg: {{ accentColor.background }}; --accent-text: {{ accentColor.text }};">
+  <nav class="breadcrumb">
+    <a href="{{ '/' | url }}">← Library</a>
+    {% if series %} · {{ series }}{% endif %}
+  </nav>
+
+  <h1>{{ title }}</h1>
+  {% if description %}<p class="story-description">{{ description }}</p>{% endif %}
+  {% if keyIslands.length > 0 or characters.length > 0 %}
+  <div class="lozenges">
+    {% for character in characters %}
+    <span class="lozenge">{{ character }}</span>
+    {% endfor %}
+    {% for island in keyIslands %}
+    <span class="lozenge">{{ island }}</span>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <p class="card-meta">~{{ readMinutes }} min read{% if audioMinutes %} · ~{{ audioMinutes }} min listen{% endif %}</p>
+</div>
+
+{% if audioUrl %}
+<div class="audio-card" style="--accent-bg: {{ accentColor.background }};">
+  <p class="audio-card-label">🎧 Listen to this story</p>
+  <audio controls preload="none" id="story-audio" src="{{ audioUrl }}"
+    data-artwork-url="{{ '/assets/generated/icons/' | url }}{{ icon }}-{{ accentColor.background | replace('#', '') }}-512.png"
+    data-prev-url="{{ prevStory.url if prevStory else '' }}"
+    data-next-url="{{ nextStory.url if nextStory else '' }}"
+  ></audio>
+  <p id="autoplay-fallback" class="autoplay-fallback" hidden>▶︎ Tap play above to start listening</p>
+</div>
+<p id="resume-banner" class="resume-banner" style="--accent-bg: {{ accentColor.background }};" hidden></p>
+{% endif %}
+
+<article class="story-body">
+  {{ content | safe }}
+</article>
+
+<nav class="series-nav">
+  {% if prevStory %}<a href="{{ prevStory.url }}">← {{ prevStory.title }}</a>{% endif %}
+  {% if nextStory %}<a href="{{ nextStory.url }}">Next: {{ nextStory.title }} →</a>{% endif %}
+</nav>
+
+<script src="{{ '/assets/resume.js' | url }}" data-slug="{{ slug }}"></script>
+<script src="{{ '/assets/mini-player.js' | url }}" type="module"></script>
+<script src="{{ '/assets/play-button.js' | url }}"></script>

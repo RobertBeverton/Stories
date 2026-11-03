@@ -1,0 +1,32 @@
+---
+layout: base.njk
+title: Library
+---
+<section class="hero">
+  <h1 class="display">Isles of Yum <span class="accent">— the hungriest adventures.</span></h1>
+</section>
+
+<input type="search" id="search-box" placeholder="Search Isles of Yum..." aria-label="Search stories">
+
+<section id="continue-section" aria-labelledby="continue-heading" hidden>
+  <h2 id="continue-heading" class="visually-hidden">Continue</h2>
+  <div id="continue-row"></div>
+</section>
+
+<div id="stories">
+{% if stories.groups.length > 0 %}
+<section aria-labelledby="arcs-heading">
+  <h2 id="arcs-heading" class="visually-hidden">Stories</h2>
+  <div class="rail-group-list">
+    {% for group in stories.groups %}
+      {% include "arc-group.njk" %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+</div>
+
+<script src="{{ '/assets/search.js' | url }}"></script>
+<script src="{{ '/assets/mini-player.js' | url }}" type="module"></script>
+<script src="{{ '/assets/library.js' | url }}"></script>
+<script src="{{ '/assets/play-button.js' | url }}"></script>
