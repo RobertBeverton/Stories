@@ -1,7 +1,11 @@
 // data-mount="search" on an <input type="search"> (or a container holding one).
 // Hides library rows (`[data-role="story-row"][data-slug]`) that do not match
-// the words typed, using titles, series and tags from library.json.
+// the words typed, using titles, series and tags from library.json. The typed
+// text is remembered for the tab (so Back finds it) and announced with
+// `stories:search` {query} on document; the filters module uses it to switch
+// the Library between the grouped view and a flat list of results.
 import { loadLibrary } from "./library.mjs";
+import { readQuery, writeQuery } from "./library-state.mjs";
 import { matchesQuery } from "./selectors.mjs";
 import { setHiddenReason, storyRows, updateNoResults } from "./visibility.mjs";
 
@@ -10,6 +14,7 @@ export function mount(el) {
   if (!input) return () => {};
   let library = null;
   let disposed = false;
+  if (!input.value) input.value = readQuery();
 
   function apply() {
     if (!library) return;
@@ -21,8 +26,14 @@ export function mount(el) {
     updateNoResults();
   }
 
-  input.addEventListener("input", apply);
-  input.addEventListener("search", apply); // the clear button on type=search
+  function onInput() {
+    writeQuery(input.value.trim() ? input.value : "");
+    apply();
+    document.dispatchEvent(new CustomEvent("stories:search", { detail: { query: input.value } }));
+  }
+
+  input.addEventListener("input", onInput);
+  input.addEventListener("search", onInput); // the clear button on type=search
   loadLibrary().then((lib) => {
     if (disposed) return;
     library = lib;
@@ -31,8 +42,8 @@ export function mount(el) {
 
   return () => {
     disposed = true;
-    input.removeEventListener("input", apply);
-    input.removeEventListener("search", apply);
+    input.removeEventListener("input", onInput);
+    input.removeEventListener("search", onInput);
     for (const row of storyRows()) setHiddenReason(row, "search", false);
     updateNoResults();
   };

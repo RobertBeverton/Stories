@@ -18,6 +18,10 @@ export const FIXTURE_STORIES = [
   // Tale Two has parts (headings in the body, `parts` in front matter) so the e2e can check the part list.
   { file: "e2e-series/tale-two.md", title: "Tale Two of the Smoke Test", series: "E2E Series", order: 2, audio: true, date: "2026-10-02", parts: [{ title: "Part One. Arrival", start: 0 }, { title: "Part Two. Departure", start: 10 }] },
   { file: "quiet-tale.md", title: "A Quiet Tale Without Audio", series: null, order: null, audio: false, date: "2026-09-01" },
+  // A long series, for the Library's grouping and paging (library.e2e.mjs). No audio.
+  ...Array.from({ length: 12 }, (_, i) => ({
+    file: `saga/saga-${i + 1}.md`, title: `Saga Tale ${i + 1} of the Library Test`, series: "E2E Saga", order: i + 1, audio: false, date: `2026-08-${String(i + 1).padStart(2, "0")}`,
+  })),
 ];
 
 export const slugOf = (file) => file.replace(/\.md$/, "");

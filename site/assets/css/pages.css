@@ -70,7 +70,7 @@ section:has(> .lately-root:empty) { display: none; }
 .world-tile:not([data-world]) { grid-template-columns: minmax(0, 1fr) auto; min-height: var(--tap-lg); font-weight: 700; }
 .world-tile:not([data-world])::after { grid-column: 2; }
 
-/* ---------- Library ---------- */
+/* ===== Library (grouped browse): start ===== */
 .page-head { padding: 1.25rem 0 0.75rem; }
 .page-head .page-title { padding: 0.35rem 0 0; }
 .page-title { padding: 1.25rem 0 0.75rem; font-size: 1.75rem; }
@@ -85,23 +85,75 @@ section:has(> .lately-root:empty) { display: none; }
 }
 .search-box::placeholder { color: var(--muted); opacity: 1; }
 
-.world-filter { margin: 0 0 0.75rem; }
-.world-filter:empty { display: none; }
-.world-chips, .filter-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.world-chips .btn, .filter-chips .btn { background: transparent; color: var(--muted); padding: 0 1rem; font-size: 0.9375rem; }
-.world-chips .btn[aria-pressed="true"], .filter-chips .btn[aria-pressed="true"] { color: var(--text); }
-.filters { margin: 0.75rem 0 0.5rem; }
-.filters:empty { display: none; }
+/* Chip rows scroll sideways instead of wrapping. They run to the screen edge so a
+   half-visible chip shows there is more. The world switcher and the filters module
+   each fill one row; the world switcher's group and the chip rows are the scrollers. */
+.chip-bleed { --bleed: var(--gutter); }
+.world-filter, .filters { margin: 0.75rem calc(var(--bleed, var(--gutter)) * -1) 0; }
+.filters { display: grid; gap: 0.5rem; }
+.world-filter:empty, .filters:empty { display: none; }
+.world-chips, .chip-row {
+  display: flex; flex-wrap: nowrap; gap: 0.5rem; overflow-x: auto; overscroll-behavior-x: contain;
+  position: relative; padding: 0 var(--bleed, var(--gutter)) 2px; scroll-padding: 0 var(--bleed, var(--gutter));
+  scrollbar-width: none;
+}
+.world-chips::-webkit-scrollbar, .chip-row::-webkit-scrollbar { display: none; }
+.world-chips .btn, .chip-row .btn { flex: none; background: transparent; color: var(--muted); padding: 0 1rem; font-size: 1rem; white-space: nowrap; }
+.world-chips .btn[aria-pressed="true"], .chip-row .btn[aria-pressed="true"] { color: var(--text); }
+
+.library-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.25rem 0.5rem; margin: 0.5rem 0 0.25rem; min-height: var(--tap); }
+.library-status { margin: 0; color: var(--muted); font-size: var(--text-small); font-weight: 600; }
+.library-tools { display: flex; align-items: center; gap: 0.5rem; min-width: 0; margin-left: auto; }
+.btn-quiet { background: transparent; border-color: transparent; color: var(--accent); padding: 0 0.75rem; }
 .filter-select {
   min-height: var(--tap); padding: 0 1rem; max-width: 100%;
   background: var(--raised); color: var(--text);
-  border: 1px solid var(--line); border-radius: var(--radius-pill);
-  font: inherit; font-size: 0.9375rem; font-weight: 600;
+  border: 1px solid var(--line-soft); border-radius: var(--radius-pill);
+  font: inherit; font-size: 1rem; font-weight: 600;
 }
-
-.library-status { color: var(--muted); font-size: var(--text-small); min-height: 1.5rem; margin: 0.5rem 0; }
+.library-tools .filter-select { min-width: 0; max-width: 9rem; padding: 0 0.6rem 0 0.9rem; font-size: 0.9375rem; text-overflow: ellipsis; }
+.filter-select[data-active="true"] { background: color-mix(in srgb, var(--accent) 20%, var(--surface)); border-color: var(--accent); }
 .empty { padding: 2rem 0; text-align: center; color: var(--muted); }
 
+/* Series cards: a tappable header (name, count, heard), a next-up link, then the ordered list */
+.series-list { display: grid; gap: 0.75rem; margin-top: 0.5rem; }
+.series-group {
+  background: linear-gradient(135deg, var(--surface), var(--raised));
+  border: 1px solid var(--line-soft); border-radius: var(--radius); overflow: hidden;
+}
+.series-head { margin: 0; font-family: inherit; }
+.series-toggle {
+  display: grid; grid-template-columns: 3.5rem minmax(0, 1fr) 1.25rem; gap: 0 0.9rem; align-items: center;
+  width: 100%; min-height: 5rem; padding: 0.75rem 1rem;
+  background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.series-toggle::after {
+  content: ""; width: 0.6rem; height: 0.6rem; margin-right: 0.2rem;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg); transition: transform 0.15s;
+}
+.series-toggle[aria-expanded="true"]::after { transform: rotate(-135deg); }
+.series-cover { width: 3.5rem; height: 3.5rem; border-radius: 14px; }
+.series-text { display: block; min-width: 0; }
+.series-eyebrow { display: block; color: var(--muted); font-family: var(--font-body); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+.series-name { display: block; font-family: var(--font-display); font-size: 1.3125rem; font-weight: 500; line-height: 1.2; overflow-wrap: anywhere; }
+.series-summary { display: block; margin-top: 0.1rem; color: var(--muted); font-family: var(--font-body); font-size: var(--text-small); }
+.series-bar { height: 4px; margin-top: 0.5rem; }
+.series-next-slot:empty { display: none; }
+.series-next {
+  display: block; min-height: var(--tap); padding: 0.6rem 1rem; box-sizing: border-box;
+  border-top: 1px solid var(--line-soft);
+  font-size: 1rem; line-height: 1.3; text-decoration: none;
+}
+.series-next-label { color: var(--muted); font-weight: 600; }
+.series-next-title { color: var(--accent); font-weight: 700; overflow-wrap: anywhere; }
+.series-body { padding: 0 1rem 0.5rem; border-top: 1px solid var(--line-soft); }
+.series-body .row:last-child { border-bottom: 0; }
+.show-more { width: 100%; margin: 0.5rem 0 0.25rem; color: var(--accent); background: transparent; }
+.library-view > .show-more { width: auto; margin: 0.75rem auto 0; display: flex; }
+.flat-results .show-more { margin-top: 0.75rem; }
+
+/* Rows. Inside a series the series name is redundant; the story number takes its place. */
 .rows { list-style: none; margin: 0; padding: 0; }
 .row {
   display: grid; grid-template-columns: 3.5rem minmax(0, 1fr) auto; gap: 0 0.9rem; align-items: center;
@@ -116,6 +168,9 @@ section:has(> .lately-root:empty) { display: none; }
 }
 .row-title:hover { text-decoration: underline; }
 .row-meta { margin: 0; color: var(--muted); font-size: var(--text-small); }
+.row-order { display: none; }
+.series-body .row-series { display: none; }
+.series-body .row-order { display: inline; }
 /* The New marker is emitted hidden-by-CSS; the filters module sets
    data-new="true" on the row when the story is new and unplayed. */
 .row .badge-new { display: none; margin-left: 0.5rem; }
@@ -133,6 +188,8 @@ section:has(> .lately-root:empty) { display: none; }
 .row [data-mount="play-button"][data-state="in-progress"], .row [data-mount="play-button"][data-state="finished"] { padding: 0 1rem 0 0.85rem; }
 .row [data-mount="play-button"][data-state="in-progress"] .play-label, .row [data-mount="play-button"][data-state="finished"] .play-label { display: inline; }
 .row [data-mount="play-button"][data-state="finished"] { background: transparent; color: var(--accent); }
+@media (min-width: 720px) { .chip-bleed { --bleed: 1.5rem; } } /* main's side padding widens here */
+/* ===== Library (grouped browse): end ===== */
 
 /* ---------- Story ---------- */
 .story-hero {

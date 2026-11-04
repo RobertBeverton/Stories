@@ -41,7 +41,9 @@ Library page extras: `ul#stories.rows` of `li.row` carrying `data-slug`,
 `data-published` (YYYY-MM-DD) and `data-duration` (seconds, may be empty);
 `p#library-status[role=status]` for result counts; `p#no-results[hidden]` for the
 empty state. A row shows its `.badge-new` only when the filters module sets
-`data-new="true"` on the row.
+`data-new="true"` on the row. The grouped Library (`.library-view`, `.series-group`, `.series-toggle`,
+`.series-next`, `.chip-row`, `.library-bar`, `.show-more`) lives in one delimited block in `pages.css`
+("Library (grouped browse)"). Chip rows scroll sideways (`.chip-bleed` runs them to the screen edge).
 
 ## Player sheet (player.css)
 

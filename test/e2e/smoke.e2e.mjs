@@ -33,6 +33,12 @@ function silentWav(seconds) {
 }
 const WAV = silentWav(30);
 
+/** The Library groups stories into collapsed series cards: open the E2E series (a no-op if it is open already). */
+async function openSeries(page) {
+  const toggle = page.getByRole("button", { name: /E2E Series/ });
+  if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
+}
+
 let violations;
 
 test.beforeEach(async ({ page, context }) => {
@@ -98,6 +104,7 @@ test("the router keeps the same <audio> element, and playback keeps advancing, a
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Library" }).click();
   await expect(page).toHaveURL(LIBRARY);
   await expect(page.getByRole("heading", { level: 1 })).toBeFocused(); // focus moves to the new heading
+  await openSeries(page);
   await page.getByRole("link", { name: ONE.title }).click();
   await expect(page).toHaveURL(ONE_URL);
   await expect(page.getByRole("heading", { level: 1, name: ONE.title })).toBeVisible();
@@ -121,7 +128,7 @@ test("the router keeps the same <audio> element, and playback keeps advancing, a
   await expect.poll(async () => (await audioState(page)).time).toBeGreaterThan(afterLibrary.time + 0.5);
 
   // Open the OTHER story's page: the dock keeps playing the first one.
-  await page.getByRole("link", { name: TWO.title }).click();
+  await page.getByRole("link", { name: TWO.title }).click(); // the Library came back with the series still open
   await expect(page).toHaveURL(TWO_URL);
   const onOtherPage = await audioState(page);
   expect(onOtherPage.paused).toBe(false);
@@ -206,7 +213,8 @@ test("a story page opened while another story plays: its Play, part list and Sta
 
   // Open the other story through the router while the first plays.
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Library" }).click();
-  await page.getByRole("link", { name: TWO.title }).click();
+  await openSeries(page);
+  await page.getByRole("link", { name: TWO.title, exact: true }).click();
   await expect(page).toHaveURL(TWO_URL);
   expect((await audioState(page)).slug).toBe(SLUG_ONE);
   const parts = page.locator('[data-role="parts-list"] [data-role="part"]');

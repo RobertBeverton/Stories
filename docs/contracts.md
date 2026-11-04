@@ -43,8 +43,16 @@ Per-element data uses `data-slug` (the flat slug).
 
 ## 4. Events
 
-On `document`: `stories:play` `{slug}`, `stories:progress` `{slug}`, `stories:world` `{world}`
-(`CustomEvent`, payload in `detail`).
+On `document`: `stories:play` `{slug}`, `stories:progress` `{slug}`, `stories:world` `{world}`,
+`stories:search` `{query}` (the Library search box changed; `CustomEvent`, payload in `detail`).
+
+Library state kept in storage (guarded, optional): `localStorage["stories-library-sort"]`
+(`order` | `newest`), `sessionStorage["stories-library-view"]` and `["stories-library-query"]`
+(chips, open series, revealed pages, typed search; per tab).
+
+The Library groups stories with no new `library.json` field: series come from `series` and
+`seriesOrder`; the second level (traditions) comes from `lore[].tradition` through
+`lore[].stories`, and the Tradition select simply does not appear for a world without lore.
 
 ## 5. Front matter additions
 
