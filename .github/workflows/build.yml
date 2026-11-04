@@ -4,10 +4,18 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Nightly backstop so a story change in a world repo is never missed for long.
+  # Cron is UTC and runs on the default branch only. Off the hour on purpose,
+  # because GitHub delays or drops runs queued at the top of the hour. GitHub
+  # also disables schedules after 60 days without repo activity: see
+  # docs/world-repo-dispatch.md.
+  schedule:
+    - cron: "17 3 * * *"
   # Rebuild by hand from the Actions tab, e.g. after a story repo changes.
   workflow_dispatch:
-  # Lets a content repo trigger a rebuild (needs a token with access to this
-  # repo, sent as event_type "content-updated"). Not wired up yet.
+  # Kept for compatibility. The recommended world-repo trigger is
+  # workflow_dispatch (docs/world-repo-dispatch.md), which needs no event type.
+  # A caller using this one sends event_type "content-updated".
   repository_dispatch:
     types: [content-updated]
 
@@ -27,7 +35,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run build
@@ -36,9 +44,35 @@ jobs:
         with:
           path: _site
 
+  # The unit tests and the real-browser smoke test (test/e2e: builds a fixture
+  # site from invented stories, so it needs no world repos). This is the one place
+  # they run; the deploy below waits for it, so a regression cannot reach Pages.
+  # No retries: a test that needs a second try is a flaky test to fix.
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx vitest run
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
   deploy:
     if: github.ref == 'refs/heads/main'
-    needs: build
+    needs: [build, verify]
     runs-on: ubuntu-latest
     environment:
       name: github-pages

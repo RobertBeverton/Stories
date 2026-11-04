@@ -1,6 +1,10 @@
 [
   {
     "name": "isles-of-yum",
+    "title": "Isles of Yum",
+    "tagline": "Stories from the isles",
+    "accent": "sky",
+    "icon": "boat",
     "repo": "https://github.com/RobertBeverton/isles-of-yum.git",
     "ref": "main",
     "storiesPath": "stories",
@@ -8,9 +12,25 @@
   },
   {
     "name": "bramble-wall",
+    "title": "Bramble Wall",
+    "tagline": "Stories from the wall",
+    "accent": "sage",
+    "icon": "berry",
     "repo": "https://github.com/RobertBeverton/bramble-wall.git",
     "ref": "main",
     "storiesPath": "stories",
     "localPath": "../bramble-wall"
+  },
+  {
+    "name": "legend-lane",
+    "title": "Legend Lane",
+    "tagline": "Stories from the lane",
+    "accent": "butter",
+    "icon": "sun",
+    "repo": "https://github.com/RobertBeverton/Stories_Gods.git",
+    "ref": "main",
+    "storiesPath": "stories",
+    "localPath": "../Gods-PrimarySchool",
+    "lorePath": "lore"
   }
 ]

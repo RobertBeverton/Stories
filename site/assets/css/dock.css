@@ -1,0 +1,73 @@
+/* One fixed container at the bottom: an optional mini-player row above a
+   two-item nav. About 112px plus the safe area at most. Frosted, like the
+   Hearth design's bottom bar. */
+.dock {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  border-top: 1px solid var(--line-soft);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+/* The frosted backdrop lives on a pseudo-element: backdrop-filter on .dock itself
+   would make it the containing block of the fixed player sheet inside it. */
+.dock::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+}
+/* Filled by the dock module while a story is loaded */
+.dock-mini {
+  display: flex; align-items: center; gap: 0.75rem;
+  min-height: var(--dock-mini-h);
+  margin: 0.4rem 0.6rem 0; padding: 0 0.4rem 0 1rem;
+  background: linear-gradient(135deg, var(--surface), var(--raised));
+  border: 1px solid var(--line-soft); border-radius: var(--radius-pill);
+}
+.dock-mini:empty { display: none; }
+.dock-mini-title {
+  flex: 1 1 auto; min-width: 0; font-weight: 650;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dock-nav {
+  display: flex; margin: 0 auto; padding: 0; list-style: none;
+  max-width: var(--page-max);
+}
+.dock-nav li { flex: 1 1 0; display: flex; justify-content: center; }
+.dock-link {
+  display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: calc(var(--dock-nav-h) - 1rem); min-width: var(--tap); margin: 0.5rem 0;
+  padding: 0 1.25rem; border-radius: var(--radius-pill);
+  color: var(--muted); text-decoration: none;
+  font-size: 0.9375rem; font-weight: 600;
+}
+.dock-link svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.dock-link[aria-current="page"] { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+
+/* Landscape and 200% zoom: never cover content */
+@media (max-height: 480px) {
+  .dock { position: static; }
+  main, body.has-mini-player main { padding-bottom: 2rem; }
+}
+
+/* Mini-player row, built by dock.mjs. The title button opens the player sheet;
+   the toggle is a round accent button with a dark glyph. */
+.dock-mini-open {
+  flex: 1 1 auto; min-width: 0; min-height: var(--dock-mini-h);
+  display: flex; align-items: center; text-align: left;
+  padding: 0; border: 0; background: none; color: var(--text);
+  font: inherit; cursor: pointer;
+}
+.dock-mini .btn-icon { flex: none; border-radius: 50%; width: 48px; min-width: 48px; height: 48px; min-height: 48px; }
+.dock-mini .btn-icon svg { width: 1.5rem; height: 1.5rem; }
+
+/* Player sheet extras (the sheet itself is in player.css). A closed sheet is
+   `hidden`; the page behind an open one is `inert`. */
+.player-sheet h3 { margin: 0 0 0.5rem; }
+.player-sheet .icon-label { fill: currentColor; stroke: none; font-family: var(--font-body); }
+.player-controls svg, .player-play svg { fill: currentColor; stroke: none; }
+.player-controls .btn svg { width: 1.9rem; height: 1.9rem; }
+.player-play svg { width: 2.4rem; height: 2.4rem; }
+.player-story-link { align-self: center; }
+.player-sleep-wrap { text-align: center; }
+.player-sleep { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+.player-sleep-status { margin: 0.5rem 0 0; color: var(--muted); font-size: var(--text-small); min-height: 1.5em; }

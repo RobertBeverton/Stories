@@ -1,0 +1,28 @@
+---
+layout: base.njk
+title: Library
+permalink: /library/
+---
+<header class="page-head">
+  <p class="eyebrow">Explore the library</p>
+  <h1 class="page-title">Library</h1>
+</header>
+
+<div class="world-filter" data-mount="world-switcher" data-variant="filter"></div>
+<div class="lore-segment-root" data-mount="lore"></div>
+
+<label class="visually-hidden" for="search-box">Search stories</label>
+<input type="search" id="search-box" class="search-box" data-mount="search" placeholder="Search stories" autocomplete="off">
+
+<div class="filters" data-mount="filters" role="group" aria-label="Filter stories"></div>
+
+<p class="library-status" id="library-status" role="status" aria-live="polite" data-role="results-status"></p>
+
+{% if stories.length > 0 %}
+<ul id="stories" class="rows">
+  {% for story in stories %}
+    {% include "story-row.njk" %}
+  {% endfor %}
+</ul>
+{% endif %}
+<p class="empty" id="no-results" data-role="no-results" hidden>No stories match. Try a different word or clear a filter.</p>

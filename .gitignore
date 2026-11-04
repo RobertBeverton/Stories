@@ -8,3 +8,7 @@ inspiration_screens/
 stories/.narrate-cache/
 stories/
 .content/
+.claude/worktrees/
+lore/
+playwright-report/
+test-results/

@@ -177,3 +177,22 @@ Each step ships independently. Step 3 is a complete product.
 - Cross-repo work (narrator `parts` output, `lore/` entries, `lore:` slugs) belongs in the world repos, each under its own CLAUDE.md.
 - Decide whether the custom domain happens at all, and the subdomain name.
 - Parallel delivery is described in [2026-11-03-stories-app-redesign-implementation.md](2026-11-03-stories-app-redesign-implementation.md).
+
+## Implementation notes (added after wave 1 and the lore and parts work)
+
+What building it taught us. Decisions above are unchanged.
+
+- **Palette and icons are shared client and build code.** `accent-colors.mjs` and `icons.mjs` live in `site/assets/js/` with re-exports in `scripts/`, so the client draws covers and applies world accents from `library.json` names alone. No palette hex values are duplicated in CSS.
+- **`parts` titles are compared to the `## Part` headings with emphasis markers ignored**, because the narrator strips them when recording titles.
+- **A front matter `audioUrl` wins over a sibling mp3** when it is an https URL on the audio origin (`scripts/audio-origin.mjs`). Anything else is dropped with a warning.
+- **Modules are cache-busted by a build-generated import map**, with its sha256 in the CSP, because only `main.js` carried `?v=` before. `library.json` is fetched with the page's build id.
+- **A remembered world that no longer exists is treated as All** and cleared.
+- **Text size** persists through a small `text-size` module (`stories-text-size`), and the Library Lore segment is the `lore` hook. Both were added to the contract.
+- **Narrator finding (Stories_Gods):** `cleanForNarration` strips the `#` from headings before `parseScenes` runs, so the "split at headings" logic never fires and chunks split mid-part at sentence boundaries. Fixing it changes chunk text and invalidates the narration cache (it costs money), so it was left alone. Part timing does not depend on it.
+- **Re-narrating an existing story re-bills the whole story** because old cache entries have no alignment and the request-id chain changes every later chunk's cache key.
+- **Spike result (Pixel, Firefox 159 installed, plus desktop):** timers, `timeupdate`, `ended` and `play()` all keep working while locked, so the router and persistent player were built (WP-D). iOS is untested. On Firefox Android the lock-screen title does not update after next or previous; the player reassigns `MediaMetadata` after `playing` and the limitation is documented.
+- **Ownership follows the slug.** The shell `<audio>` always has `id="player"` and `data-slug`; story-resume and parts find it by `data-role` and ignore events unless the loaded slug is their own. (The final code review found the earlier id-based scheme saved one story's progress into another.)
+- **The build id is a content hash**, not a timestamp, so the nightly rebuild does not force a reload (and kill playback) on an unchanged site. A real deploy still forces one full navigation, because mixing new markup with old modules mid-story is worse than one restart per release.
+- **CI gates the deploy** on unit tests and the Playwright smoke test (`build.yml`, job `verify`).
+- **Narrator run:** real alignment data came back with both `alignment` and `normalized_alignment` and a `request-id` header. The heading-split finding above is cosmetic for part timing and was left alone to avoid re-billing.
+- **Lore links are the `link` property** (validated, shown under a closed "For grown-ups" section), not body text.

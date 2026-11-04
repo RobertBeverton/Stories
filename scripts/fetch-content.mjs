@@ -20,8 +20,15 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { checkWorldConfigs } from "./world-data.mjs";
 
 const OUT_DIR = "stories";
+// Lore is namespaced by world (lore/<world>/), unlike stories: it has no
+// legacy progress keys to protect, and two worlds may both have an athena.md.
+const LORE_DIR = "lore";
+// Written into OUT_DIR so each flat story path keeps its world; the story
+// files themselves are never modified. Gitignored with the rest of stories/.
+export const MANIFEST_NAME = ".worlds.json";
 const CACHE_DIR = ".content";
 // Copied alongside the stories but never part of the published site.
 const SKIP = new Set([".narrate-cache"]);
@@ -40,6 +47,19 @@ export function findCollisions(filesBySource) {
     }
   }
   return errors;
+}
+
+// resolved: [{ source: {name}, files: ["relative/path.md", ...] }]
+// Returns { "<path under stories/>": "<world name>" } for every story (.md)
+// file, in a stable order. Collisions are rejected by findCollisions first, so
+// each path has exactly one owner.
+export function buildWorldManifest(resolved) {
+  const entries = [];
+  for (const { source, files } of resolved) {
+    for (const file of files) if (file.endsWith(".md")) entries.push([file, source.name]);
+  }
+  entries.sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+  return Object.fromEntries(entries);
 }
 
 function listFiles(root, dir = root) {
@@ -71,13 +91,21 @@ function cloneOrUpdate(source, dir) {
   }
 }
 
-export function fetchContent(sources, { isCI = Boolean(process.env.CI) } = {}) {
+export function fetchContent(
+  sources,
+  { isCI = Boolean(process.env.CI), outDir = OUT_DIR, loreDir = LORE_DIR } = {},
+) {
+  const configErrors = checkWorldConfigs(sources);
+  if (configErrors.length) {
+    throw new Error(`Invalid world config in content-sources.json:\n  ${configErrors.join("\n  ")}`);
+  }
+
   const resolved = sources.map((source) => {
     const { mode, dir } = resolveSourceDir(source, { isCI, exists: fs.existsSync });
     if (mode === "clone") cloneOrUpdate(source, dir);
     const from = path.join(dir, source.storiesPath || "stories");
     if (!fs.existsSync(from)) throw new Error(`${source.name}: no stories folder at ${from}`);
-    return { source, mode, from, files: listFiles(from) };
+    return { source, mode, dir, from, files: listFiles(from) };
   });
 
   const collisions = findCollisions(Object.fromEntries(resolved.map((r) => [r.source.name, r.files])));
@@ -85,14 +113,35 @@ export function fetchContent(sources, { isCI = Boolean(process.env.CI) } = {}) {
     throw new Error(`Story worlds overlap; rename one side:\n  ${collisions.join("\n  ")}`);
   }
 
-  fs.rmSync(OUT_DIR, { recursive: true, force: true });
-  for (const { source, mode, from } of resolved) {
-    fs.cpSync(from, OUT_DIR, {
+  fs.rmSync(outDir, { recursive: true, force: true });
+  fs.rmSync(loreDir, { recursive: true, force: true });
+  for (const { source, mode, dir, from } of resolved) {
+    fs.cpSync(from, outDir, {
       recursive: true,
       filter: (src) => !SKIP.has(path.basename(src)),
     });
     console.log(`${source.name}: copied stories from ${from} (${mode})`);
+
+    if (source.lorePath) {
+      const loreFrom = path.join(dir, source.lorePath);
+      if (fs.existsSync(loreFrom)) {
+        fs.cpSync(loreFrom, path.join(loreDir, source.name), {
+          recursive: true,
+          filter: (src) => !SKIP.has(path.basename(src)),
+        });
+        console.log(`${source.name}: copied lore from ${loreFrom}`);
+      } else {
+        // World-data problem, not structural: warn and carry on without this
+        // world's lore so it cannot block another world's release.
+        console.warn(`${source.name}: warning: lorePath '${source.lorePath}' not found at ${loreFrom}; no lore for this world`);
+      }
+    }
   }
+
+  fs.writeFileSync(
+    path.join(outDir, MANIFEST_NAME),
+    JSON.stringify(buildWorldManifest(resolved), null, 2) + "\n",
+  );
 }
 
 if (process.argv[1] && path.resolve(fileURLToPath(import.meta.url)) === path.resolve(process.argv[1])) {

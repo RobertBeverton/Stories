@@ -1,0 +1,47 @@
+---
+layout: base.njk
+---
+{# A lore entry page. Expects `entry` (a loreEntries item), `content` (its rendered
+   body), and the `stories` global for the story links. The external link, if any,
+   lives only in the closed "For grown-ups" section at the bottom. #}
+<article class="lore-entry">
+  <nav class="crumbs" aria-label="Breadcrumb">
+    <a href="{{ '/lore/' | url }}">← Lore</a>
+  </nav>
+  <header class="lore-header">
+    {% for w in worlds %}{% if w.name == entry.world %}
+    {% set coverStory = w %}{% set coverClass = '' %}
+    {% include "cover.njk" %}
+    {% endif %}{% endfor %}
+    <p class="lore-tradition-label">{{ entry.tradition }}</p>
+    <h1>{{ entry.title }}</h1>
+    <p class="lore-summary">{{ entry.summary }}</p>
+  </header>
+
+  <div class="lore-body">
+    {{ content | safe }}
+  </div>
+
+  {% set linked = [] %}
+  {% for slug in entry.stories %}
+    {% if stories.bySlug[slug] %}{% set added = linked.push(stories.bySlug[slug]) %}{% endif %}
+  {% endfor %}
+  {% if linked.length > 0 %}
+  <section class="lore-stories" aria-labelledby="lore-stories-heading">
+    <h2 id="lore-stories-heading">Stories with {{ entry.title }}</h2>
+    <ul class="lore-list">
+      {% for story in linked %}
+      <li><a class="lore-link lore-link-story" href="{{ story.url }}">{% set coverStory = story %}{% set coverClass = '' %}{% include "cover.njk" %}<span class="lore-link-title">{{ story.title }}</span></a></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if entry.link and (entry.link.startsWith('http://') or entry.link.startsWith('https://')) %}
+  <details class="lore-grownups">
+    <summary>For grown-ups</summary>
+    <p>More reading, on another website. It opens in a new tab.</p>
+    <p><a class="btn" href="{{ entry.link }}" target="_blank" rel="noopener noreferrer">Read more on {{ entry.link.split('/')[2] | replace('www.', '') }}</a></p>
+  </details>
+  {% endif %}
+</article>

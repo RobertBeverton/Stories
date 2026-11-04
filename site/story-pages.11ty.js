@@ -62,6 +62,11 @@ export const data = {
     characters: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.characters ?? [],
     prevStory: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.prevStory ?? null,
     nextStory: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.nextStory ?? null,
+    world: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.world ?? null,
+    // Already validated against the story's headings and audio duration by
+    // loadWorldData (invalid parts and lore links are dropped there).
+    parts: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.parts ?? null,
+    lore: (data) => data.stories.bySlug[data.storyPage.data.storySlug]?.lore ?? null,
     accentColor: (data) => accentColorFor(data.stories.bySlug[data.storyPage.data.storySlug]?.series),
   },
 };

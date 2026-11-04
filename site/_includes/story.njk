@@ -1,49 +1,61 @@
 ---
 layout: base.njk
 ---
-<div class="story-header" data-accent-bg="{{ accentColor.background }}" style="--accent-bg: {{ accentColor.background }}; --accent-text: {{ accentColor.text }};">
-  <nav class="breadcrumb">
-    <a href="{{ '/' | url }}">← Library</a>
-    {% if series %} · {{ series }}{% endif %}
-  </nav>
+<article class="story" data-mount="story-resume" data-slug="{{ slug }}"{% if audioUrl %} data-audio-url="{{ audioUrl }}"{% endif %}>
+  <header class="story-hero" style="--series: {{ accentColor.background }}; --series-ink: {{ accentColor.text }};">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="{{ '/library/' | url }}">← Library</a>
+      {% if series %}<span aria-hidden="true">·</span><span>{{ series }}</span>{% endif %}
+    </nav>
 
-  <h1>{{ title }}</h1>
-  {% if description %}<p class="story-description">{{ description }}</p>{% endif %}
-  {% if keyIslands.length > 0 or characters.length > 0 %}
-  <div class="lozenges">
-    {% for character in characters %}
-    <span class="lozenge">{{ character }}</span>
-    {% endfor %}
-    {% for island in keyIslands %}
-    <span class="lozenge">{{ island }}</span>
-    {% endfor %}
-  </div>
+    {% set coverStory = { icon: icon, accentColor: accentColor } %}{% set coverClass = 'story-cover' %}
+    {% include "cover.njk" %}
+
+    <h1>{{ title }}</h1>
+    {% if description %}<p class="story-description">{{ description }}</p>{% endif %}
+    {% if keyIslands.length > 0 or characters.length > 0 %}
+    <ul class="lozenges" aria-label="Characters and places">
+      {% for character in characters %}<li class="lozenge">{{ character }}</li>{% endfor %}
+      {% for island in keyIslands %}<li class="lozenge">{{ island }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    <p class="story-meta">~{{ readMinutes }} min read{% if audioMinutes %} · ~{{ audioMinutes }} min listen{% endif %}</p>
+
+    <div class="story-actions">
+      {% if audioUrl %}
+      <button type="button" class="btn btn-primary btn-lg" data-mount="play-button" data-slug="{{ slug }}" data-audio-url="{{ audioUrl }}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+        <span data-role="label">Play</span>
+      </button>
+      {% endif %}
+      <fieldset class="textsize" data-mount="text-size">
+        <legend class="visually-hidden">Text size</legend>
+        <input type="radio" name="textsize" id="ts-sm" value="sm"><label for="ts-sm"><span class="visually-hidden">Smaller text </span><span aria-hidden="true">A−</span></label>
+        <input type="radio" name="textsize" id="ts-md" value="md" checked><label for="ts-md"><span class="visually-hidden">Normal text </span><span aria-hidden="true">A</span></label>
+        <input type="radio" name="textsize" id="ts-lg" value="lg"><label for="ts-lg"><span class="visually-hidden">Larger text </span><span aria-hidden="true">A+</span></label>
+      </fieldset>
+    </div>
+
+    <div class="parts-root" data-mount="parts" data-slug="{{ slug }}"></div>
+  </header>
+
+  {# Messages from story-resume (resume prompt, autoplay fallback, audio error). #}
+  <div class="resume-prompt" data-role="resume" role="status" hidden></div>
+
+  {# The player lives in the shell (base.njk), outside #view. Without script the
+     shell has no controls, so offer the file itself. #}
+  {% if audioUrl %}
+  <noscript><p class="story-audio-fallback"><a href="{{ audioUrl }}">Listen to this story</a></p></noscript>
   {% endif %}
-  <p class="card-meta">~{{ readMinutes }} min read{% if audioMinutes %} · ~{{ audioMinutes }} min listen{% endif %}</p>
-</div>
 
-{% if audioUrl %}
-<div class="audio-card" style="--accent-bg: {{ accentColor.background }};">
-  <p class="audio-card-label">🎧 Listen to this story</p>
-  <audio controls preload="none" id="story-audio" src="{{ audioUrl }}"
-    data-artwork-url="{{ '/assets/generated/icons/' | url }}{{ icon }}-{{ accentColor.background | replace('#', '') }}-512.png"
-    data-prev-url="{{ prevStory.url if prevStory else '' }}"
-    data-next-url="{{ nextStory.url if nextStory else '' }}"
-  ></audio>
-  <p id="autoplay-fallback" class="autoplay-fallback" hidden>▶︎ Tap play above to start listening</p>
-</div>
-<p id="resume-banner" class="resume-banner" style="--accent-bg: {{ accentColor.background }};" hidden></p>
-{% endif %}
+  <div class="story-body">
+    {{ content | safe }}
+  </div>
 
-<article class="story-body">
-  {{ content | safe }}
+  {% include "lore-links.njk" %}
+
+  <nav class="series-nav" aria-label="More in this series">
+    {% if prevStory %}<a class="prev" href="{{ prevStory.url }}">← {{ prevStory.title }}</a>{% endif %}
+    {% if nextStory %}<a class="next" href="{{ nextStory.url }}">Next story: {{ nextStory.title }} →</a>{% endif %}
+  </nav>
 </article>
-
-<nav class="series-nav">
-  {% if prevStory %}<a href="{{ prevStory.url }}">← {{ prevStory.title }}</a>{% endif %}
-  {% if nextStory %}<a href="{{ nextStory.url }}">Next: {{ nextStory.title }} →</a>{% endif %}
-</nav>
-
-<script src="{{ '/assets/resume.js' | url }}" data-slug="{{ slug }}"></script>
-<script src="{{ '/assets/mini-player.js' | url }}" type="module"></script>
-<script src="{{ '/assets/play-button.js' | url }}"></script>

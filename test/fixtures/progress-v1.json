@@ -1,0 +1,20 @@
+{
+  "test-world/first-tale": {
+    "url": "/Stories/stories/the-test-series/first-tale/",
+    "title": "The First Tale of Testing",
+    "artworkUrl": "/Stories/assets/generated/sun.png",
+    "audioTime": 120.5,
+    "scrollY": 800,
+    "playing": false,
+    "savedAt": 1790000000000
+  },
+  "test-world/second-tale": {
+    "url": "/evil\"><img src=x onerror=alert(1)>",
+    "title": "<img src=x onerror=alert(1)>",
+    "artworkUrl": "javascript:alert(1)",
+    "audioTime": 5,
+    "scrollY": 0,
+    "playing": true,
+    "savedAt": 1790000100000
+  }
+}

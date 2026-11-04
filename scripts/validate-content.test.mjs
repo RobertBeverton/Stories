@@ -42,6 +42,11 @@ describe("checkAudioFilesExistOrWarn", () => {
     expect(warnings).toEqual(["stories/a.md: audio file 'a.mp3' not found (warning only, build not blocked)"]);
   });
 
+  it("is silent for a story whose audio is hosted at a valid audioUrl", () => {
+    const stories = [{ file: "stories/a.md", data: { audioUrl: "https://audio.kinly.download/w/a.mp3?v=1" } }];
+    expect(checkAudioFilesExistOrWarn(stories, () => false)).toEqual([]);
+  });
+
   it("is silent when audio field is absent but the default-named file exists", () => {
     const stories = [{ file: "stories/a.md", data: {} }];
     const warnings = checkAudioFilesExistOrWarn(stories, () => true);

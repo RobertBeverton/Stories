@@ -5,12 +5,12 @@
   "scripts": {
     "fetch-content": "node scripts/fetch-content.mjs",
     "validate": "node scripts/validate-content.mjs",
+    "validate-world-data": "node scripts/validate-world-data.mjs",
+    "test:e2e": "playwright test",
     "generate-icons": "node scripts/generate-icon-art.mjs",
-    "check-wave-contrast": "node scripts/check-wave-contrast.mjs",
-    "check-band-contrast": "node scripts/check-band-contrast.mjs",
-    "check-continue-banner-contrast": "node scripts/check-continue-banner-contrast.mjs",
+    "check-token-contrast": "node scripts/check-token-contrast.mjs",
     "check-solid-fill-contrast": "node scripts/check-solid-fill-contrast.mjs",
-    "build": "npm run fetch-content && npm run validate && npm run check-wave-contrast && npm run check-band-contrast && npm run check-continue-banner-contrast && npm run check-solid-fill-contrast && npm run generate-icons && npx @11ty/eleventy",
+    "build": "npm run fetch-content && npm run validate && npm run validate-world-data && npm run check-token-contrast && npm run check-solid-fill-contrast && npm run generate-icons && npx @11ty/eleventy",
     "serve": "npm run fetch-content && npx @11ty/eleventy --serve"
   },
   "keywords": [],
@@ -19,9 +19,14 @@
   "description": "The reading and listening site for Felix & Alex's story worlds. Content lives in separate repos (see content-sources.json).",
   "devDependencies": {
     "@11ty/eleventy": "^3.1.6",
+    "@playwright/test": "^1.64.1",
+    "ajv": "^8.20.0",
     "fast-glob": "^3.3.3",
     "gray-matter": "^4.0.3",
+    "jsdom": "^29.1.1",
+    "markdown-it": "^14.3.3",
     "music-metadata": "^11.13.0",
+    "nunjucks": "^3.2.4",
     "sharp": "^0.35.4",
     "vitest": "^4.1.10"
   }

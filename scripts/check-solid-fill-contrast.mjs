@@ -2,9 +2,9 @@ import { pathToFileURL } from "node:url";
 import { PALETTE } from "./accent-colors.mjs";
 
 // Two spots use an accent color as a SOLID, undiluted background with its
-// paired `text` color laid directly on top — site/assets/style.css's
-// .story-header (background: var(--accent-bg); color: var(--accent-text))
-// and .rail-group-icon (icon stroked in --accent-text). Since every
+// paired `text` color laid directly on top — site/assets/css/pages.css's
+// .story-hero (background: var(--series); color: var(--series-ink))
+// and .cover (icon stroked in --series-ink). Since every
 // PALETTE.background is a pastel (inherently light), `text` is a FIXED dark
 // ink color on every entry, not a light/dark-mode-aware token (see the
 // comment on PALETTE in accent-colors.mjs) — this script enforces that
@@ -13,7 +13,7 @@ import { PALETTE } from "./accent-colors.mjs";
 // `background`) fails a check instead of silently shipping unreadable text.
 const CONTRAST_FLOOR = 4.5; // WCAG AA for normal-size text
 
-function hexToRgb(hex) {
+export function hexToRgb(hex) {
   const h = hex.replace("#", "");
   return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
 }

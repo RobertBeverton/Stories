@@ -1,0 +1,59 @@
+/* Hearth tokens. Dark only. Every colour pair below is checked by
+   scripts/check-token-contrast.mjs (it parses this file): text >= 4.5:1,
+   borders, tracks and the focus ring >= 3:1. Keep plain #rrggbb values on
+   :root so the checker can read them. */
+:root {
+  color-scheme: dark;
+
+  /* Surfaces: dark, green-tinted neutrals */
+  --bg: #101411;
+  --surface: #1a211c;
+  --raised: #232b25;
+
+  /* Text */
+  --text: #f1f2e9;
+  --muted: #abb5aa;
+
+  /* Borders of form controls, seek tracks, outlines: 3:1 or more against every surface */
+  --line: #6a796d;
+  /* Decorative hairlines only (card edges, row dividers, label-bearing pills).
+     Not checked: nothing relies on seeing them to find or use a control. */
+  --line-soft: #374239;
+
+  /* Keyboard focus ring */
+  --focus: #ffd37a;
+
+  /* World accent, used as a FILL with dark ink (UI chrome: primary buttons,
+     active nav). Defaults to the lime of the Hearth design; page script
+     overrides both on <html> when the current world changes to a PALETTE entry. */
+  --accent: #c4ed8e;
+  --accent-ink: #151a13;
+
+  /* Series accent: story header and cover only. Set inline per element. */
+  --series: #babec4;
+  --series-ink: #2c2a26;
+
+  /* Type: system fonts and Georgia only, no network requests */
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: Georgia, "Times New Roman", serif;
+  --text-base: 1.125rem;   /* 18px */
+  --text-small: 0.875rem;  /* 14px, nothing below 12px */
+  --reading-scale: 1;
+
+  /* Shape and spacing */
+  --radius: 22px;
+  --radius-sm: 16px;
+  --radius-pill: 999px;
+  --gutter: 1rem;
+  --page-max: 44rem;
+
+  /* Targets: everything 44px, primary controls on Home and the player 56px */
+  --tap: 44px;
+  --tap-lg: 56px;
+
+  /* Dock: nav row 56px, optional mini-player row 56px above it (about 120px
+     plus the safe area). */
+  --dock-nav-h: 64px;
+  --dock-mini-h: 56px;
+  --dock-h: calc(var(--dock-nav-h) + env(safe-area-inset-bottom, 0px));
+}
