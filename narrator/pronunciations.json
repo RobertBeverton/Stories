@@ -1,0 +1,5 @@
+{
+  "_readme": "Respellings shared by every world: written spelling on the left, what the voice should say on the right. Whole words only, case-sensitive. A world adds its own in its repo at narration/pronunciations.json, which wins over this file.",
+  "Mrs": "Missus",
+  "Ms": "Mizz"
+}

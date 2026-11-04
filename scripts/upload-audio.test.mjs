@@ -110,6 +110,22 @@ describe("with a world checkout on disk", () => {
     expect(items.map((i) => i.key)).toEqual(["w/sub/two.mp3"]);
   });
 
+  it("prefers audio from the narrator's output folder over an mp3 beside the story", async () => {
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), "narr-out-"));
+    fs.mkdirSync(path.join(outDir, "w"), { recursive: true });
+    fs.writeFileSync(path.join(outDir, "w", "one.mp3"), "NARRATED");
+    try {
+      const { items } = await planWorld(source, { readDuration, origin: ORIGIN, outDir });
+      const one = items.find((i) => i.key === "w/one.mp3");
+      expect(one.audioPath).toBe(path.join(outDir, "w", "one.mp3"));
+      expect(one.sha256).toBe(sha("NARRATED"));
+      const two = items.find((i) => i.key === "w/sub/two.mp3");
+      expect(two.audioPath).toBe(fileOf("sub/two.mp3")); // no narrated copy: the one beside the story
+    } finally {
+      fs.rmSync(outDir, { recursive: true, force: true });
+    }
+  });
+
   it("a dry run changes nothing and needs no credentials", async () => {
     const io = out();
     const client = { isUploaded: vi.fn(), upload: vi.fn() };

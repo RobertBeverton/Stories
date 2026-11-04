@@ -6,7 +6,8 @@
 //   node scripts/upload-audio.mjs --apply --world legend-lane --story fire-lady
 //
 // Reads the world repos from `localPath` in content-sources.json (sibling checkouts), never
-// from stories/. It does not delete or commit anything: afterwards, review and commit the
+// from stories/. Audio comes from narrator/out/<key> (npm run narrate) when present, else an mp3
+// beside the story file. It does not delete or commit anything: afterwards, review and commit the
 // front matter change in each world repo, then remove the committed mp3 once the site plays
 // from the new URL.
 //
@@ -26,6 +27,7 @@ import matter from "gray-matter";
 import { parseFile } from "music-metadata";
 import { AUDIO_ORIGIN, isAudioUrl } from "./audio-origin.mjs";
 import { setFrontMatterField } from "./front-matter.mjs";
+import { OUT_DIR } from "../narrator/narrate.mjs";
 import { resolveAudioFile } from "./validate-content.mjs";
 
 export const CACHE_CONTROL = "public, max-age=31536000, immutable";
@@ -63,7 +65,7 @@ const sha256Of = (file) => crypto.createHash("sha256").update(fs.readFileSync(fi
  * Finds every narrated story of one world. A story with no mp3, a draft, or `audio: false`
  * is skipped, with the reason. Returns { items, skipped }.
  */
-export async function planWorld(source, { readDuration = defaultDuration, origin = AUDIO_ORIGIN, only = null } = {}) {
+export async function planWorld(source, { readDuration = defaultDuration, origin = AUDIO_ORIGIN, only = null, outDir = OUT_DIR } = {}) {
   const storiesRoot = path.join(source.localPath, source.storiesPath || "stories");
   const items = [];
   const skipped = [];
@@ -74,10 +76,13 @@ export async function planWorld(source, { readDuration = defaultDuration, origin
     if (data.draft) { skipped.push({ rel, reason: "draft" }); continue; }
     const audioName = resolveAudioFile({ file: storyFile, data });
     if (!audioName) { skipped.push({ rel, reason: "audio: false" }); continue; }
-    const audioPath = path.join(path.dirname(storyFile), audioName);
+    const key = objectKey(source.name, storiesRoot, storyFile);
+    // Audio from the narrator (npm run narrate) wins; else an mp3 sitting beside the story.
+    const narrated = path.join(outDir, ...key.split("/"));
+    const beside = path.join(path.dirname(storyFile), audioName);
+    const audioPath = fs.existsSync(narrated) ? narrated : beside;
     if (!fs.existsSync(audioPath)) { skipped.push({ rel, reason: "no mp3" }); continue; }
     const sha256 = sha256Of(audioPath);
-    const key = objectKey(source.name, storiesRoot, storyFile);
     items.push({
       world: source.name,
       rel,

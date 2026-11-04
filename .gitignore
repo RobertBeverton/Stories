@@ -6,6 +6,8 @@ site/assets/generated/
 site/assets/app-icon-*.png
 inspiration_screens/
 stories/.narrate-cache/
+narrator/out/
+narrator/.cache/
 stories/
 .content/
 .claude/worktrees/
