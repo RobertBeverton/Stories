@@ -2,7 +2,7 @@
 
 **Site: https://robertbeverton.github.io/Stories/**
 
-The reading and listening app for Felix and Alex's stories. This repo holds the site (layout, styles, player, search, build) and will hold the narration tool. The stories themselves live in one repo per story world and are pulled in at build time:
+The reading and listening app for Felix and Alex's stories. This repo holds the site (layout, styles, player, search, build) and the one narration tool that serves every world (`narrator/`). The stories themselves live in one repo per story world and are pulled in at build time:
 
 | World | Repo |
 |---|---|
@@ -51,7 +51,7 @@ The device spike passed on an Android phone (Firefox, installed) and a desktop b
 
 Waiting on a human:
 
-- **Publishing the narrated audio.** A real narrator run on one story worked (parts land within 0.06 s of the spoken heading). Uploading to R2 and writing `audioUrl` is the owner's step.
+- **Publishing the narrated audio.** A real narrator run on one story worked (parts land within 0.06 s of the spoken heading). `npm run narrate` makes the mp3 and part times, `npm run upload-audio` hosts it on R2 and writes `audioUrl` (see [narrator/README.md](narrator/README.md)).
 - **Review of the lore text** in the Stories_Gods repo (branch `wp/lore`), and the custom-domain decision (not recommended: it would reset everyone's saved progress).
 
 Design, plans and contracts: [docs/plans/](docs/plans/), [docs/contracts.md](docs/contracts.md).

@@ -1,7 +1,7 @@
 # Stories
 
-The app for Felix & Alex's stories: static 11ty site (and, soon, the narration
-tool), deployed to GitHub Pages at https://robertbeverton.github.io/Stories/
+The app for Felix & Alex's stories: static 11ty site and the narration
+tool, deployed to GitHub Pages at https://robertbeverton.github.io/Stories/
 (path prefix `/Stories`, set in `scripts/stories-lib.mjs` and
 `eleventy.config.js`).
 
@@ -61,6 +61,10 @@ Chromium) is the smoke test, and the deploy job in `build.yml` needs it.
   build-generated import map (`site/_data/importMap.js`). Add no inline scripts or handlers.
 - **Audio**: a story's front matter `audioUrl` (https, on the audio origin) wins over a
   sibling mp3. See `docs/audio-hosting.md`.
+- **Narrator**: `narrator/` is the only narration code; world repos keep just `narration/`
+  settings (respellings, voice). `npm run narrate -- <story.md>` writes the mp3 to the
+  git-ignored `narrator/out/` and `parts`/`audioDuration` into the story; `npm run upload-audio`
+  hosts it. See `narrator/README.md`. Never run narration in CI.
 
 ```bash
 npx vitest run               # unit, template and jsdom integration tests

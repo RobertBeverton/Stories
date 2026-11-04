@@ -1,6 +1,6 @@
 # Audio hosting (Cloudflare R2)
 
-Story audio lives in one Cloudflare R2 bucket, served from a custom domain. Each story's front matter points at its file with `audioUrl` (plus `audioDuration`). The narrator tool in this repo will upload and write those fields back. Until then, nothing reads from the bucket yet.
+Story audio lives in one Cloudflare R2 bucket, served from a custom domain. Each story's front matter points at its file with `audioUrl` (plus `audioDuration`). `npm run narrate` makes a story's mp3 and `npm run upload-audio` hosts it and writes those fields back (see [narrator/README.md](../narrator/README.md)). Every narrated story is served from here.
 
 ## At a glance
 

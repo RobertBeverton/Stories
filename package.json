@@ -6,6 +6,7 @@
     "fetch-content": "node scripts/fetch-content.mjs",
     "validate": "node scripts/validate-content.mjs",
     "validate-world-data": "node scripts/validate-world-data.mjs",
+    "narrate": "node narrator/narrate.mjs",
     "upload-audio": "node scripts/upload-audio.mjs",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",

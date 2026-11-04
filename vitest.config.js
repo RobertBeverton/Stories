@@ -6,7 +6,7 @@ export default defineConfig({
     coverage: {
       // `npm run test:coverage`. The browser modules and the build scripts are the code that ships.
       provider: "v8",
-      include: ["site/assets/js/**/*.{js,mjs}", "scripts/**/*.mjs"],
+      include: ["site/assets/js/**/*.{js,mjs}", "scripts/**/*.mjs", "narrator/**/*.mjs"],
       exclude: ["**/*.test.mjs"],
       reporter: ["text-summary", "text"],
     },
