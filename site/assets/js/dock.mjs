@@ -199,6 +199,7 @@ export function mount(el) {
     seekInput.disabled = !total;
     if (!seeking) seekInput.value = String(Math.floor(s.currentTime));
     seekInput.setAttribute("aria-valuetext", `${spokenTime(s.currentTime)} of ${spokenTime(total)}`);
+    seekInput.style.setProperty("--fill", total ? `${Math.min(100, (s.currentTime / total) * 100)}%` : "0%"); // paints the played part
     elapsed.textContent = formatTime(s.currentTime);
     remaining.textContent = total ? `-${formatTime(Math.max(0, total - s.currentTime))}` : "";
   }

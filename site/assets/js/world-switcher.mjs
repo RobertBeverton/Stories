@@ -34,6 +34,21 @@ export function mount(el) {
   document.addEventListener("stories:world", onWorld);
   el.addEventListener("click", onClick);
 
+  /** The "All" tile's glyph: four rounded squares, drawn like the world icons (decorative). */
+  function allIcon() {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("class", "tile-all");
+    svg.setAttribute("focusable", "false");
+    svg.setAttribute("aria-hidden", "true");
+    for (const [x, y] of [[4, 4], [13, 4], [4, 13], [13, 13]]) {
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      for (const [name, value] of Object.entries({ x, y, width: 7, height: 7, rx: 2 })) rect.setAttribute(name, String(value));
+      svg.append(rect);
+    }
+    return svg;
+  }
+
   /** One button: a tile (picker) or a chip (filter). `world` is a library world, or {name: "", title: "All"}. */
   function choice(world) {
     const accent = paletteByName(world.accent);
@@ -47,8 +62,9 @@ export function mount(el) {
         "data-accent": world.accent,
         style: picker && accent ? `--tile: ${accent.background}; --tile-ink: ${accent.text};` : null,
       },
-      picker ? iconSvg(world.icon) : null,
+      picker ? (world.name === "" ? allIcon() : iconSvg(world.icon)) : null,
       picker ? h("span", {}, world.title) : world.title,
+      picker ? h("small", {}, world.tagline) : null,
     );
   }
 
@@ -61,7 +77,7 @@ export function mount(el) {
       class: picker ? "world-tiles" : "world-chips",
       "data-role": "worlds",
     });
-    group.append(choice({ name: "", title: "All" }));
+    group.append(choice({ name: "", title: "All", tagline: "Every story, every world" }));
     for (const world of lib.worlds) group.append(choice(world));
     el.replaceChildren(group);
     syncPressed();

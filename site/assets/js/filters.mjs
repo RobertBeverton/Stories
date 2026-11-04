@@ -50,7 +50,9 @@ export function mount(el) {
       const story = library.bySlug.get(row.dataset.slug);
       if (!story) continue;
       const record = records[story.slug];
-      row.dataset.state = toViewModel(record, { durationSec: story.durationSec }).state;
+      const view = toViewModel(record, { durationSec: story.durationSec });
+      row.dataset.state = view.state;
+      row.style.setProperty("--progress", `${Math.round(view.fraction * 100)}%`); // the thin bar in the row (CSS only)
       if (isNew(story, record, now)) row.dataset.new = "true";
       else delete row.dataset.new;
       setHiddenReason(row, "filters", !matchesFilters(story, record, filter, now));

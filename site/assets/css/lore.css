@@ -1,43 +1,79 @@
 /* Lore (WP-E): the Stories | Lore segment, the listing, entry pages, story
    back-links and the part list's current-part details. Tokens only. */
 
-.lore-segment { display: inline-flex; gap: 0.25rem; padding: 0.25rem; margin: 0 0 1rem; background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius-pill); }
-.lore-segment .btn { border-color: transparent; min-width: 6rem; justify-content: center; }
-.lore-segment .btn[aria-current="page"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.lore-segment { display: inline-flex; gap: 0.25rem; padding: 0.25rem; margin: 0 0 1rem; background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--radius-pill); }
+.lore-segment .btn { border-color: transparent; background: transparent; color: var(--muted); min-width: 6rem; justify-content: center; }
+.lore-segment .btn[aria-current="page"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 750; }
 .lore-segment-root:empty, .lore-segment-root[hidden] { display: none; }
 
 .lore-intro { color: var(--muted); margin: 0 0 1.5rem; }
 .lore-world { margin: 0 0 2rem; }
-.lore-world h2 { margin: 0 0 0.5rem; }
-.lore-tradition h3 { margin: 1.25rem 0 0.5rem; font-size: var(--text-small); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.lore-world h2 { margin: 0 0 0.25rem; font-family: var(--font-display); font-size: 1.5rem; font-weight: 500; }
+.lore-tradition h3 { margin: 1.25rem 0 0.5rem; font-family: var(--font-body); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); }
 
-.lore-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.lore-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
 .lore-link {
-  display: flex; flex-direction: column; justify-content: center; gap: 0.15rem;
-  min-height: var(--tap); padding: 0.6rem 1rem;
-  background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius);
+  position: relative; display: flex; flex-direction: column; justify-content: center; gap: 0.15rem;
+  min-height: var(--tap-lg); padding: 0.75rem 3rem 0.75rem 1rem;
+  background: linear-gradient(135deg, var(--surface), var(--raised));
+  border: 1px solid var(--line-soft); border-radius: var(--radius-sm);
   text-decoration: none; color: var(--text);
 }
-.lore-link-title { font-weight: 700; }
-.lore-link-summary { color: var(--muted); font-size: var(--text-small); }
+.lore-link::after { content: "→" / ""; position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1.25rem; }
+.lore-link-title { font-weight: 700; font-size: 1.0625rem; }
+.lore-link-summary { color: var(--muted); font-size: var(--text-small); line-height: 1.4; }
 .lore-link:focus-visible, .lore-segment .btn:focus-visible, .lore-grownups summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+/* A story link inside a lore entry: cover tile on the left, like a Library row */
+.lore-link-story { flex-direction: row; align-items: center; gap: 0.9rem; padding-left: 0.75rem; }
+.lore-link-story .cover { flex: none; width: 3.5rem; height: 3.5rem; border-radius: 14px; }
 
 .lore-entry { max-width: var(--page-max); margin: 0 auto; }
-.lore-header { padding: 0.5rem 0 1rem; }
-.lore-tradition-label { margin: 0; font-size: var(--text-small); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.lore-summary { font-size: 1.15rem; color: var(--muted); margin: 0.5rem 0 0; }
-.lore-body { font-family: var(--font-display); font-size: calc(1.25rem * var(--reading-scale)); line-height: 1.75; max-width: 65ch; }
-.lore-body h2, .lore-body h3 { font-size: 1.3em; margin: 1.75em 0 0.5em; }
+/* The hero: tinted panel with the world's glowing icon, tradition, title and summary */
+.lore-header {
+  position: relative; margin: 0.25rem 0 1.25rem; padding: 1.25rem;
+  background:
+    radial-gradient(ellipse at 90% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 52%),
+    linear-gradient(135deg, var(--surface), var(--raised));
+  border: 1px solid var(--line-soft); border-radius: var(--radius);
+}
+.lore-header .cover { width: 4rem; height: 4rem; margin: 0 0 0.9rem; border-radius: 18px; }
+.lore-tradition-label { margin: 0; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); }
+.lore-header h1 { font-size: 2.125rem; line-height: 1.02; margin: 0.4rem 0 0; }
+.lore-summary { font-family: var(--font-display); font-size: 1.125rem; line-height: 1.55; color: var(--text); margin: 0.75rem 0 0; }
+.lore-body { font-family: var(--font-display); font-size: calc(1.25rem * var(--reading-scale)); line-height: 1.7; color: #e6e7dd; max-width: 65ch; }
+.lore-body h2, .lore-body h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.3em; margin: 1.75em 0 0.5em; }
 .lore-stories, .story-lore { margin: 2rem auto 0; max-width: 65ch; }
-.lore-stories h2, .story-lore h2 { font-size: 1.2rem; margin: 0 0 0.75rem; }
+.lore-stories h2, .story-lore h2 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0 0 0.75rem; }
 
-.lore-grownups { margin: 2.5rem 0 1rem; padding: 0.5rem 1rem; border: 2px solid var(--line); border-radius: var(--radius); background: var(--surface); }
-.lore-grownups summary { display: flex; align-items: center; min-height: var(--tap); cursor: pointer; font-weight: 600; }
-.lore-grownups .btn { word-break: break-all; }
+/* For grown-ups: the outside link stays behind a closed disclosure, styled as a link card */
+.lore-grownups { margin: 2rem 0 1rem; padding: 0.25rem 1rem 1rem; border: 1px solid var(--line-soft); border-radius: var(--radius-sm); background: var(--surface); }
+.lore-grownups summary { display: flex; align-items: center; justify-content: space-between; min-height: var(--tap); cursor: pointer; font-weight: 700; list-style: none; }
+.lore-grownups summary::-webkit-details-marker { display: none; }
+.lore-grownups summary::after { content: "+" / ""; color: var(--muted); font-size: 1.5rem; font-weight: 400; }
+.lore-grownups[open] summary::after { content: "−" / ""; }
+.lore-grownups p { color: var(--muted); font-size: var(--text-small); margin: 0 0 0.75rem; }
+.lore-grownups .btn { word-break: break-all; display: flex; justify-content: space-between; width: 100%; min-height: 3.875rem; padding: 0 1rem; border-radius: var(--radius-sm); background: var(--raised); text-align: left; }
+.lore-grownups .btn::after { content: "↗" / ""; font-size: 1.25rem; }
 
 /* Parts: the tap target stays 44px; the time sits at the end of the row. */
-.parts-list .btn { min-height: var(--tap); }
-.parts-list .part-time { margin-left: auto; padding-left: 0.75rem; font-variant-numeric: tabular-nums; opacity: 0.85; }
+.parts-list .btn {
+  min-height: var(--tap); width: 100%; gap: 0.75rem; padding: 0.4rem 0.25rem;
+  background: transparent; border: 0; border-radius: 0; color: var(--text); font-weight: 600; font-size: 1rem; line-height: 1.3;
+}
+.parts-list .btn::before {
+  content: ""; flex: none; width: 1.25rem; height: 1.25rem; background-color: var(--muted);
+  -webkit-mask: var(--mark, var(--mark-todo)) center / contain no-repeat; mask: var(--mark, var(--mark-todo)) center / contain no-repeat;
+}
+.parts-list .btn {
+  --mark-todo: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='7' fill='none' stroke='black' stroke-width='2'/%3E%3C/svg%3E");
+  --mark-done: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --mark-now: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M8 4.5v15l12-7.5z' fill='black'/%3E%3C/svg%3E");
+}
+.parts-list li:has(~ li > .btn[aria-current="true"]) .btn { --mark: var(--mark-done); }
+.parts-list .btn[aria-current="true"] { color: var(--accent); }
+.parts-list .btn[aria-current="true"]::before { background-color: var(--accent); --mark: var(--mark-now); }
+.parts-list .part-title { flex: 1 1 auto; text-align: left; }
+.parts-list .part-time { margin-left: auto; padding-left: 0.75rem; font-variant-numeric: tabular-nums; color: var(--muted); font-size: var(--text-small); font-weight: 500; }
 .parts-list button { justify-content: flex-start; text-align: left; }
 
 @media (prefers-reduced-motion: reduce) {

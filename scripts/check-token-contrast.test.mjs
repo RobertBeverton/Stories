@@ -7,7 +7,7 @@ const tokens = parseTokens(css);
 
 describe("checkTokenContrast", () => {
   it("parses the real tokens file", () => {
-    expect(tokens.bg).toBe("#1c1a17");
+    expect(tokens.bg).toBe("#101411");
     expect(Object.keys(tokens)).toEqual(
       expect.arrayContaining(["bg", "surface", "raised", "text", "muted", "line", "focus", "accent", "accent-ink", "series", "series-ink"]),
     );
