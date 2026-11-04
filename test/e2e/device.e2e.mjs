@@ -4,6 +4,7 @@
 // Same fixture site as smoke.e2e.mjs (invented stories, silent audio).
 import { expect, test } from "@playwright/test";
 import { routeAudio } from "./support/audio.mjs";
+import { openSeries } from "./support/library.mjs";
 import { FIXTURE_LORE, FIXTURE_STORIES } from "./support/build-fixture-site.mjs";
 import { expectNoViolations, watchForViolations } from "./support/guards.mjs";
 
@@ -246,6 +247,7 @@ test("play: started elsewhere (dock, then Library), the story page's button refl
   await playFromStoryPage(page);
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Library" }).tap();
   await expect(page).toHaveURL(LIBRARY);
+  await openSeries(page);
   await page.getByRole("link", { name: ONE.title }).tap();
   await expect(page).toHaveURL(ONE_URL);
   await expect(headerPlay(page).locator('[data-role="label"]')).toHaveText("Pause");
@@ -263,6 +265,7 @@ test("home: Continue and Played lately follow a story started elsewhere, through
   await page.goto(HOME);
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Library" }).tap();
   await expect(page).toHaveURL(LIBRARY);
+  await openSeries(page);
   await page.getByRole("link", { name: ONE.title }).tap();
   await expect(page).toHaveURL(ONE_URL);
   await headerPlay(page).tap();
@@ -298,6 +301,7 @@ test("home: Continue and Played lately follow a story started elsewhere, through
 
 test("lore: a story with lore links shows tappable cards near the top, also when reached through the router", async ({ page }) => {
   await page.goto(LIBRARY);
+  await openSeries(page);
   await page.getByRole("link", { name: ONE.title }).tap();
   await expect(page).toHaveURL(ONE_URL);
   const section = page.locator('[data-role="story-lore"]');

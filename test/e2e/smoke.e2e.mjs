@@ -4,6 +4,7 @@
 // origin, so nothing story-shaped is committed.
 import { expect, test } from "@playwright/test";
 import { routeAudio } from "./support/audio.mjs";
+import { openSeries } from "./support/library.mjs";
 import { expectNoViolations, watchForViolations } from "./support/guards.mjs";
 import { FIXTURE_STORIES } from "./support/build-fixture-site.mjs";
 
@@ -12,12 +13,6 @@ const LIBRARY = "/Stories/library/";
 const [ONE, TWO] = FIXTURE_STORIES;
 const ONE_URL = "/Stories/stories/e2e-series/tale-one/";
 const TWO_URL = "/Stories/stories/e2e-series/tale-two/";
-
-/** The Library groups stories into collapsed series cards: open the E2E series (a no-op if it is open already). */
-async function openSeries(page) {
-  const toggle = page.getByRole("button", { name: /E2E Series/ });
-  if ((await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
-}
 
 test.beforeEach(async ({ page, context }) => {
   await routeAudio(context);
