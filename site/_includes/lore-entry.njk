@@ -9,6 +9,10 @@ layout: base.njk
     <a href="{{ '/lore/' | url }}">← Lore</a>
   </nav>
   <header class="lore-header">
+    {% for w in worlds %}{% if w.name == entry.world %}
+    {% set coverStory = w %}{% set coverClass = '' %}
+    {% include "cover.njk" %}
+    {% endif %}{% endfor %}
     <p class="lore-tradition-label">{{ entry.tradition }}</p>
     <h1>{{ entry.title }}</h1>
     <p class="lore-summary">{{ entry.summary }}</p>
@@ -27,7 +31,7 @@ layout: base.njk
     <h2 id="lore-stories-heading">Stories with {{ entry.title }}</h2>
     <ul class="lore-list">
       {% for story in linked %}
-      <li><a class="lore-link" href="{{ story.url }}"><span class="lore-link-title">{{ story.title }}</span></a></li>
+      <li><a class="lore-link lore-link-story" href="{{ story.url }}">{% set coverStory = story %}{% set coverClass = '' %}{% include "cover.njk" %}<span class="lore-link-title">{{ story.title }}</span></a></li>
       {% endfor %}
     </ul>
   </section>

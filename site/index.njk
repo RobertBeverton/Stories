@@ -2,12 +2,14 @@
 layout: base.njk
 title: Home
 ---
-<h1 class="home-title">Stories</h1>
-<p class="home-tagline">Felix and Alex's story worlds</p>
+<header class="home-head">
+  <h1 class="home-title">Stories</h1>
+  <p class="home-tagline">Felix and Alex's story worlds</p>
+</header>
 
 {# Server-rendered fallback: the newest story. The continue module replaces it
    with the most recent unfinished story. #}
-<section aria-labelledby="continue-heading">
+<section class="home-continue" aria-labelledby="continue-heading">
   <h2 id="continue-heading">Up next</h2>
   <div data-mount="continue">
     {% if stories.length > 0 %}

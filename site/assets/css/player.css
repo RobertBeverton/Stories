@@ -1,39 +1,68 @@
 /* Player sheet: a full-screen sheet opened from the mini-player. Native
-   <input type="range"> for seek, with the time as text. Primary controls 56px. */
+   <input type="range"> for seek, with the time as text. Primary controls 56px.
+   Layout follows the Hearth player: a big glowing artwork stage, the eyebrow
+   and serif title, seek, a transport row with a round accent play button, then
+   the speed and sleep pills. Visual order is set with `order`; the DOM order
+   (close, cover, title, world, link, seek, controls, options) stays as built. */
 .player-sheet {
   position: fixed; inset: 0; z-index: 40;
   display: flex; flex-direction: column; gap: 1rem;
-  padding: calc(1rem + env(safe-area-inset-top, 0px)) var(--gutter) calc(1rem + env(safe-area-inset-bottom, 0px));
-  background: var(--bg); color: var(--text);
+  padding: calc(0.75rem + env(safe-area-inset-top, 0px)) var(--gutter) calc(1rem + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 55%),
+    var(--bg);
+  color: var(--text);
   overflow-y: auto;
 }
-.player-close { align-self: flex-end; }
-.player-cover { width: min(100%, 20rem); aspect-ratio: 1; margin: 0 auto; }
-.player-title { font-size: 1.5rem; text-align: center; }
-.player-world { text-align: center; margin: 0; color: var(--muted); }
-
-.player-seek { display: grid; gap: 0.25rem; }
+.player-sheet > * { flex: none; }
+.player-close { align-self: flex-end; order: 0; min-height: var(--tap); }
+.player-cover-slot { order: 1; }
+.player-cover {
+  width: 100%; height: min(40vh, 17rem); aspect-ratio: auto; margin: 0 auto; border-radius: 26px;
+  background:
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--series) 34%, transparent), transparent 58%),
+    linear-gradient(145deg, color-mix(in srgb, var(--series) 14%, var(--raised)), var(--surface));
+  border: 1px solid var(--line-soft);
+}
+.player-cover svg { width: 46%; max-height: 78%; filter: drop-shadow(0 0 16px color-mix(in srgb, var(--series) 65%, transparent)); }
+.player-world { order: 2; text-align: center; margin: 0.25rem 0 -0.5rem; color: var(--muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.player-title { order: 3; font-family: var(--font-display); font-size: 1.75rem; line-height: 1.1; font-weight: 500; text-align: center; }
+.player-story-link { order: 4; align-self: center; background: transparent; }
+.player-seek { order: 5; display: grid; gap: 0; }
+.player-controls { order: 6; }
+.player-options { order: 7; }
+.player-sleep-wrap { order: 8; }
+.player-error { order: 9; }
 .player-time { display: flex; justify-content: space-between; color: var(--muted); font-size: var(--text-small); font-variant-numeric: tabular-nums; }
 
 .player-sheet input[type="range"] {
   -webkit-appearance: none; appearance: none;
   width: 100%; height: var(--tap-lg); margin: 0; background: transparent; cursor: pointer;
 }
-.player-sheet input[type="range"]::-webkit-slider-runnable-track { height: 10px; border-radius: 5px; background: var(--raised); border: 1px solid var(--line); }
-.player-sheet input[type="range"]::-moz-range-track { height: 10px; border-radius: 5px; background: var(--raised); border: 1px solid var(--line); }
-.player-sheet input[type="range"]::-moz-range-progress { height: 10px; border-radius: 5px; background: var(--accent); }
+/* --fill (set by dock.mjs) paints the played part in the accent */
+.player-sheet input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 6px; border: 0;
+  background: linear-gradient(to right, var(--accent) var(--fill, 0%), var(--raised) var(--fill, 0%));
+  box-shadow: 0 0 0 1px var(--line);
+}
+.player-sheet input[type="range"]::-moz-range-track { height: 6px; border-radius: 6px; background: var(--raised); box-shadow: 0 0 0 1px var(--line); }
+.player-sheet input[type="range"]::-moz-range-progress { height: 6px; border-radius: 6px; background: var(--accent); }
 .player-sheet input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none;
-  width: 36px; height: 36px; margin-top: -14px; border-radius: 50%;
-  background: var(--accent); border: 3px solid var(--text);
+  width: 24px; height: 24px; margin-top: -9px; border-radius: 50%;
+  background: var(--accent); border: 3px solid var(--bg); box-shadow: 0 0 0 1px var(--accent);
 }
-.player-sheet input[type="range"]::-moz-range-thumb { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); border: 3px solid var(--text); }
+.player-sheet input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 3px solid var(--bg); }
 
-.player-controls { display: flex; align-items: center; justify-content: center; gap: 1rem; }
-.player-controls .btn { min-width: var(--tap-lg); min-height: var(--tap-lg); }
-.player-play { width: 72px; height: 72px; border-radius: 50%; padding: 0; }
+.player-controls { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+.player-controls .btn { min-width: var(--tap-lg); min-height: var(--tap-lg); background: transparent; border-color: transparent; }
+.player-controls .player-play { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.player-play { width: 72px; height: 72px; border-radius: 50%; padding: 0; margin: 0 0.5rem; box-shadow: 0 6px 24px color-mix(in srgb, var(--accent) 28%, transparent); }
 .player-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
-.player-error { padding: 0.75rem; background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); text-align: center; }
+.player-options .btn, .player-sleep .btn { background: var(--surface); }
+.player-options .btn[aria-pressed="true"], .player-sleep .btn[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 20%, var(--surface)); }
+.player-sleep-title { color: var(--muted); font-family: var(--font-body); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.player-error { padding: 0.75rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); text-align: center; }
 
 .player-sheet[data-open] { animation: sheet-in 0.2s ease-out; }
 @keyframes sheet-in { from { transform: translateY(2rem); opacity: 0; } to { transform: none; opacity: 1; } }

@@ -5,26 +5,29 @@
 :root {
   color-scheme: dark;
 
-  /* Surfaces */
-  --bg: #1c1a17;
-  --surface: #25221e;
-  --raised: #2f2b26;
+  /* Surfaces: dark, green-tinted neutrals */
+  --bg: #101411;
+  --surface: #1a211c;
+  --raised: #232b25;
 
   /* Text */
-  --text: #f2ede2;
-  --muted: #b9b1a3;
+  --text: #f1f2e9;
+  --muted: #abb5aa;
 
-  /* Borders, seek tracks, outlines: 3:1 or more against every surface */
-  --line: #8a8173;
+  /* Borders of form controls, seek tracks, outlines: 3:1 or more against every surface */
+  --line: #6a796d;
+  /* Decorative hairlines only (card edges, row dividers, label-bearing pills).
+     Not checked: nothing relies on seeing them to find or use a control. */
+  --line-soft: #374239;
 
   /* Keyboard focus ring */
   --focus: #ffd37a;
 
   /* World accent, used as a FILL with dark ink (UI chrome: primary buttons,
-     active nav, filter chips). Defaults to a PALETTE entry; page script
-     overrides both on <html> when the current world changes. */
-  --accent: #eab09e;
-  --accent-ink: #2c2a26;
+     active nav). Defaults to the lime of the Hearth design; page script
+     overrides both on <html> when the current world changes to a PALETTE entry. */
+  --accent: #c4ed8e;
+  --accent-ink: #151a13;
 
   /* Series accent: story header and cover only. Set inline per element. */
   --series: #babec4;
@@ -38,7 +41,8 @@
   --reading-scale: 1;
 
   /* Shape and spacing */
-  --radius: 16px;
+  --radius: 22px;
+  --radius-sm: 16px;
   --radius-pill: 999px;
   --gutter: 1rem;
   --page-max: 44rem;
@@ -47,9 +51,9 @@
   --tap: 44px;
   --tap-lg: 56px;
 
-  /* Dock: nav row 56px, optional mini-player row 56px above it (about 112px
+  /* Dock: nav row 56px, optional mini-player row 56px above it (about 120px
      plus the safe area). */
-  --dock-nav-h: 56px;
+  --dock-nav-h: 64px;
   --dock-mini-h: 56px;
   --dock-h: calc(var(--dock-nav-h) + env(safe-area-inset-bottom, 0px));
 }

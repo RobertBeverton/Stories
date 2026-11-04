@@ -6,6 +6,7 @@ import path from "node:path";
 import matter from "gray-matter";
 import nunjucks from "nunjucks";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { iconDetailSvgPath, iconSvgPath } from "../../scripts/icons.mjs";
 import { resetLibrary } from "../../site/assets/js/library.mjs";
 import { mount } from "../../site/assets/js/lore.mjs";
 import { getWorld, setWorld } from "../../site/assets/js/world-state.mjs";
@@ -150,6 +151,7 @@ describe("story page links back to lore", () => {
 describe("lore entry page", () => {
   const env = new nunjucks.Environment(new nunjucks.FileSystemLoader(path.join(root, "site", "_includes")), { autoescape: true });
   env.addFilter("url", (p) => "/Stories" + p);
+  env.addGlobal("icons", { path: iconSvgPath, detail: iconDetailSvgPath });
   const { content: template } = matter(fs.readFileSync(path.join(root, "site", "_includes", "lore-entry.njk"), "utf8"));
   const render = (entry) =>
     new DOMParser().parseFromString(
