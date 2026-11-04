@@ -23,7 +23,7 @@
 .lore-link-title { font-weight: 700; font-size: 1.0625rem; }
 .lore-link-kicker { color: var(--accent); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
 .lore-link-summary { color: var(--muted); font-size: var(--text-small); line-height: 1.4; }
-.lore-link:focus-visible, .lore-segment .btn:focus-visible, .lore-grownups summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.lore-link:focus-visible, .lore-segment .btn:focus-visible, .lore-more .btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 /* A story link inside a lore entry: cover tile on the left, like a Library row */
 .lore-link-story { flex-direction: row; align-items: center; gap: 0.9rem; padding-left: 0.75rem; }
 .lore-link-story .cover { flex: none; width: 3.5rem; height: 3.5rem; border-radius: 14px; }
@@ -49,15 +49,10 @@
 .story-lore .lore-link { border-color: color-mix(in srgb, var(--accent) 35%, var(--line-soft)); }
 .lore-stories h2, .story-lore h2 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0 0 0.75rem; }
 
-/* For grown-ups: the outside link stays behind a closed disclosure, styled as a link card */
-.lore-grownups { margin: 2rem 0 1rem; padding: 0.25rem 1rem 1rem; border: 1px solid var(--line-soft); border-radius: var(--radius-sm); background: var(--surface); }
-.lore-grownups summary { display: flex; align-items: center; justify-content: space-between; min-height: var(--tap); cursor: pointer; font-weight: 700; list-style: none; }
-.lore-grownups summary::-webkit-details-marker { display: none; }
-.lore-grownups summary::after { content: "+" / ""; color: var(--muted); font-size: 1.5rem; font-weight: 400; }
-.lore-grownups[open] summary::after { content: "−" / ""; }
-.lore-grownups p { color: var(--muted); font-size: var(--text-small); margin: 0 0 0.75rem; }
-.lore-grownups .btn { word-break: break-all; display: flex; justify-content: space-between; width: 100%; min-height: 3.875rem; padding: 0 1rem; border-radius: var(--radius-sm); background: var(--raised); text-align: left; }
-.lore-grownups .btn::after { content: "↗" / ""; font-size: 1.25rem; }
+/* Outside link: a plain link card at the bottom of an entry */
+.lore-more { margin: 2rem 0 1rem; }
+.lore-more .btn { word-break: break-all; display: flex; justify-content: space-between; width: 100%; min-height: 3.875rem; padding: 0 1rem; border-radius: var(--radius-sm); background: var(--raised); text-align: left; }
+.lore-more .btn::after { content: "↗" / ""; font-size: 1.25rem; }
 
 /* Parts: the tap target stays 44px; the time sits at the end of the row. */
 .parts-list .btn {
