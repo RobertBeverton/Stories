@@ -147,6 +147,14 @@ export function sanitizeView(root) {
   return root;
 }
 
+/** The page a location shows, ignoring ?autoplay=1 (story-resume strips it from the address after the swap). */
+export function docKey(loc) {
+  const params = new URLSearchParams(loc.search);
+  params.delete("autoplay");
+  const query = params.toString();
+  return `${loc.pathname}${query ? `?${query}` : ""}`;
+}
+
 const sameDocument = (url, loc) => url.pathname === loc.pathname && url.search === loc.search;
 
 function inScope(url, loc, base) {
@@ -217,7 +225,7 @@ export function startRouter({ mountAll, unmountAll, now = () => Date.now(), read
   let controller = null;
   let announcer = null;
   let announceTimer = 0;
-  let currentDoc = `${location.pathname}${location.search}`;
+  let currentDoc = docKey(location);
   const memoryGuard = new Map();
 
   // --- guard against reload loops ------------------------------------------
@@ -279,7 +287,12 @@ export function startRouter({ mountAll, unmountAll, now = () => Date.now(), read
 
   function scrollTo(url, savedY) {
     if (url.hash) {
-      const id = decodeURIComponent(url.hash.slice(1));
+      let id = url.hash.slice(1);
+      try {
+        id = decodeURIComponent(id);
+      } catch {
+        // a malformed escape: use the raw text, which finds nothing, so the saved place is used
+      }
       const el = document.getElementById(id);
       if (el) {
         el.scrollIntoView();
@@ -297,7 +310,7 @@ export function startRouter({ mountAll, unmountAll, now = () => Date.now(), read
   }
 
   function rememberScroll() {
-    if (`${location.pathname}${location.search}` !== currentDoc) return; // mid-navigation: location already moved
+    if (docKey(location) !== currentDoc) return; // mid-navigation: location already moved
     try {
       history.replaceState({ ...(history.state ?? {}), stories: true, scrollY: window.scrollY }, "");
     } catch {
@@ -355,7 +368,7 @@ export function startRouter({ mountAll, unmountAll, now = () => Date.now(), read
       const target = finalUrl.href;
       if (push && target !== location.href) history.pushState({ stories: true, scrollY: 0 }, "", target);
       else if (push) history.replaceState({ stories: true, scrollY: 0 }, "", target);
-      currentDoc = `${finalUrl.pathname}${finalUrl.search}`;
+      currentDoc = docKey(finalUrl);
       updateNavState(finalUrl);
       await runHooks(beforeMountHooks, { url: finalUrl, view });
       if (mine !== token) return; // a newer navigation replaced this view; it mounts its own
@@ -381,7 +394,7 @@ export function startRouter({ mountAll, unmountAll, now = () => Date.now(), read
   }
   function onPopState(event) {
     const url = new URL(location.href);
-    if (`${url.pathname}${url.search}` === currentDoc) {
+    if (docKey(url) === currentDoc) {
       scrollTo(url, event.state?.scrollY); // same document: a hash change, or Back to a hash
       return;
     }
@@ -403,10 +416,14 @@ export function startRouter({ mountAll, unmountAll, now = () => Date.now(), read
   document.addEventListener("visibilitychange", onVisibility);
   Promise.resolve(ready).then(restoreInitialScroll, restoreInitialScroll);
 
+  const navigate = (href, options) => go(new URL(href, location.href), options);
+  nav.router = navigate; // modules call nav.open(), which now stays inside the app
+
   return {
-    navigate: (href, options) => go(new URL(href, location.href), options),
+    navigate,
     stop() {
       stopped = true;
+      if (nav.router === navigate) nav.router = null;
       controller?.abort();
       token++;
       clearTimeout(announceTimer);

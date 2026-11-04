@@ -6,7 +6,13 @@ router with one persistent audio player (design doc, section 1, "Shell" and
 [the design](../plans/2026-11-03-stories-app-redesign-design.md) (Rollout, step 0a)
 and WP-S in [the implementation plan](../plans/2026-11-03-stories-app-redesign-implementation.md).
 
-The test page is `site/spikes/audio-spike.html`. It is one file with no network
+**Retired.** The spike is done and its result is below. The page now lives at
+`docs/spikes/audio-spike.html` and is no longer built or published (it carried an inline
+script, which the site's rules forbid). To run it again, copy it back to
+`site/spikes/audio-spike.html` for a throwaway deploy. The steps below describe the page as
+it was published, at `/Stories/spikes/audio-spike.html`.
+
+The test page was `site/spikes/audio-spike.html`. It is one file with no network
 requests: the audio (two tracks, in two flavours), the icon and the manifest are
 all embedded. It is published at:
 

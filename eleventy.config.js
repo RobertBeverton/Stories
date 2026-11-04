@@ -1,5 +1,6 @@
 import fg from "fast-glob";
 import fs from "node:fs";
+import matter from "gray-matter";
 import { slugify } from "./scripts/slugify.mjs";
 import { PATH_PREFIX } from "./scripts/stories-lib.mjs";
 import { iconDetailSvgPath, iconSvgPath } from "./scripts/icons.mjs";
@@ -26,6 +27,8 @@ export default function (eleventyConfig) {
   // `collections.all`) the normal way.
   for (const filePath of fg.sync("stories/**/*.md")) {
     const content = fs.readFileSync(filePath, "utf8");
+    // A draft is not published: no page, no prev/next link (see computeStories).
+    if (matter(content).data.draft) continue;
     const virtualPath = `virtual-${filePath.replace(/[\\/]/g, "-")}`;
     const storySlug = filePath
       .replace(/^stories[\\/]/, "")

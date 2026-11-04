@@ -6,6 +6,7 @@
     "fetch-content": "node scripts/fetch-content.mjs",
     "validate": "node scripts/validate-content.mjs",
     "validate-world-data": "node scripts/validate-world-data.mjs",
+    "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "generate-icons": "node scripts/generate-icon-art.mjs",
     "check-token-contrast": "node scripts/check-token-contrast.mjs",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@11ty/eleventy": "^3.1.6",
     "@playwright/test": "^1.64.1",
+    "@vitest/coverage-v8": "^4.1.11",
     "ajv": "^8.20.0",
     "fast-glob": "^3.3.3",
     "gray-matter": "^4.0.3",

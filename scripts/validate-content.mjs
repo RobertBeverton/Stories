@@ -103,6 +103,23 @@ export function checkRepoSize(fileSizes, maxTotalBytes, maxFileBytes) {
   return errors;
 }
 
+/**
+ * Returns `raw` with the front matter's `audioDuration: <seconds>` set: replaced in
+ * place when the front matter has one, else added before the closing `---`. Only the
+ * front matter is touched (the story body may say anything), CRLF files keep their
+ * line endings, and a file with no front matter gets a new block.
+ */
+export function withAudioDuration(raw, seconds) {
+  const eol = raw.includes("\r\n") ? "\r\n" : "\n";
+  const block = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(\r?\n|$)/.exec(raw);
+  if (!block) return `---${eol}audioDuration: ${seconds}${eol}---${eol}${raw}`;
+  const line = /^audioDuration:[^\r\n]*$/m;
+  const front = line.test(block[1])
+    ? block[1].replace(line, `audioDuration: ${seconds}`)
+    : `${block[1]}${eol}audioDuration: ${seconds}`;
+  return `---${eol}${front}${eol}---${block[2]}${raw.slice(block[0].length)}`;
+}
+
 async function deriveAudioDurations(stories) {
   const errors = [];
   for (const story of stories) {
@@ -122,15 +139,7 @@ async function deriveAudioDurations(stories) {
     const seconds = Math.round(metadata.format.duration ?? 0);
     if (story.data.audioDuration !== seconds) {
       const raw = fs.readFileSync(story.file, "utf8");
-      // Existing field: replace in place. No field yet (e.g. audio was just
-      // added, or defaulted from the story's own filename with no front
-      // matter at all): insert one just before the closing `---` of the
-      // frontmatter block, since a bare .replace() on a non-matching regex
-      // silently no-ops and leaves audioDuration missing.
-      const updated = /audioDuration:\s*\d+/.test(raw)
-        ? raw.replace(/audioDuration:\s*\d+/, `audioDuration: ${seconds}`)
-        : raw.replace(/^(---\n[\s\S]*?)\n---\n/, `$1\naudioDuration: ${seconds}\n---\n`);
-      fs.writeFileSync(story.file, updated);
+      fs.writeFileSync(story.file, withAudioDuration(raw, seconds));
       console.log(`${story.file}: audioDuration updated to ${seconds}`);
     }
   }

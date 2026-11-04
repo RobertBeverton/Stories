@@ -16,6 +16,14 @@ export function shellAudio(doc = document) {
   return doc.querySelector('audio[data-role="shell-audio"]') ?? doc.querySelector("audio#player");
 }
 
+/**
+ * True while the player is swapping the audio to another story (set by player.mjs).
+ * The element reads 0:00 and fires events then, so nothing may save a position from it.
+ */
+export function isSettling(audio) {
+  return Boolean(audio) && audio.dataset.settling === "1";
+}
+
 /** True while the audio holds `slug`'s story. */
 export function holdsStory(audio, slug) {
   return Boolean(audio) && Boolean(slug) && audio.dataset.slug === slug;

@@ -34,7 +34,7 @@ export function mount(el) {
     const button = event.target.closest?.("button[data-world]");
     if (!button || !el.contains(button)) return;
     setWorld(button.dataset.world);
-    if (picker) nav.go(`${basePath()}/library/`);
+    if (picker) nav.open(`${basePath()}/library/`);
   };
 
   document.addEventListener("stories:world", onWorld);

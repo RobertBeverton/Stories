@@ -11,7 +11,7 @@ import { PATH_PREFIX } from "./stories-lib.mjs";
 
 // JSON for an inline <script>: "<" is escaped so no string can close the tag.
 function serialise(value) {
-  return JSON.stringify(value).replace(/</g, "\u003c");
+  return JSON.stringify(value).replace(/</g, "\\u003c");
 }
 
 /** Maps every site/assets/js/*.mjs URL to itself plus ?v=<buildId>. Keys are sorted, so output is deterministic. */

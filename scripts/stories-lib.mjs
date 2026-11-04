@@ -133,7 +133,8 @@ export function computeStories(rawStories, audioFileExists = alwaysExists) {
 
   // Compute prev/next navigation within each series, ordered by seriesOrder.
   const bySeries = new Map();
-  for (const story of allStories) {
+  // Drafts take no part in navigation, pages or lookups: only published stories do.
+  for (const story of stories) {
     if (!story.series) continue;
     if (!bySeries.has(story.series)) bySeries.set(story.series, []);
     bySeries.get(story.series).push(story);
@@ -143,7 +144,7 @@ export function computeStories(rawStories, audioFileExists = alwaysExists) {
   }
 
   const bySlug = {};
-  for (const story of allStories) {
+  for (const story of stories) {
     let prevStory = null;
     let nextStory = null;
     if (story.series) {
