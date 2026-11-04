@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url";
 import { parseFile } from "music-metadata";
 import { isValidIcon, ICON_NAMES } from "./icons.mjs";
 import { isAudioUrl } from "./audio-origin.mjs";
+import { setFrontMatterField } from "./front-matter.mjs";
 
 export function checkRequiredFields(stories) {
   const required = ["title", "description", "publishDate"];
@@ -52,7 +53,7 @@ export async function loadStories(globPattern = "stories/**/*.md") {
 // Audio filename defaults to the story's own basename (see stories-lib.mjs)
 // so most stories carry no `audio` front matter at all; `audio: false` opts
 // out explicitly (no narration yet — not a warning-worthy state).
-function resolveAudioFile(story) {
+export function resolveAudioFile(story) {
   if (story.data.audio === false) return null;
   if (story.data.audio) return story.data.audio;
   return `${path.basename(story.file, ".md")}.mp3`;
@@ -103,21 +104,9 @@ export function checkRepoSize(fileSizes, maxTotalBytes, maxFileBytes) {
   return errors;
 }
 
-/**
- * Returns `raw` with the front matter's `audioDuration: <seconds>` set: replaced in
- * place when the front matter has one, else added before the closing `---`. Only the
- * front matter is touched (the story body may say anything), CRLF files keep their
- * line endings, and a file with no front matter gets a new block.
- */
+/** `raw` with front matter `audioDuration: <seconds>` set (see setFrontMatterField). */
 export function withAudioDuration(raw, seconds) {
-  const eol = raw.includes("\r\n") ? "\r\n" : "\n";
-  const block = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(\r?\n|$)/.exec(raw);
-  if (!block) return `---${eol}audioDuration: ${seconds}${eol}---${eol}${raw}`;
-  const line = /^audioDuration:[^\r\n]*$/m;
-  const front = line.test(block[1])
-    ? block[1].replace(line, `audioDuration: ${seconds}`)
-    : `${block[1]}${eol}audioDuration: ${seconds}`;
-  return `---${eol}${front}${eol}---${block[2]}${raw.slice(block[0].length)}`;
+  return setFrontMatterField(raw, "audioDuration", seconds);
 }
 
 async function deriveAudioDurations(stories) {
