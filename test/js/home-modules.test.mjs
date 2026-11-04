@@ -8,7 +8,7 @@ import { resetLibrary } from "../../site/assets/js/library.mjs";
 import { nav } from "../../site/assets/js/nav.mjs";
 import { markCompleted, write } from "../../site/assets/js/progress.mjs";
 import {
-  libraryPageHtml, loadPage, progressV1, progressV2, seed, stubLibraryFetch, storyPageHtml, useFixedNow,
+  fakeAudio, libraryPageHtml, loadPage, progressV1, progressV2, seed, stubLibraryFetch, storyPageHtml, useFixedNow,
 } from "./helpers.mjs";
 
 const HOSTILE_LIB = () => ({
@@ -248,5 +248,173 @@ describe("play-button", () => {
     const el = document.createElement("button");
     el.textContent = "Play";
     expect(() => mountPlayButton(el)()).not.toThrow();
+  });
+});
+
+describe("play-button: Pause while its story plays (data-pause-when-playing)", () => {
+  const SLUG = "test-world/first-tale";
+  let audio;
+  let ctl;
+
+  function pausable() {
+    loadPage(storyPageHtml);
+    audio = document.querySelector("audio");
+    ctl = fakeAudio(audio, { duration: 600 });
+    const el = document.querySelector('[data-mount="play-button"]');
+    el.setAttribute("data-pause-when-playing", "");
+    return el;
+  }
+
+  it("reads Pause while the audio plays this story, and Play or Resume again after a pause", async () => {
+    stubLibraryFetch();
+    const el = pausable();
+    mountPlayButton(el);
+    expect(el.textContent).toBe("Play");
+    audio.play();
+    expect(el.textContent).toBe("Pause");
+    expect(el.dataset.playing).toBe("true");
+    ctl.pauseAt(120);
+    write(SLUG, { audioTime: 120 });
+    expect(el.textContent).toBe("Resume");
+    expect(el.dataset.playing).toBeUndefined();
+  });
+
+  it("pauses the audio instead of asking to play, and does not navigate", async () => {
+    stubLibraryFetch();
+    const go = vi.spyOn(nav, "go").mockImplementation(() => {});
+    const el = pausable();
+    mountPlayButton(el);
+    audio.play();
+    const asked = vi.fn();
+    document.addEventListener("stories:play", asked);
+    el.click();
+    document.removeEventListener("stories:play", asked);
+    await new Promise((r) => setTimeout(r, 10));
+    expect(audio.pause).toHaveBeenCalledTimes(1);
+    expect(asked).not.toHaveBeenCalled();
+    expect(go).not.toHaveBeenCalled();
+  });
+
+  it("is not Pause while the audio plays a different story", async () => {
+    stubLibraryFetch();
+    const el = pausable();
+    mountPlayButton(el);
+    audio.dataset.slug = "test-world/second-tale";
+    audio.play();
+    expect(el.textContent).toBe("Play");
+  });
+
+  it("swaps the glyph and puts the original label, glyph and state back on unmount", async () => {
+    stubLibraryFetch();
+    loadPage(storyPageHtml);
+    audio = document.querySelector("audio");
+    ctl = fakeAudio(audio);
+    const el = document.querySelector('[data-mount="play-button"]');
+    el.setAttribute("data-pause-when-playing", "");
+    el.innerHTML = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><span data-role="label">Play</span>';
+    const unmount = mountPlayButton(el);
+    audio.play();
+    expect(el.querySelector("path").getAttribute("d")).not.toBe("M8 5v14l11-7z");
+    expect(el.querySelector("[data-role=label]").textContent).toBe("Pause");
+    unmount();
+    expect(el.querySelector("path").getAttribute("d")).toBe("M8 5v14l11-7z");
+    expect(el.querySelector("[data-role=label]").textContent).toBe("Play");
+    expect(el.dataset.playing).toBeUndefined();
+    audio.pause();
+  });
+
+  it("an ordinary Play button ignores the audio", async () => {
+    stubLibraryFetch();
+    loadPage(storyPageHtml);
+    audio = document.querySelector("audio");
+    ctl = fakeAudio(audio);
+    const el = document.querySelector('[data-mount="play-button"]');
+    mountPlayButton(el);
+    audio.play();
+    expect(el.textContent).toBe("Play");
+  });
+});
+
+describe("Home follows the audio clock of the story that is playing", () => {
+  const SLUG = "test-world/first-tale"; // 600 s in the fixture library
+  let audio;
+  let ctl;
+
+  function playingShell() {
+    audio = document.createElement("audio");
+    audio.dataset.role = "shell-audio";
+    audio.dataset.slug = SLUG;
+    document.body.append(audio);
+    ctl = fakeAudio(audio, { duration: 600 });
+  }
+
+  it("Continue shows a story started seconds ago, and its bar moves between saves", async () => {
+    stubLibraryFetch();
+    playingShell();
+    const el = document.querySelector('[data-mount="continue"]');
+    mountContinue(el);
+    await vi.waitFor(() => expect(el.querySelector("a")).not.toBeNull());
+    expect(el.querySelector("a").dataset.state).toBe("start"); // nothing playing yet
+    audio.play();
+    ctl.tick(1.5); // under the 5 s save interval: nothing saved yet
+    const card = el.querySelector("a");
+    expect(card.dataset.state).toBe("resume");
+    expect(card.dataset.slug).toBe(SLUG);
+    expect(card.querySelector("progress").value).toBe(0);
+    vi.setSystemTime(Date.now() + 2000);
+    ctl.tick(150);
+    expect(el.querySelector("a")).toBe(card); // updated in place, not rebuilt
+    expect(card.querySelector("progress").value).toBe(25);
+    expect(card.querySelector("progress").getAttribute("aria-label")).toBe("25% listened");
+  });
+
+  it("Continue stops following once the audio is paused (the saved record takes over)", async () => {
+    stubLibraryFetch();
+    playingShell();
+    const el = document.querySelector('[data-mount="continue"]');
+    mountContinue(el);
+    await vi.waitFor(() => expect(el.querySelector("a")).not.toBeNull());
+    audio.play();
+    ctl.tick(60);
+    expect(el.querySelector("progress").value).toBe(10);
+    write(SLUG, { audioTime: 60, playing: false }); // what the pause handlers save
+    ctl.pauseAt(60);
+    expect(el.querySelector("progress").value).toBe(10);
+  });
+
+  it("Played lately lists it as in progress at once", async () => {
+    stubLibraryFetch();
+    playingShell();
+    const el = document.querySelector('[data-mount="played-lately"]');
+    mountPlayedLately(el);
+    await vi.waitFor(() => expect(el.hidden).toBe(true));
+    audio.play();
+    ctl.tick(3);
+    expect(el.hidden).toBe(false);
+    const item = el.querySelector(`a[data-slug="${SLUG}"]`);
+    expect(item.dataset.state).toBe("in-progress");
+  });
+
+  it("does not let a loaded but paused story overwrite what was saved", async () => {
+    stubLibraryFetch();
+    playingShell();
+    write(SLUG, { audioTime: 300 });
+    ctl.tick(0); // loaded at 0 for a resume, paused
+    const el = document.querySelector('[data-mount="continue"]');
+    mountContinue(el);
+    await vi.waitFor(() => expect(el.querySelector("progress")).not.toBeNull());
+    expect(el.querySelector("progress").value).toBe(50);
+  });
+
+  it("stops listening to the audio on unmount", async () => {
+    stubLibraryFetch();
+    playingShell();
+    const el = document.querySelector('[data-mount="continue"]');
+    const unmount = mountContinue(el);
+    await vi.waitFor(() => expect(el.querySelector("a")).not.toBeNull());
+    unmount();
+    audio.play();
+    ctl.tick(100);
+    expect(el.querySelector("a")).toBeNull();
   });
 });

@@ -26,7 +26,7 @@ their own inner DOM and can reuse these classes.
 
 | Hook | Where | Root emitted | Fallback content | Classes available to the module |
 |---|---|---|---|---|
-| `dock` | every page | `<div class="dock" data-mount="dock">` containing `.dock-mini[data-dock-slot="mini"]` (empty) and the real Home and Library links | the links themselves | In `.dock-mini`: `.dock-mini-title` plus `.btn.btn-icon` buttons. Add `has-mini-player` to `<body>` while the row is shown |
+| `dock` | every page | `<div class="dock" data-mount="dock">` containing `.dock-mini[data-dock-slot="mini"]` (empty) and the real Home and Library links | the links themselves | In `.dock-mini`: `.dock-mini-open` (`.dock-mini-text` with `.dock-mini-title` and `.dock-mini-time`, `.dock-mini-chevron`), `.dock-mini-skip` and play buttons (`.btn.btn-icon`) and `.dock-mini-progress` (painted from `--fill`). Add `has-mini-player` to `<body>` while the row is shown |
 | `continue` | Home | `<div data-mount="continue">` | `<a class="card-continue" data-slug>` with `.cover`, `.card-continue-label`, `.card-continue-title`, `.btn.btn-primary.btn-lg` for the newest story | Same classes. Replace the fallback |
 | `played-lately` | Home | `<div class="lately-root" data-mount="played-lately">`, empty | none. The section hides itself while the root is `:empty` | `ul.lately > li > a.lately-item` with `.cover` and `.lately-title`. Three items |
 | `world-switcher` | Home and Library | `<div data-mount="world-switcher" data-variant="picker\|filter">` | Home: a link tile to `/library/`. Library: empty | Picker: `.world-tile` (a link or `button`, `aria-pressed` or `aria-current` for the selected one, `--tile` and `--tile-ink` set inline from the world's PALETTE entry). Filter: `.btn` buttons with `aria-pressed` |
@@ -58,7 +58,7 @@ native `input[type=range]` and `.player-time`, `.player-controls` with
 `fieldset.textsize[data-mount="text-size"]` on the story page is three real radios
 (`#ts-sm`, `#ts-md`, `#ts-lg`). The size works with CSS only
 (`.story:has(#ts-lg:checked)` sets `--reading-scale`); the `text-size` module
-only remembers the choice.
+only remembers the choice. The radios take no touches (`pointer-events: none`): the labels are the targets.
 
 ## Module output
 

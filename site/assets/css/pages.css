@@ -226,7 +226,11 @@ section:has(> .lately-root:empty) { display: none; }
 /* Text size: a real radio group, pure CSS, works without script */
 .textsize { position: relative; display: inline-flex; border: 0; margin: 0; padding: 0; gap: 0.25rem; align-items: center; }
 .textsize legend { padding: 0; }
-.textsize input { position: absolute; opacity: 0; width: var(--tap); height: var(--tap); margin: 0; }
+/* The radios are visually hidden and take no touches: an absolutely positioned input with no
+   offsets sits at the fieldset's start, so the three of them stack over the first label (A-) and
+   the last one (A+) caught every tap meant for it. The labels are the targets; keyboard and
+   screen readers still use the radios. */
+.textsize input { position: absolute; opacity: 0; width: var(--tap); height: var(--tap); margin: 0; pointer-events: none; }
 .textsize label {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: var(--tap); min-height: var(--tap);

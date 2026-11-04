@@ -815,3 +815,90 @@ describe("unmount", () => {
     expect(q("dock-announcer").textContent).toBe("");
   });
 });
+
+describe("mini player: progress, time and skip", () => {
+  it("shows elapsed / total time and a progress line that follow the audio clock", async () => {
+    await setup();
+    clickPlay(B); // the stand-in audio is 600 s long
+    loaded();
+    fake.tick(150);
+    await vi.waitFor(() => expect(mini().hidden).toBe(false));
+    expect(q("mini-time").textContent).toBe("2:30 / 10:00");
+    expect(q("mini-progress").style.getPropertyValue("--fill")).toBe("25%");
+    expect(q("mini-progress").getAttribute("aria-hidden")).toBe("true");
+    fake.tick(300);
+    expect(q("mini-time").textContent).toBe("5:00 / 10:00");
+    expect(q("mini-progress").style.getPropertyValue("--fill")).toBe("50%");
+  });
+
+  it("has labelled skip back and forward buttons that seek 15 seconds", async () => {
+    await setup();
+    clickPlay(B);
+    loaded();
+    fake.tick(100);
+    expect(q("mini-back").getAttribute("aria-label")).toBe("Back 15 seconds");
+    expect(q("mini-forward").getAttribute("aria-label")).toBe("Forward 15 seconds");
+    q("mini-forward").click();
+    expect(audio.currentTime).toBe(115);
+    q("mini-back").click();
+    q("mini-back").click();
+    expect(audio.currentTime).toBe(85);
+  });
+
+  it("the open button carries the affordance and the name", async () => {
+    await setup();
+    clickPlay(B);
+    await vi.waitFor(() => expect(mini().hidden).toBe(false));
+    expect(q("open-player").getAttribute("aria-label")).toBe(`Open player: ${storyOf(B).title}`);
+    expect(q("open-player").querySelector('[data-role="mini-chevron"]')).not.toBeNull();
+    expect(q("open-player").getAttribute("aria-haspopup")).toBe("dialog");
+  });
+
+  it("the sheet's skip buttons say 15 sec, and show elapsed and remaining time", async () => {
+    await setup();
+    clickPlay(B);
+    loaded();
+    fake.tick(60);
+    q("open-player").click();
+    expect(q("back").textContent).toContain("15 sec");
+    expect(q("forward").textContent).toContain("15 sec");
+    expect(q("elapsed").textContent).toBe("1:00");
+    expect(q("remaining").textContent).toBe("-9:00");
+    q("forward").click();
+    expect(audio.currentTime).toBe(75);
+  });
+});
+
+describe("player sheet: parts", () => {
+  it("a story with parts gets previous and next part buttons, and its stories move to the options row", async () => {
+    await setup();
+    clickPlay(A); // two parts: 0 s and 240.5 s; A and B share a series
+    loaded();
+    fake.tick(100);
+    q("open-player").click();
+    expect(q("previous-part").hidden).toBe(false);
+    expect(q("next-part").hidden).toBe(false);
+    expect(q("previous").hidden).toBe(true);
+    expect(q("next").hidden).toBe(true);
+    expect(q("next-story").hidden).toBe(false);
+    q("next-part").click();
+    expect(audio.currentTime).toBe(240.5);
+    expect(q("next-part").disabled).toBe(true);
+    fake.tick(250); // 9.5 s into part two: previous restarts it
+    q("previous-part").click();
+    expect(audio.currentTime).toBe(240.5);
+    q("previous-part").click(); // at its start: the part before
+    expect(audio.currentTime).toBe(0);
+  });
+
+  it("a story without parts keeps previous and next story in the transport row", async () => {
+    await setup();
+    clickPlay(B);
+    loaded();
+    q("open-player").click();
+    expect(q("previous-part").hidden).toBe(true);
+    expect(q("next-part").hidden).toBe(true);
+    expect(q("previous").hidden).toBe(false);
+    expect(q("previous-story").hidden).toBe(true);
+  });
+});

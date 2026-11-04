@@ -22,13 +22,17 @@ Common rules:
 `<section data-mount="continue"></section>`. Renders one
 `a[data-role="card"]` (`data-state="resume|start|again"`, `data-slug`) with children
 `[data-role="kicker"]`, `[data-role="title"]`, optional `progress[data-role="bar"]`
-(resume only) and `[data-role="action"]`. Links to the story with `?autoplay=1`.
+(resume only) and `[data-role="action"]`. Links to the story with `?autoplay=1`. The bar is updated in place (the card is not
+rebuilt) from saved records AND, while a story plays, from the shell audio's clock
+(`withLiveProgress` / `onLiveProgress` in `shell-audio.mjs`), so it moves between the
+five-second saves and shows a story started seconds ago.
 
 ## `played-lately`
 
 `<section data-mount="played-lately"></section>`. Renders
 `ul[data-role="list"] > li[data-role="item"] > a[data-slug][data-state="in-progress|finished"]`
-with `[data-role="title"]` and `[data-role="state"]` inside. At most three.
+with `[data-role="title"]` and `[data-role="state"]` inside. At most three. Like `continue`, it
+follows the playing story's audio clock, not only saved records.
 
 ## `story-resume`
 
@@ -44,7 +48,12 @@ Optional `[data-role="resume"]` inside the article is used as the message area
 (`role="status"`) after the first `h1`. It fills it with
 `button[data-role="resume-button"]`, `button[data-role="restart-button"]`,
 `p[data-role="autoplay-fallback"]`, `p[data-role="audio-error"]` and
-`button[data-role="retry-button"]`. It claims `stories:play` for its own slug.
+`button[data-role="retry-button"]`. It claims `stories:play` for its own slug. A press of Play on a story the audio already holds
+follows one rule (`startPosition` in `shell-audio.mjs`, shared with the player): ended or
+finished-and-paused starts from 0, an unstarted audio goes to the saved place, otherwise it
+carries on; a story already playing is left alone (the page's button is Pause then). Resume
+and Start over are Play buttons with a position: they seek and play while the audio holds the
+story, and otherwise ask the player for it with `stories:play` (after writing the record).
 It saves progress, marks finished (`ended`, and foreground reconciliation against
 the real `audio.duration`) and sets Media Session metadata (only for a loaded story that is
 its own; the player owns Media Session otherwise).
@@ -58,6 +67,10 @@ holding only text uses itself; a button with other children and no label child
 ("Play X", "Resume X", "Play again X") swapped. Label becomes "Resume" or
 "Play again" by progress; `data-state="new|in-progress|finished"` is set. Click
 fires `stories:play`; if nothing claims it, navigates to `<url>?autoplay=1`.
+With the `data-pause-when-playing` attribute (the story page's own button) it is also a Pause
+button: while the shell audio holds this story and plays it, the label is "Pause", the glyph a
+pause, `data-playing="true"` is set, and a press pauses the audio instead of firing
+`stories:play`. It follows the audio however playback was started. Row buttons do not opt in.
 
 ## `search`
 
@@ -109,7 +122,16 @@ goes to `<base>/library/`; otherwise `.btn` chips. Remembers the choice in
 
 `<fieldset data-mount="text-size">` holding three `input[type=radio]` (`sm|md|lg`).
 The size is CSS; the module restores the remembered radio on mount and stores
-changes in `localStorage["stories-text-size"]`.
+changes in `localStorage["stories-text-size"]`. The radios are visually hidden with
+`pointer-events: none`; the labels are the 44px touch targets (stacked absolute inputs
+once swallowed every tap meant for A-).
+
+## Lore cards (story page, not a hook)
+
+`lore-links.njk` renders, inside the story hero between the details and the Play row,
+`section.story-lore[data-role="story-lore"]` with one `a.lore-link.lore-chip` per linked
+entry: the tradition, "About <title>" and the one-line summary. Only emitted when the story
+has lore links. It is the only list of lore links on the page.
 
 ## World accent (not a hook)
 
@@ -138,11 +160,15 @@ and the dock, both outside `#view`. On a story page the audio already holds that
 story (`data-slug`, `src`), so a plain page load works without the router.
 
 - **`dock.mjs`** (`data-mount="dock"`, mounted once, never remounted): fills
-  `.dock-mini` with a title button (opens the player sheet) and a play/pause
-  button, hidden until something has been started. The player sheet is a modal
+  `.dock-mini` with one open button (title, `[data-role="mini-time"]` "elapsed / total" and
+  a chevron: the whole left side opens the player sheet), skip back/forward 15 s buttons, a
+  play/pause button and a thin `[data-role="mini-progress"]` line, all following the audio
+  clock; hidden until something has been started. The player sheet is a modal
   `role="dialog"` (focus trapped, Escape closes, `#view` and the dock rows `inert`
   while open, focus returns to the opener) with a native range seek, back/forward
-  15 s, previous/next, speed (remembered in `stories-speed`), the sleep timer and a
+  15 s (arrow plus "15 sec"), previous/next (the parts of a story that has parts, with the
+  neighbouring stories as text buttons in the options row; otherwise the neighbouring
+  stories), speed (remembered in `stories-speed`), the sleep timer and a
   "Read the story" link. The live region announces only user actions (speed,
   sleep timer). Closing the sheet returns focus to its opener; if that is gone (a router
   swap removed it) focus goes to the mini button when the mini row shows, else the page's
