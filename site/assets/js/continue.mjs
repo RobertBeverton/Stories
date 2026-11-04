@@ -2,11 +2,12 @@
 // unfinished story; with no history, the newest story. Everything displayed
 // comes from library.json; storage only decides which story and how far.
 import { cover } from "./cover.mjs";
-import { h, onProgressChange, renderIfChanged } from "./dom.mjs";
+import { h, renderIfChanged } from "./dom.mjs";
 import { safeHref } from "./escape.mjs";
 import { loadLibrary } from "./library.mjs";
 import { readAll } from "./progress.mjs";
 import { pickContinue } from "./selectors.mjs";
+import { onLiveProgress, withLiveProgress } from "./shell-audio.mjs";
 
 const KICKER = { resume: "Continue", start: "Start here", again: "Play again" };
 const ACTION = { resume: "Resume", start: "Play", again: "Play again" };
@@ -17,14 +18,15 @@ export function mount(el) {
 
   function render() {
     if (disposed || !library) return;
-    const pick = pickContinue(library.stories, readAll());
+    const pick = pickContinue(library.stories, withLiveProgress(readAll()));
     if (!pick) {
       el.hidden = true;
       return;
     }
     const { story, kind, fraction } = pick;
     const percent = Math.round(fraction * 100);
-    const signature = [story.slug, kind, percent].join("|");
+    // The bar is updated in place below, so it moving never rebuilds the card (and drops focus).
+    const signature = [story.slug, kind].join("|");
     el.hidden = false;
     renderIfChanged(el, signature, () => {
       const world = library.worlds.find((w) => w.name === story.world);
@@ -56,9 +58,16 @@ export function mount(el) {
       );
       return [card];
     });
+    const bar = el.querySelector('[data-role="bar"]');
+    if (bar) {
+      bar.value = percent;
+      bar.setAttribute("aria-label", `${percent}% listened`);
+    }
   }
 
-  const stop = onProgressChange(render);
+  // Saved records alone move in steps of five seconds (and not at all in the first
+  // few), so the playing story is read from the audio clock as well.
+  const stop = onLiveProgress(render);
   loadLibrary().then((lib) => {
     if (disposed) return;
     library = lib;

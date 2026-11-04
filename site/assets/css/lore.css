@@ -21,6 +21,7 @@
 }
 .lore-link::after { content: "→" / ""; position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 1.25rem; }
 .lore-link-title { font-weight: 700; font-size: 1.0625rem; }
+.lore-link-kicker { color: var(--accent); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
 .lore-link-summary { color: var(--muted); font-size: var(--text-small); line-height: 1.4; }
 .lore-link:focus-visible, .lore-segment .btn:focus-visible, .lore-grownups summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 /* A story link inside a lore entry: cover tile on the left, like a Library row */
@@ -42,7 +43,10 @@
 .lore-summary { font-family: var(--font-display); font-size: 1.125rem; line-height: 1.55; color: var(--text); margin: 0.75rem 0 0; }
 .lore-body { font-family: var(--font-display); font-size: calc(1.25rem * var(--reading-scale)); line-height: 1.7; color: #e6e7dd; max-width: 65ch; }
 .lore-body h2, .lore-body h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.3em; margin: 1.75em 0 0.5em; }
-.lore-stories, .story-lore { margin: 2rem auto 0; max-width: 65ch; }
+.lore-stories { margin: 2rem auto 0; max-width: 65ch; }
+/* On the story page the cards sit in the hero, between the details and the Play row */
+.story-lore { margin: 0 0 1rem; }
+.story-lore .lore-link { border-color: color-mix(in srgb, var(--accent) 35%, var(--line-soft)); }
 .lore-stories h2, .story-lore h2 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0 0 0.75rem; }
 
 /* For grown-ups: the outside link stays behind a closed disclosure, styled as a link card */

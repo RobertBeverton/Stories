@@ -15,7 +15,7 @@
 import { h } from "./dom.mjs";
 import { loadLibrary } from "./library.mjs";
 import { setupMediaSession } from "./media-session.mjs";
-import { holdsStory, shellAudio } from "./shell-audio.mjs";
+import { holdsStory, shellAudio, startPosition as playFrom } from "./shell-audio.mjs";
 import {
   COMPLETE_WINDOW_SEC, markCompleted, read, toViewModel, write,
 } from "./progress.mjs";
@@ -60,8 +60,6 @@ export function mount(el) {
     ? audio.duration
     : story?.durationSec ?? null);
   const viewModel = (record) => toViewModel(record, { durationSec: duration() });
-  const nearEnd = () => audio && Number.isFinite(audio.duration)
-    && audio.currentTime >= audio.duration - COMPLETE_WINDOW_SEC;
 
   function show(...children) {
     area.replaceChildren(...children);
@@ -83,16 +81,30 @@ export function mount(el) {
     }
   }
 
-  /** Starts (or resumes) playback the way a Play button should. */
+  /**
+   * Starts (or resumes) playback the way a Play button should (the same rule the
+   * player uses, see shell-audio.mjs). A story already playing is left alone: the
+   * page's own button is Pause then, and nothing else should restart it.
+   */
   function begin() {
-    const record = read(slug);
-    const finished = viewModel(record).state === "finished";
-    if (audio.ended || (finished && (audio.currentTime < 1 || nearEnd()))) {
-      audio.currentTime = 0;
-    } else if (audio.currentTime < 1 && record) {
-      audio.currentTime = startPosition(record);
-    }
+    if (!audio.paused && !audio.ended) return;
+    const to = playFrom(audio, read(slug));
+    if (to !== null) audio.currentTime = to;
     play();
+  }
+
+  /**
+   * Plays this story from `position`. While the audio holds it, seek and play. While
+   * another story holds the audio, ask for this one the way a Play button does: the
+   * player loads it, from the record this page has just written.
+   */
+  function playAt(position) {
+    if (mine()) {
+      audio.currentTime = position;
+      play();
+    } else {
+      document.dispatchEvent(new CustomEvent("stories:play", { detail: { slug }, cancelable: true }));
+    }
   }
 
   /** Foreground reconciliation: finish a story whose `ended` we never saw. */
@@ -127,17 +139,19 @@ export function mount(el) {
     && (record.audioTime > RESUME_AUDIO_SEC || record.scrollY > RESUME_SCROLL_PX)) {
     const resume = h("button", { type: "button", class: "btn btn-primary", "data-role": "resume-button" }, "Resume where you left off");
     const restart = h("button", { type: "button", class: "btn", "data-role": "restart-button" }, "Start over");
+    // Both buttons start playback as well as moving to the place: they are Play buttons
+    // with a position, and a tap that only moved the audio looked like it did nothing.
     resume.addEventListener("click", () => {
-      if (mine() && record.audioTime) audio.currentTime = record.audioTime;
       if (record.scrollY) window.scrollTo({ top: record.scrollY, behavior: "smooth" });
       show();
+      playAt(record.audioTime);
     });
     restart.addEventListener("click", () => {
       // Keep completedAt: starting over is not un-finishing a story.
       write(slug, { audioTime: 0, scrollY: 0, playing: false });
-      if (mine()) audio.currentTime = 0;
       window.scrollTo({ top: 0, behavior: "smooth" });
       show();
+      playAt(0);
     });
     show(resume, restart);
   }

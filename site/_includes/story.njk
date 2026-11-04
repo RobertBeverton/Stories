@@ -21,9 +21,11 @@ layout: base.njk
     {% endif %}
     <p class="story-meta">~{{ readMinutes }} min read{% if audioMinutes %} · ~{{ audioMinutes }} min listen{% endif %}</p>
 
+    {% include "lore-links.njk" %}
+
     <div class="story-actions">
       {% if audioUrl %}
-      <button type="button" class="btn btn-primary btn-lg" data-mount="play-button" data-slug="{{ slug }}" data-audio-url="{{ audioUrl }}">
+      <button type="button" class="btn btn-primary btn-lg" data-mount="play-button" data-pause-when-playing data-slug="{{ slug }}" data-audio-url="{{ audioUrl }}">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
         <span data-role="label">Play</span>
       </button>
@@ -51,8 +53,6 @@ layout: base.njk
   <div class="story-body">
     {{ content | safe }}
   </div>
-
-  {% include "lore-links.njk" %}
 
   <nav class="series-nav" aria-label="More in this series">
     {% if prevStory %}<a class="prev" href="{{ prevStory.url }}">← {{ prevStory.title }}</a>{% endif %}

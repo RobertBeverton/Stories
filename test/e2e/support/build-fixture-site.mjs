@@ -20,6 +20,15 @@ export const FIXTURE_STORIES = [
   { file: "quiet-tale.md", title: "A Quiet Tale Without Audio", series: null, order: null, audio: false, date: "2026-09-01" },
 ];
 
+// One invented lore entry, linked from Tale One (by its `stories` list), so the e2e can check the lore chips.
+export const FIXTURE_LORE = {
+  slug: "old-mariner",
+  title: "The Old Mariner",
+  tradition: "Smoke Test Folk Tales",
+  summary: "An invented sailor who appears only in test fixtures.",
+  stories: ["e2e-series/tale-one"],
+};
+
 export const slugOf = (file) => file.replace(/\.md$/, "");
 export const audioUrlOf = (file) => `${AUDIO_ORIGIN}/e2e-world/${slugOf(file)}.mp3?v=e2e`;
 
@@ -63,6 +72,21 @@ export function buildFixtureSite({ log = () => {} } = {}) {
     manifest[story.file] = "e2e-world";
   }
   fs.writeFileSync(path.join(root, "stories", ".worlds.json"), JSON.stringify(manifest));
+  const loreDir = path.join(root, "lore", "e2e-world");
+  fs.mkdirSync(loreDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(loreDir, `${FIXTURE_LORE.slug}.md`),
+    `---
+title: "${FIXTURE_LORE.title}"
+tradition: "${FIXTURE_LORE.tradition}"
+summary: "${FIXTURE_LORE.summary}"
+stories:
+  - ${FIXTURE_LORE.stories[0]}
+---
+
+Invented placeholder lore for the smoke test.
+`,
+  );
 
   const run = (args) => execFileSync(process.execPath, args, { cwd: root, stdio: ["ignore", "pipe", "inherit"], env: { ...process.env, STORIES_ROUTER: "" } });
   log("generating icons");

@@ -128,6 +128,20 @@ describe("story page links back to lore", () => {
     expect(doc.querySelectorAll("h1")).toHaveLength(1);
   });
 
+  it("puts one card per entry near the top, before the Play row and the text, and not again below", () => {
+    const doc = withLore(FIRST);
+    const section = doc.querySelector(".story-hero .story-lore");
+    expect(section).not.toBeNull();
+    expect(doc.querySelectorAll(".story-lore")).toHaveLength(1);
+    expect(doc.querySelector(".story-body ~ .story-lore")).toBeNull();
+    const actions = doc.querySelector(".story-actions");
+    expect(section.compareDocumentPosition(actions) & 4).toBeTruthy(); // the actions follow the section
+    const card = section.querySelector("a.lore-chip");
+    expect(card.querySelector(".lore-link-title").textContent).toBe(`About ${ENTRY.title}`);
+    expect(card.querySelector(".lore-link-kicker").textContent).toBe(ENTRY.tradition);
+    expect(card.querySelector(".lore-link-summary").textContent).toBe(ENTRY.summary);
+  });
+
   it("links the entry named by the story's lore: slug, exactly", () => {
     const doc = withLore(SECOND, { lore: ENTRY.slug });
     expect(doc.querySelector(".story-lore a").getAttribute("href")).toBe(ENTRY.url);

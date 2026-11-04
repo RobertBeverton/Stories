@@ -75,7 +75,9 @@ holds whichever story was started last, which need not be the page's own. **Owne
 the slug, not an id:** a page module (story-resume, parts) finds the audio through
 `site/assets/js/shell-audio.mjs` and may drive or save from it only while
 `audio.dataset.slug` equals its own slug, checked again on every event; it picks the
-audio up on its own once a Play button or the player loads its story. Play buttons and the story article carry
+audio up on its own once a Play button or the player loads its story. Its Resume and Start
+over buttons play (seek and play while the audio holds the story, else a `stories:play`
+request the player answers), and the story page's Play button is Pause while that story plays. Play buttons and the story article carry
 `data-slug` and `data-audio-url` (the player reads the audio URL from them; it is not in
 `library.json`). Kill switch: `<html data-router="off">`, `localStorage["stories-router"]="off"`,
 or `?router=off` / `?router=on`. Details: `site/assets/js/README.md`.

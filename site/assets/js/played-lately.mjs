@@ -2,11 +2,12 @@
 // or not, so a replayed favourite never disappears. Hidden when there is no
 // history. Titles, links and art come from library.json only.
 import { cover } from "./cover.mjs";
-import { h, onProgressChange, renderIfChanged } from "./dom.mjs";
+import { h, renderIfChanged } from "./dom.mjs";
 import { safeHref } from "./escape.mjs";
 import { loadLibrary } from "./library.mjs";
 import { readAll } from "./progress.mjs";
 import { pickPlayedLately } from "./selectors.mjs";
+import { onLiveProgress, withLiveProgress } from "./shell-audio.mjs";
 
 const STATE_LABEL = { finished: "Finished", "in-progress": "In progress" };
 
@@ -16,7 +17,7 @@ export function mount(el) {
 
   function render() {
     if (disposed || !library) return;
-    const picks = pickPlayedLately(library.stories, readAll(), 3);
+    const picks = pickPlayedLately(library.stories, withLiveProgress(readAll()), 3);
     if (picks.length === 0) {
       el.hidden = true;
       el.replaceChildren();
@@ -55,7 +56,7 @@ export function mount(el) {
     });
   }
 
-  const stop = onProgressChange(render);
+  const stop = onLiveProgress(render);
   loadLibrary().then((lib) => {
     if (disposed) return;
     library = lib;

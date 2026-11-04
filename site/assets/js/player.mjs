@@ -29,13 +29,16 @@
 import { basePath } from "./dom.mjs";
 import { safeHref } from "./escape.mjs";
 import { loadLibrary } from "./library.mjs";
+import { cleanParts, currentPartIndex } from "./parts.mjs";
 import {
   COMPLETE_WINDOW_SEC, markCompleted, read, toViewModel, write,
 } from "./progress.mjs";
+import { startPosition } from "./shell-audio.mjs";
 
 export const SAVE_EVERY_SEC = 5;
 export const SKIP_SEC = 15;
 export const RESTART_AFTER_SEC = 5; // "previous" restarts a story that is further in than this
+export const RESTART_PART_AFTER_SEC = 3; // "previous part" restarts the current part when this far into it
 export const SPEEDS = [0.75, 1, 1.25, 1.5];
 const SPEED_KEY = "stories-speed";
 
@@ -152,8 +155,7 @@ export function createPlayer(audio, { doc = document } = {}) {
 
   // --- progress -------------------------------------------------------------
   const viewModel = (record) => toViewModel(record, { durationSec: duration() });
-  const startPosition = (record) => (viewModel(record).state === "in-progress" ? record.audioTime : 0);
-  const nearEnd = () => Number.isFinite(audio.duration) && audio.currentTime >= audio.duration - COMPLETE_WINDOW_SEC;
+  const storyParts = () => cleanParts(story()?.parts);
 
   function save(partial) {
     if (settling || !slug()) return;
@@ -312,14 +314,12 @@ export function createPlayer(audio, { doc = document } = {}) {
   /** The Play button behaviour: start or resume `forSlug`, loading it first if needed. */
   function start(forSlug, url) {
     const record = read(forSlug);
-    const finished = viewModel(record).state === "finished";
     active = true;
     if (slug() !== forSlug) {
-      load(forSlug, url, { startAt: finished ? 0 : record ? startPosition(record) : 0 });
-    } else if (audio.ended || (finished && (audio.currentTime < 1 || nearEnd()))) {
-      audio.currentTime = 0;
-    } else if (audio.currentTime < 1 && record) {
-      audio.currentTime = startPosition(record);
+      load(forSlug, url, { startAt: viewModel(record).state === "in-progress" ? record.audioTime : 0 });
+    } else {
+      const to = startPosition(audio, record);
+      if (to !== null) audio.currentTime = to;
     }
     play();
     refreshSession();
@@ -330,8 +330,7 @@ export function createPlayer(audio, { doc = document } = {}) {
     const url = await resolveUrl(forSlug);
     if (!url || disposed) return;
     const record = read(forSlug);
-    const finished = viewModel(record).state === "finished";
-    load(forSlug, url, { startAt: finished || !record ? 0 : startPosition(record) });
+    load(forSlug, url, { startAt: viewModel(record).state === "in-progress" ? record.audioTime : 0 });
     active = true;
     play();
     refreshSession();
@@ -340,6 +339,20 @@ export function createPlayer(audio, { doc = document } = {}) {
     const { prev } = neighbours(library, slug());
     if (audio.currentTime > RESTART_AFTER_SEC || !prev) seek(0);
     else go(prev);
+  }
+
+  /** The part before this one, or the start of the current part when well into it. */
+  function previousPart() {
+    const parts = storyParts();
+    const i = currentPartIndex(parts, audio.currentTime);
+    if (i < 0) seek(0);
+    else if (audio.currentTime - parts[i].start > RESTART_PART_AFTER_SEC || i === 0) seek(parts[i].start);
+    else seek(parts[i - 1].start);
+  }
+  function nextPart() {
+    const parts = storyParts();
+    const next = parts[currentPartIndex(parts, audio.currentTime) + 1];
+    if (next) seek(next.start);
   }
 
   // --- the page the shell is showing -------------------------------------------
@@ -467,6 +480,8 @@ export function createPlayer(audio, { doc = document } = {}) {
     skip,
     setRate,
     previous,
+    previousPart,
+    nextPart,
     next: () => { const { next } = neighbours(library, slug()); if (next) go(next); },
     retry() {
       error = false;
@@ -484,8 +499,12 @@ export function createPlayer(audio, { doc = document } = {}) {
     },
     state() {
       const { prev, next } = neighbours(library, slug());
+      const parts = storyParts();
+      const partIndex = currentPartIndex(parts, audio.currentTime || 0);
       return {
         slug: slug(),
+        hasParts: parts.length > 0,
+        hasNextPart: partIndex + 1 < parts.length,
         story: story(),
         world: worldTitle(story()),
         active,

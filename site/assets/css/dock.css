@@ -17,16 +17,24 @@
 }
 /* Filled by the dock module while a story is loaded */
 .dock-mini {
-  display: flex; align-items: center; gap: 0.75rem;
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: 0.15rem;
   min-height: var(--dock-mini-h);
-  margin: 0.4rem 0.6rem 0; padding: 0 0.4rem 0 1rem;
+  margin: 0.4rem 0.6rem 0; padding: 0 0.4rem 0 0;
   background: linear-gradient(135deg, var(--surface), var(--raised));
   border: 1px solid var(--line-soft); border-radius: var(--radius-pill);
 }
 .dock-mini:empty { display: none; }
+.dock-mini-text { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0.1rem; }
 .dock-mini-title {
-  flex: 1 1 auto; min-width: 0; font-weight: 650;
+  min-width: 0; font-weight: 650; line-height: 1.2;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dock-mini-time { color: var(--muted); font-size: 0.75rem; font-variant-numeric: tabular-nums; line-height: 1.2; white-space: nowrap; }
+/* A thin progress line along the bottom edge, painted from --fill (set by dock.mjs) */
+.dock-mini-progress {
+  position: absolute; left: 1rem; right: 1rem; bottom: 3px; height: 3px; border-radius: 3px; pointer-events: none;
+  background: linear-gradient(to right, var(--accent) var(--fill, 0%), color-mix(in srgb, var(--text) 20%, transparent) var(--fill, 0%));
 }
 .dock-nav {
   display: flex; margin: 0 auto; padding: 0; list-style: none;
@@ -49,16 +57,22 @@
   main, body.has-mini-player main { padding-bottom: 2rem; }
 }
 
-/* Mini-player row, built by dock.mjs. The title button opens the player sheet;
-   the toggle is a round accent button with a dark glyph. */
+/* Mini-player row, built by dock.mjs. The whole left side (title, time, chevron) is one
+   button that opens the player sheet; then skip back, the round accent play/pause button
+   with a dark glyph, and skip forward. */
 .dock-mini-open {
   flex: 1 1 auto; min-width: 0; min-height: var(--dock-mini-h);
-  display: flex; align-items: center; text-align: left;
-  padding: 0; border: 0; background: none; color: var(--text);
+  display: flex; align-items: center; gap: 0.5rem; text-align: left;
+  padding: 0 0.25rem 0 1rem; border: 0; border-radius: var(--radius-pill) 0 0 var(--radius-pill); background: none; color: var(--text);
   font: inherit; cursor: pointer;
 }
+.dock-mini-open:focus-visible, .dock-mini .btn:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+.dock-mini-chevron { flex: none; display: inline-flex; color: var(--muted); }
+.dock-mini-chevron svg { width: 1.5rem; height: 1.5rem; fill: currentColor; }
 .dock-mini .btn-icon { flex: none; border-radius: 50%; width: 48px; min-width: 48px; height: 48px; min-height: 48px; }
 .dock-mini .btn-icon svg { width: 1.5rem; height: 1.5rem; }
+.dock-mini .dock-mini-skip { width: var(--tap); min-width: var(--tap); height: var(--tap); min-height: var(--tap); background: transparent; border-color: transparent; }
+.dock-mini .dock-mini-skip svg { width: 1.6rem; height: 1.6rem; }
 
 /* Player sheet extras (the sheet itself is in player.css). A closed sheet is
    `hidden`; the page behind an open one is `inert`. */
@@ -66,6 +80,9 @@
 .player-sheet .icon-label { fill: currentColor; stroke: none; font-family: var(--font-body); }
 .player-controls svg, .player-play svg { fill: currentColor; stroke: none; }
 .player-controls .btn svg { width: 1.9rem; height: 1.9rem; }
+/* Skip buttons: the arrow with its seconds inside, and "15 sec" in words underneath */
+.player-controls .player-skip { flex-direction: column; gap: 0.1rem; padding: 0 0.25rem; }
+.player-skip-text { font-size: 0.75rem; font-weight: 700; line-height: 1; color: var(--muted); }
 .player-play svg { width: 2.4rem; height: 2.4rem; }
 .player-story-link { align-self: center; }
 .player-sleep-wrap { text-align: center; }

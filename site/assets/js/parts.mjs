@@ -17,7 +17,7 @@ function formatTime(seconds) {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-function cleanParts(parts) {
+export function cleanParts(parts) {
   if (!Array.isArray(parts)) return [];
   return parts.filter(
     (p) => p && typeof p.title === "string" && p.title.trim() !== "" && Number.isFinite(p.start) && p.start >= 0,

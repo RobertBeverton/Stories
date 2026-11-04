@@ -517,3 +517,93 @@ describe("story-resume: Media Session", () => {
     delete navigator.mediaSession;
   });
 });
+
+// The page's Resume / Start over / Play on a story that is already loaded: each must act.
+describe("story-resume: Play on audio that is already loaded", () => {
+  const stories = () => document.querySelector('[data-mount="story-resume"]');
+  const press = () => document.dispatchEvent(new CustomEvent("stories:play", { detail: { slug: SLUG }, cancelable: true }));
+
+  it("Resume where you left off seeks to the saved place and plays", () => {
+    write(SLUG, { audioTime: 120, scrollY: 800 });
+    mountPage();
+    click("resume-button");
+    expect(audio.currentTime).toBe(120);
+    expect(audio.play).toHaveBeenCalledTimes(1);
+  });
+
+  it("Start over goes to 0 and plays, also while the story is already playing", () => {
+    write(SLUG, { audioTime: 120, scrollY: 800 });
+    mountPage();
+    audio.play();
+    ctl.tick(200);
+    audio.play.mockClear();
+    click("restart-button");
+    expect(audio.currentTime).toBe(0);
+    expect(audio.play).toHaveBeenCalledTimes(1);
+  });
+
+  it("Resume while the story plays elsewhere in the clip jumps to the saved place and keeps playing", () => {
+    write(SLUG, { audioTime: 120, scrollY: 800 });
+    mountPage();
+    audio.play();
+    ctl.tick(300);
+    click("resume-button");
+    expect(audio.currentTime).toBe(120);
+    expect(audio.paused).toBe(false);
+  });
+
+  it("Resume and Start over ask the player for this story while another one holds the audio", () => {
+    write(SLUG, { audioTime: 120, scrollY: 800 });
+    loadPage(storyPageHtml);
+    audio = document.querySelector("audio#player");
+    audio.dataset.slug = "test-world/second-tale";
+    ctl = fakeAudio(audio);
+    unmount = mount(stories());
+    const asked = [];
+    const listener = (event) => asked.push(event.detail.slug);
+    document.addEventListener("stories:play", listener);
+    click("resume-button");
+    expect(asked).toEqual([SLUG]);
+    expect(audio.play).not.toHaveBeenCalled(); // the player loads it, not this page
+    document.removeEventListener("stories:play", listener);
+  });
+
+  it("Play on a paused finished story starts again from 0, even part-way in", () => {
+    markCompleted(SLUG);
+    mountPage();
+    audio.currentTime = 200;
+    press();
+    expect(audio.currentTime).toBe(0);
+    expect(audio.play).toHaveBeenCalledTimes(1);
+  });
+
+  it("Play on a story that has ended starts it again", () => {
+    mountPage({ duration: 100 });
+    audio.play();
+    ctl.end();
+    audio.play.mockClear();
+    press();
+    expect(audio.currentTime).toBe(0);
+    expect(audio.play).toHaveBeenCalledTimes(1);
+  });
+
+  it("Play on a paused story carries on from where it is", () => {
+    mountPage();
+    audio.play();
+    ctl.pauseAt(90);
+    audio.play.mockClear();
+    press();
+    expect(audio.currentTime).toBe(90);
+    expect(audio.play).toHaveBeenCalledTimes(1);
+  });
+
+  it("a Play request for the story that is already playing changes nothing", () => {
+    mountPage();
+    audio.play();
+    ctl.tick(90);
+    audio.play.mockClear();
+    press();
+    expect(audio.currentTime).toBe(90);
+    expect(audio.play).not.toHaveBeenCalled();
+  });
+});

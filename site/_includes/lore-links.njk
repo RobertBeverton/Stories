@@ -1,4 +1,4 @@
-{# On a story page: links back to lore. A story links to the entry named by its
+{# On a story page, in the hero under the description: links back to lore. A story links to the entry named by its
    `lore:` front matter (exact slug, same world) and to every entry of its world
    whose `stories` list names it. Nothing is emitted when there are none.
    Expects the page's `slug`, `world` and `lore`, and the `loreEntries` global. #}
@@ -7,11 +7,11 @@
   {% if entry.world == world and (entry.slug == lore or slug in entry.stories) %}{% set added = related.push(entry) %}{% endif %}
 {% endfor %}
 {% if related.length > 0 %}
-<section class="story-lore" aria-labelledby="story-lore-heading">
+<section class="story-lore" data-role="story-lore" aria-labelledby="story-lore-heading">
   <h2 id="story-lore-heading">Learn more</h2>
   <ul class="lore-list">
     {% for entry in related %}
-    <li><a class="lore-link" href="{{ entry.url }}"><span class="lore-link-title">{{ entry.title }}</span><span class="lore-link-summary">{{ entry.summary }}</span></a></li>
+    <li><a class="lore-link lore-chip" href="{{ entry.url }}"><span class="lore-link-kicker">{{ entry.tradition }}</span><span class="lore-link-title">About {{ entry.title }}</span><span class="lore-link-summary">{{ entry.summary }}</span></a></li>
     {% endfor %}
   </ul>
 </section>
