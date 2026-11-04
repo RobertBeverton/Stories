@@ -11,7 +11,10 @@ their own inner DOM and can reuse these classes.
 
 ## Custom properties (tokens.css)
 
-- Surfaces and text: `--bg --surface --raised --text --muted --line --focus`
+- Surfaces and text: `--bg --surface --raised --text --muted --line --focus`, plus `--line-soft` for
+  card edges and dividers only (decorative, not contrast-checked; controls and seek tracks use `--line`).
+  The look follows the owner's Hearth prototype: green-tinted dark surfaces (`--bg` #101411), lime
+  default accent (#c4ed8e), serif display headings, soft radial/linear gradients on hero, cover and lore cards.
 - World accent (UI chrome, a fill with dark ink): `--accent --accent-ink`.
   Defaults to a PALETTE entry. On `stories:world`, set both on `<html>` from the
   world's PALETTE entry (`background`, `text`).
