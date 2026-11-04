@@ -15,7 +15,7 @@
 import { h } from "./dom.mjs";
 import { loadLibrary } from "./library.mjs";
 import { setupMediaSession } from "./media-session.mjs";
-import { holdsStory, shellAudio, startPosition as playFrom } from "./shell-audio.mjs";
+import { holdsStory, isSettling, shellAudio, startPosition as playFrom } from "./shell-audio.mjs";
 import {
   COMPLETE_WINDOW_SEC, markCompleted, read, toViewModel, write,
 } from "./progress.mjs";
@@ -53,8 +53,12 @@ export function mount(el) {
 
   /** The audio holds THIS page's story right now (re-checked on every event). */
   const mine = () => holdsStory(audio, slug);
-  /** Wraps an audio/document handler so it only runs while the audio is ours. */
-  const whenMine = (fn) => (event) => { if (mine()) fn(event); };
+  /**
+   * Wraps an audio/document handler so it only runs while the audio is ours and the
+   * player is not mid-swap (the element reads 0:00 then; saving it would erase the
+   * record's real position).
+   */
+  const whenMine = (fn) => (event) => { if (mine() && !isSettling(audio)) fn(event); };
 
   const duration = () => (audio && Number.isFinite(audio.duration) && audio.duration > 0
     ? audio.duration
@@ -164,7 +168,10 @@ export function mount(el) {
         lastSaved = audio.currentTime;
       }
     }));
-    on(audio, "play", whenMine(() => write(slug, { playing: true })));
+    on(audio, "play", whenMine(() => {
+      show(); // playing now: a Resume banner would seek back to a stale place
+      write(slug, { playing: true });
+    }));
     on(audio, "pause", whenMine(() => {
       // `pause` fires just before `ended`; the ended handler records that case.
       if (!audio.ended) write(slug, { audioTime: audio.currentTime, playing: false });

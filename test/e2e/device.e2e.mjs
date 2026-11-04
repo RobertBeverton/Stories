@@ -209,17 +209,26 @@ test("play: Resume where you left off and Start over play, whether the story is 
   await expect.poll(() => isPlaying(page)).toBe(true);
   expect(await currentTime(page)).toBeLessThan(4);
 
-  // Already playing past the start: Resume jumps to the saved place and Start over to 0, both still playing.
+  // Pressing Play removes the banner, so it cannot later seek back to a stale place.
   await reseed(page, SLUG_ONE, { audioTime: 12 });
   await headerPlay(page).tap();
-  await expect.poll(() => currentTime(page)).toBeGreaterThanOrEqual(12);
-  await page.evaluate(() => { document.querySelector("audio").currentTime = 25; });
+  await expect(page.getByRole("button", { name: "Resume where you left off" })).toHaveCount(0);
+
+  // Already playing when the page opens (left for the Library and came back through the router): Resume
+  // jumps to the saved place and Start over to 0, both still playing.
+  const backToStory = async () => {
+    await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Library" }).tap();
+    await openSeries(page);
+    await seedRecord(page, SLUG_ONE, { audioTime: 12 });
+    await page.getByRole("link", { name: ONE.title, exact: true }).tap();
+    await expect(page).toHaveURL(ONE_URL);
+    await page.evaluate(() => { document.querySelector("audio").currentTime = 25; });
+  };
+  await backToStory();
   await page.getByRole("button", { name: "Resume where you left off" }).tap();
   expect(await currentTime(page)).toBeLessThan(20);
   expect(await isPlaying(page)).toBe(true);
-  await reseed(page, SLUG_ONE, { audioTime: 12 });
-  await headerPlay(page).tap();
-  await expect.poll(() => currentTime(page)).toBeGreaterThanOrEqual(12);
+  await backToStory();
   await page.getByRole("button", { name: "Start over" }).tap();
   expect(await currentTime(page)).toBeLessThan(4);
   expect(await isPlaying(page)).toBe(true);

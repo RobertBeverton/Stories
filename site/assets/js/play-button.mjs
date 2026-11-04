@@ -60,7 +60,7 @@ export function mount(el) {
     if (!document.dispatchEvent(request)) return; // handled in place
     loadLibrary().then((lib) => {
       const story = lib?.bySlug.get(slug);
-      if (story) nav.go(`${safeHref(story.url)}?autoplay=1`);
+      if (story) nav.open(`${safeHref(story.url)}?autoplay=1`);
     });
   }
 

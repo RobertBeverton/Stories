@@ -533,9 +533,9 @@ describe("story-resume: Play on audio that is already loaded", () => {
 
   it("Start over goes to 0 and plays, also while the story is already playing", () => {
     write(SLUG, { audioTime: 120, scrollY: 800 });
-    mountPage();
-    audio.play();
+    audio.play(); // playing before the page opened (the dock was already playing this story)
     ctl.tick(200);
+    mountPage();
     audio.play.mockClear();
     click("restart-button");
     expect(audio.currentTime).toBe(0);
@@ -544,12 +544,22 @@ describe("story-resume: Play on audio that is already loaded", () => {
 
   it("Resume while the story plays elsewhere in the clip jumps to the saved place and keeps playing", () => {
     write(SLUG, { audioTime: 120, scrollY: 800 });
-    mountPage();
     audio.play();
     ctl.tick(300);
+    mountPage();
     click("resume-button");
     expect(audio.currentTime).toBe(120);
     expect(audio.paused).toBe(false);
+  });
+
+  it("hides the Resume banner once playback starts by another route, so it cannot seek back to a stale place", () => {
+    write(SLUG, { audioTime: 120, scrollY: 800 });
+    mountPage();
+    expect(document.querySelector('[data-role="resume-button"]')).not.toBeNull();
+    expect(area().hidden).toBe(false);
+    audio.play(); // the page's Play button, the dock or the lock screen
+    expect(area().hidden).toBe(true);
+    expect(document.querySelector('[data-role="resume-button"]')).toBeNull();
   });
 
   it("Resume and Start over ask the player for this story while another one holds the audio", () => {

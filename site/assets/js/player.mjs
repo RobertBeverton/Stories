@@ -300,6 +300,7 @@ export function createPlayer(audio, { doc = document } = {}) {
       save({ audioTime: audio.currentTime, playing: false });
     }
     settling = true;
+    audio.dataset.settling = "1";
     pendingStart = startAt;
     error = false;
     prefetched = null;
@@ -399,6 +400,7 @@ export function createPlayer(audio, { doc = document } = {}) {
   on(audio, "loadedmetadata", () => {
     if (settling) {
       settling = false;
+      delete audio.dataset.settling;
       if (pendingStart > 0) audio.currentTime = pendingStart;
       lastSaved = pendingStart;
     }

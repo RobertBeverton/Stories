@@ -87,7 +87,12 @@ audio up on its own once a Play button or the player loads its story. Its Resume
 over buttons play (seek and play while the audio holds the story, else a `stories:play`
 request the player answers), and the story page's Play button is Pause while that story plays. Play buttons and the story article carry
 `data-slug` and `data-audio-url` (the player reads the audio URL from them; it is not in
-`library.json`). Kill switch: `<html data-router="off">`, `localStorage["stories-router"]="off"`,
+`library.json`). While the player swaps the source it sets `audio.dataset.settling = "1"`
+(removed on `loadedmetadata`); the element reads 0:00 then, so no module saves a position
+from it (`isSettling` in `shell-audio.mjs`). Modules move between pages with `nav.open(url)`
+(through the router while it runs, so audio keeps playing), never `nav.go`, which is the
+full-load fallback. A draft story (`draft: true`) has no page, no library entry and no
+prev/next link. Kill switch: `<html data-router="off">`, `localStorage["stories-router"]="off"`,
 or `?router=off` / `?router=on`. Details: `site/assets/js/README.md`.
 
 **Build id.** `<meta name="build-id">`, the `?v=` on CSS and `main.js`, and the import map

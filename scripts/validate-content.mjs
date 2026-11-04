@@ -6,6 +6,7 @@ import { pathToFileURL } from "node:url";
 import { parseFile } from "music-metadata";
 import { isValidIcon, ICON_NAMES } from "./icons.mjs";
 import { isAudioUrl } from "./audio-origin.mjs";
+import { setFrontMatterField } from "./front-matter.mjs";
 
 export function checkRequiredFields(stories) {
   const required = ["title", "description", "publishDate"];
@@ -52,7 +53,7 @@ export async function loadStories(globPattern = "stories/**/*.md") {
 // Audio filename defaults to the story's own basename (see stories-lib.mjs)
 // so most stories carry no `audio` front matter at all; `audio: false` opts
 // out explicitly (no narration yet — not a warning-worthy state).
-function resolveAudioFile(story) {
+export function resolveAudioFile(story) {
   if (story.data.audio === false) return null;
   if (story.data.audio) return story.data.audio;
   return `${path.basename(story.file, ".md")}.mp3`;
@@ -103,6 +104,11 @@ export function checkRepoSize(fileSizes, maxTotalBytes, maxFileBytes) {
   return errors;
 }
 
+/** `raw` with front matter `audioDuration: <seconds>` set (see setFrontMatterField). */
+export function withAudioDuration(raw, seconds) {
+  return setFrontMatterField(raw, "audioDuration", seconds);
+}
+
 async function deriveAudioDurations(stories) {
   const errors = [];
   for (const story of stories) {
@@ -122,15 +128,7 @@ async function deriveAudioDurations(stories) {
     const seconds = Math.round(metadata.format.duration ?? 0);
     if (story.data.audioDuration !== seconds) {
       const raw = fs.readFileSync(story.file, "utf8");
-      // Existing field: replace in place. No field yet (e.g. audio was just
-      // added, or defaulted from the story's own filename with no front
-      // matter at all): insert one just before the closing `---` of the
-      // frontmatter block, since a bare .replace() on a non-matching regex
-      // silently no-ops and leaves audioDuration missing.
-      const updated = /audioDuration:\s*\d+/.test(raw)
-        ? raw.replace(/audioDuration:\s*\d+/, `audioDuration: ${seconds}`)
-        : raw.replace(/^(---\n[\s\S]*?)\n---\n/, `$1\naudioDuration: ${seconds}\n---\n`);
-      fs.writeFileSync(story.file, updated);
+      fs.writeFileSync(story.file, withAudioDuration(raw, seconds));
       console.log(`${story.file}: audioDuration updated to ${seconds}`);
     }
   }

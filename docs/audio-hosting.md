@@ -67,6 +67,21 @@ The narrator tool reads these Windows **user** environment variables. They're se
 
 The R2 token has **Object Read & Write** on `stories-audio` only. Create a replacement in the dashboard: **R2 Object Storage → Manage API tokens → Create Account API token**. Rotating the token means updating `R2_ACCESS_KEY_ID` and `R2_SECRET_ACCESS_KEY`, then opening a new terminal.
 
+## Upload everything from the world repos
+
+`npm run upload-audio` finds every narrated story in the sibling checkouts (`localPath` in `content-sources.json`), uploads its mp3 to the key above with the cache header, and writes `audioUrl` (with the `?v=` hash) and `audioDuration` into the story's front matter.
+
+```bash
+npm run upload-audio                                       # dry run: lists what it would do
+npm run upload-audio -- --apply                            # upload and update front matter
+npm run upload-audio -- --apply --world legend-lane --story fire-lady
+```
+
+- It needs the `R2_*` variables from Credentials (not for the dry run).
+- A file already in the bucket with the same SHA-256 is not uploaded again, so re-running is safe. A re-narrated file gets a new `?v=`.
+- Drafts, `audio: false` stories and stories with no mp3 are skipped.
+- It never deletes or commits. Afterwards, check the site plays from the new URL, commit the front matter change in each world repo, then remove the committed mp3 there.
+
 ## Upload or delete one file by hand
 
 ### With Wrangler
