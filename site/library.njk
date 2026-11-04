@@ -8,16 +8,21 @@ permalink: /library/
   <h1 class="page-title">Library</h1>
 </header>
 
-<div class="world-filter" data-mount="world-switcher" data-variant="filter"></div>
 <div class="lore-segment-root" data-mount="lore"></div>
 
 <label class="visually-hidden" for="search-box">Search stories</label>
 <input type="search" id="search-box" class="search-box" data-mount="search" placeholder="Search stories" autocomplete="off">
 
-<div class="filters" data-mount="filters" role="group" aria-label="Filter stories"></div>
+{# Two scrolling chip rows (world, then filters), and the count with the sort control. All filled by script. #}
+<div class="world-filter chip-bleed" data-mount="world-switcher" data-variant="filter"></div>
+<div class="filters chip-bleed" data-mount="filters" role="group" aria-label="Filter stories"></div>
 
-<p class="library-status" id="library-status" role="status" aria-live="polite" data-role="results-status"></p>
+<div class="library-bar">
+  <p class="library-status" id="library-status" role="status" aria-live="polite" data-role="results-status"></p>
+  <div class="library-tools" data-role="sort-slot"></div>
+</div>
 
+{# Every story is a real row here, so the page works without script. The filters module arranges these rows into series cards and a paged flat list. #}
 {% if stories.length > 0 %}
 <ul id="stories" class="rows">
   {% for story in stories %}
@@ -25,4 +30,4 @@ permalink: /library/
   {% endfor %}
 </ul>
 {% endif %}
-<p class="empty" id="no-results" data-role="no-results" hidden>No stories match. Try a different word or clear a filter.</p>
+<p class="empty" id="no-results" data-role="no-results" role="status" hidden>No stories match. Try a different word or clear a filter.</p>

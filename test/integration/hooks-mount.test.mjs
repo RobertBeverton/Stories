@@ -47,6 +47,7 @@ const type = (input, value) => {
 
 beforeEach(async () => {
   localStorage.clear();
+  sessionStorage.clear();
   resetLibrary();
   useFixedNow();
   stubLibraryFetch();
@@ -97,7 +98,7 @@ describe("library page", () => {
     expect(document.querySelector('[data-role="results-status"]').textContent).toBe("1 of 3 stories");
     type(input, "");
     expect(rowsVisible()).toEqual([FIRST, SECOND, LONE].sort((a, b) => stories.findIndex((s) => s.slug === a) - stories.findIndex((s) => s.slug === b)));
-    expect(document.querySelector('[data-role="results-status"]').textContent).toBe("");
+    expect(document.querySelector('[data-role="results-status"]').textContent).toBe("3 stories");
   });
 
   it("shows the template's own empty message when nothing matches", async () => {

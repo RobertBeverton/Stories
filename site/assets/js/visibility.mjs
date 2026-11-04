@@ -1,6 +1,6 @@
-// Shared row visibility for the library list. Search and filters each hide rows
-// for their own reason; a row is hidden while any reason remains, so the two
-// never undo each other.
+// Shared row visibility for the library list. Search, filters and paging each
+// hide rows for their own reason ("search", "filters", "page"); a row is hidden
+// while any reason remains, so they never undo each other.
 
 /** Rows are `[data-role="story-row"][data-slug]` anywhere in the document. */
 export function storyRows(root = document) {
@@ -16,11 +16,18 @@ export function setHiddenReason(row, reason, hidden) {
   row.hidden = reasons.size > 0;
 }
 
+/** True when search or a filter (not just paging) hides the row: it does not "match". */
+export function isExcluded(row) {
+  const reasons = (row.dataset.hiddenBy || "").split(" ");
+  return reasons.includes("search") || reasons.includes("filters");
+}
+
 /**
- * Shows a polite "no stories match" message when every row is hidden. Uses a
- * template-provided `[data-role="no-results"]` if present, otherwise creates one
- * after the rows' list. Also fills an optional `[data-role="results-status"]`
- * with "n of N stories" while a search or filter hides rows.
+ * Shows a polite "no stories match" message when search or filters exclude
+ * every row. Uses a template-provided `[data-role="no-results"]` if present,
+ * otherwise creates one after the rows' list. Also fills an optional
+ * `[data-role="results-status"]` with "n of N stories" while a search or filter
+ * excludes rows, unless the filters module manages it (`data-managed`).
  */
 export function updateNoResults(root = document) {
   const rows = storyRows(root);
@@ -33,14 +40,13 @@ export function updateNoResults(root = document) {
     note.hidden = true;
     rows[0].parentElement.after(note);
   }
-  const none = rows.every((r) => r.hidden);
-  // Result count for a polite live region: quiet while nothing is filtered.
+  const matching = rows.filter((r) => !isExcluded(r)).length;
+  const none = matching === 0;
   const status = root.querySelector('[data-role="results-status"]');
-  if (status) {
-    const shown = rows.filter((r) => !r.hidden).length;
-    status.textContent = shown === rows.length ? "" : `${shown} of ${rows.length} stories`;
+  if (status && !status.dataset.managed) {
+    status.textContent = matching === rows.length ? "" : `${matching} of ${rows.length} stories`;
   }
-  if (none) note.textContent = "No stories match. Try fewer words or clear the filters.";
-  else note.textContent = "";
+  const text = none ? "No stories match. Try fewer words or clear the filters." : "";
+  if (note.textContent !== text) note.textContent = text;
   note.hidden = !none;
 }
