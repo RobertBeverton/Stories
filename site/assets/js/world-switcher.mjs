@@ -18,6 +18,12 @@ export function mount(el) {
     for (const button of el.querySelectorAll("button[data-world]")) {
       button.setAttribute("aria-pressed", String(button.dataset.world === current));
     }
+    if (!picker) {
+      // The chips scroll sideways: bring the chosen world into view (its container is position: relative).
+      const on = el.querySelector('button[aria-pressed="true"]');
+      const scroller = on?.parentElement;
+      if (scroller) scroller.scrollLeft = Math.max(0, on.offsetLeft - (scroller.clientWidth - on.offsetWidth) / 2);
+    }
   }
 
   const onWorld = (event) => {

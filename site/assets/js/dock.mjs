@@ -1,7 +1,8 @@
 // data-mount="dock": the fixed chrome at the bottom. The server renders the real
 // Home and Library links; this module adds the mini-player row (title,
-// play/pause, a button that opens the player sheet) and the player sheet (seek,
-// skip, speed, sleep timer, a link to the story). It also starts the persistent
+// play/pause, skip back/forward 15 s, a progress line and elapsed / total time;
+// the whole title area is one button that opens the player sheet) and the player
+// sheet (seek, skip, parts, speed, sleep timer, a link to the story). It also starts the persistent
 // player (player.mjs) and the sleep timer for the <audio> outside #view.
 //
 // The dock lives outside #view, so the router never unmounts it. It listens to
@@ -27,6 +28,7 @@ const PATHS = {
   next: "M16 6h2v12h-2zM14.5 12 6 18V6z",
   back: "M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z",
   forward: "M12 5V1l5 5-5 5V7a6 6 0 1 0 6 6h2a8 8 0 1 1-8-8z",
+  chevron: "M12 8l6 6-1.4 1.4L12 10.8l-4.6 4.6L6 14z",
 };
 
 function icon(name, label) {
@@ -103,9 +105,16 @@ export function mount(el) {
   }
 
   const announcer = h("div", { class: "visually-hidden", role: "status", "aria-live": "polite", "data-role": "dock-announcer" });
+  const miniTime = h("span", { class: "dock-mini-time", "data-role": "mini-time" });
+  const miniChevron = h("span", { class: "dock-mini-chevron", "data-role": "mini-chevron", "aria-hidden": "true" }, icon("chevron"));
   const miniOpen = h("button", { type: "button", class: "dock-mini-open", "aria-haspopup": "dialog", "aria-expanded": "false", "data-role": "open-player" },
-    h("span", { class: "dock-mini-title", "data-role": "mini-title" }));
+    h("span", { class: "dock-mini-text" }, h("span", { class: "dock-mini-title", "data-role": "mini-title" }), miniTime),
+    miniChevron);
+  const miniBack = h("button", { type: "button", class: "btn btn-icon dock-mini-skip", "data-role": "mini-back", "aria-label": `Back ${SKIP_SEC} seconds` }, icon("back", String(SKIP_SEC)));
   const miniToggle = h("button", { type: "button", class: "btn btn-primary btn-icon btn-lg", "data-role": "mini-toggle" });
+  const miniForward = h("button", { type: "button", class: "btn btn-icon dock-mini-skip", "data-role": "mini-forward", "aria-label": `Forward ${SKIP_SEC} seconds` }, icon("forward", String(SKIP_SEC)));
+  // Decorative: the time text and the sheet's slider say the same thing to a screen reader.
+  const miniProgress = h("div", { class: "dock-mini-progress", "data-role": "mini-progress", "aria-hidden": "true" });
 
   const closeButton = h("button", { type: "button", class: "btn player-close", "data-role": "close", "aria-label": "Close player" }, "Close");
   const coverSlot = h("div", { class: "player-cover-slot" });
@@ -115,11 +124,18 @@ export function mount(el) {
   const seekInput = h("input", { type: "range", min: "0", max: "0", step: "1", value: "0", "aria-label": "Seek", "data-role": "seek" });
   const elapsed = h("span", { "data-role": "elapsed" }, "0:00");
   const remaining = h("span", { "data-role": "remaining" }, "0:00");
+  // The transport row: [previous] [back 15 sec] [play/pause] [forward 15 sec] [next]. For a story
+  // with parts, previous and next move between parts and the story's own neighbours get text
+  // buttons in the options row; otherwise they are the neighbouring stories.
   const prevButton = h("button", { type: "button", class: "btn", "data-role": "previous" }, icon("prev"));
-  const backButton = h("button", { type: "button", class: "btn", "data-role": "back", "aria-label": `Back ${SKIP_SEC} seconds` }, icon("back", String(SKIP_SEC)));
+  const prevPartButton = h("button", { type: "button", class: "btn", "data-role": "previous-part", "aria-label": "Previous part", hidden: true }, icon("prev"));
+  const backButton = h("button", { type: "button", class: "btn player-skip", "data-role": "back", "aria-label": `Back ${SKIP_SEC} seconds` }, icon("back", String(SKIP_SEC)), h("span", { class: "player-skip-text", "aria-hidden": "true" }, `${SKIP_SEC} sec`));
   const playButton = h("button", { type: "button", class: "btn btn-primary player-play", "data-role": "play" });
-  const forwardButton = h("button", { type: "button", class: "btn", "data-role": "forward", "aria-label": `Forward ${SKIP_SEC} seconds` }, icon("forward", String(SKIP_SEC)));
+  const forwardButton = h("button", { type: "button", class: "btn player-skip", "data-role": "forward", "aria-label": `Forward ${SKIP_SEC} seconds` }, icon("forward", String(SKIP_SEC)), h("span", { class: "player-skip-text", "aria-hidden": "true" }, `${SKIP_SEC} sec`));
   const nextButton = h("button", { type: "button", class: "btn", "data-role": "next", "aria-label": "Next story" }, icon("next"));
+  const nextPartButton = h("button", { type: "button", class: "btn", "data-role": "next-part", "aria-label": "Next part", hidden: true }, icon("next"));
+  const prevStoryButton = h("button", { type: "button", class: "btn", "data-role": "previous-story", hidden: true }, "Previous story");
+  const nextStoryButton = h("button", { type: "button", class: "btn", "data-role": "next-story", hidden: true }, "Next story");
   const speedButton = h("button", { type: "button", class: "btn", "data-role": "speed" });
   const sleepStatus = h("p", { class: "player-sleep-status", "data-role": "sleep-status" });
   const errorBox = h("div", { class: "player-error", role: "alert", hidden: true, "data-role": "error" },
@@ -136,12 +152,12 @@ export function mount(el) {
   },
   closeButton, coverSlot, title, world, storyLink,
   h("div", { class: "player-seek" }, seekInput, h("div", { class: "player-time" }, elapsed, remaining)),
-  h("div", { class: "player-controls" }, prevButton, backButton, playButton, forwardButton, nextButton),
-  h("div", { class: "player-options" }, speedButton),
+  h("div", { class: "player-controls" }, prevButton, prevPartButton, backButton, playButton, forwardButton, nextPartButton, nextButton),
+  h("div", { class: "player-options" }, speedButton, prevStoryButton, nextStoryButton),
   h("div", { class: "player-sleep-wrap" }, h("h3", { class: "player-sleep-title" }, "Sleep timer"), sleepGroup, sleepStatus),
   errorBox);
 
-  mini.replaceChildren(miniOpen, miniToggle);
+  mini.replaceChildren(miniOpen, miniBack, miniToggle, miniForward, miniProgress);
   el.append(announcer, sheet);
 
   function listen(target, type, fn, options) {
@@ -184,8 +200,15 @@ export function mount(el) {
     } else {
       storyLink.hidden = true;
     }
+    // With parts, previous/next in the transport row are parts; the stories move to the options row.
     prevButton.setAttribute("aria-label", s.hasPrevStory ? "Previous story, or start of this one" : "Back to the start");
-    nextButton.hidden = !s.hasNext;
+    prevButton.hidden = s.hasParts;
+    nextButton.hidden = s.hasParts || !s.hasNext;
+    prevPartButton.hidden = !s.hasParts;
+    nextPartButton.hidden = !s.hasParts;
+    nextPartButton.disabled = !s.hasNextPart;
+    prevStoryButton.hidden = !s.hasParts || !s.hasPrevStory;
+    nextStoryButton.hidden = !s.hasParts || !s.hasNext;
     speedButton.textContent = speedLabel(s.rate);
     speedButton.setAttribute("aria-label", `Speed ${speedLabel(s.rate)}. Change speed`);
     errorBox.hidden = !s.error;
@@ -195,6 +218,10 @@ export function mount(el) {
   function renderTime() {
     const s = player.state();
     const total = s.duration ?? 0;
+    // The mini row: a thin progress line and "elapsed / total", from the audio clock.
+    miniTime.textContent = total ? `${formatTime(s.currentTime)} / ${formatTime(total)}` : formatTime(s.currentTime);
+    miniProgress.style.setProperty("--fill", total ? `${Math.min(100, (s.currentTime / total) * 100)}%` : "0%");
+    if (!sheetOpen) return;
     seekInput.max = String(Math.floor(total));
     seekInput.disabled = !total;
     if (!seeking) seekInput.value = String(Math.floor(s.currentTime));
@@ -290,12 +317,18 @@ export function mount(el) {
   // --- wiring -----------------------------------------------------------------
   listen(miniOpen, "click", openSheet);
   listen(miniToggle, "click", () => player.toggle());
+  listen(miniBack, "click", () => player.skip(-SKIP_SEC));
+  listen(miniForward, "click", () => player.skip(SKIP_SEC));
   listen(playButton, "click", () => player.toggle());
   listen(closeButton, "click", () => closeSheet());
   listen(backButton, "click", () => player.skip(-SKIP_SEC));
   listen(forwardButton, "click", () => player.skip(SKIP_SEC));
   listen(prevButton, "click", () => player.previous());
   listen(nextButton, "click", () => player.next());
+  listen(prevPartButton, "click", () => player.previousPart());
+  listen(nextPartButton, "click", () => player.nextPart());
+  listen(prevStoryButton, "click", () => player.previous());
+  listen(nextStoryButton, "click", () => player.next());
   listen(storyLink, "click", () => closeSheet({ restoreFocus: false })); // the router (or the browser) then navigates
   listen(errorBox.querySelector('[data-role="retry"]'), "click", () => player.retry());
   listen(speedButton, "click", () => {
@@ -337,7 +370,7 @@ export function mount(el) {
   });
 
   disposers.push(player.onChange(render));
-  disposers.push(player.onTime(() => { if (sheetOpen) renderTime(); }));
+  disposers.push(player.onTime(renderTime));
   disposers.push(timer.onChange((state) => {
     renderSleep(state);
     if (!state.active && !state.fading) render();

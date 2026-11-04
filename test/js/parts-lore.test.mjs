@@ -128,6 +128,20 @@ describe("story page links back to lore", () => {
     expect(doc.querySelectorAll("h1")).toHaveLength(1);
   });
 
+  it("puts one card per entry near the top, before the Play row and the text, and not again below", () => {
+    const doc = withLore(FIRST);
+    const section = doc.querySelector(".story-hero .story-lore");
+    expect(section).not.toBeNull();
+    expect(doc.querySelectorAll(".story-lore")).toHaveLength(1);
+    expect(doc.querySelector(".story-body ~ .story-lore")).toBeNull();
+    const actions = doc.querySelector(".story-actions");
+    expect(section.compareDocumentPosition(actions) & 4).toBeTruthy(); // the actions follow the section
+    const card = section.querySelector("a.lore-chip");
+    expect(card.querySelector(".lore-link-title").textContent).toBe(`About ${ENTRY.title}`);
+    expect(card.querySelector(".lore-link-kicker").textContent).toBe(ENTRY.tradition);
+    expect(card.querySelector(".lore-link-summary").textContent).toBe(ENTRY.summary);
+  });
+
   it("links the entry named by the story's lore: slug, exactly", () => {
     const doc = withLore(SECOND, { lore: ENTRY.slug });
     expect(doc.querySelector(".story-lore a").getAttribute("href")).toBe(ENTRY.url);
@@ -172,26 +186,23 @@ describe("lore entry page", () => {
     expect(doc.querySelector(".crumbs a").getAttribute("href")).toBe("/Stories/lore/");
   });
 
-  it("puts the external link only inside a closed For grown-ups details, opened safely", () => {
+  it("shows the external link as a plain link at the bottom, opened safely", () => {
     const doc = render(ENTRY);
     const external = [...doc.querySelectorAll("a")].filter((a) => /^https?:/.test(a.getAttribute("href")));
     expect(external).toHaveLength(1);
-    const details = external[0].closest("details");
-    expect(details).not.toBeNull();
-    expect(details.hasAttribute("open")).toBe(false);
-    expect(details.querySelector("summary").textContent).toBe("For grown-ups");
+    expect(external[0].closest("details")).toBeNull();
     expect(external[0].getAttribute("target")).toBe("_blank");
     expect(external[0].getAttribute("rel")).toBe("noopener noreferrer");
     expect(external[0].textContent).toMatch(/^Read more on [a-z0-9.-]+$/);
     expect(external[0].textContent).not.toContain("http");
     expect(doc.querySelector(".lore-body a")).toBeNull();
-    expect(details.parentElement.lastElementChild).toBe(details); // at the bottom
+    expect(external[0].closest(".lore-more").parentElement.lastElementChild).toBe(external[0].closest(".lore-more")); // at the bottom
   });
 
-  it("has no For grown-ups section without a link, and refuses non-http links", () => {
+  it("has no external link without one, and refuses non-http links", () => {
     const { link, ...noLink } = ENTRY;
-    expect(render(noLink).querySelector("details")).toBeNull();
-    expect(render({ ...ENTRY, link: "javascript:alert(1)" }).querySelector("details")).toBeNull();
+    expect(render(noLink).querySelector(".lore-more")).toBeNull();
+    expect(render({ ...ENTRY, link: "javascript:alert(1)" }).querySelector(".lore-more")).toBeNull();
   });
 
   it("skips story slugs library.json does not know and escapes entry text", () => {

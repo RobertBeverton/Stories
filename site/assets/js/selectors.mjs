@@ -74,13 +74,15 @@ export function matchesQuery(story, query) {
 }
 
 /**
- * Filters combine with AND across groups (world, series, under 15 minutes,
- * status) and OR within the status group (in progress, finished, new).
- * @param {{world?: string, series?: string, under15?: boolean, statuses?: string[]}} f
+ * Filters combine with AND across groups (world, series, collection, under 15
+ * minutes, status) and OR within the status group (in progress, not played,
+ * finished, new).
+ * @param {{world?: string, series?: string, collection?: string, lore?: object[], under15?: boolean, statuses?: string[]}} f
  */
 export function matchesFilters(story, record, f, now = Date.now()) {
   if (f.world && story.world !== f.world) return false;
   if (f.series && story.series !== f.series) return false;
+  if (f.collection && !matchesCollection(story, f.collection, f.lore)) return false;
   if (f.under15 && !(story.durationSec !== null && story.durationSec < UNDER_MINUTES * 60)) return false;
   const statuses = f.statuses ?? [];
   if (statuses.length > 0) {
@@ -88,10 +90,114 @@ export function matchesFilters(story, record, f, now = Date.now()) {
     const hit = statuses.some((s) => {
       if (s === "in-progress") return state === "in-progress";
       if (s === "finished") return state === "finished";
+      if (s === "not-played") return state === "new";
       if (s === "new") return isNew(story, record, now);
       return false;
     });
     if (!hit) return false;
   }
   return true;
+}
+
+// ---- Library: grouping, summaries, collections, paging ----
+
+export const PAGE_SIZE = 10;
+const MIN_REMAINDER = 3;
+
+/**
+ * How many items to show after `pages` reveals of `size`: a page at a time, but
+ * a remainder of one or two is shown outright (nobody wants "Show 2 more").
+ */
+export function visibleLimit(total, pages = 1, size = PAGE_SIZE) {
+  const limit = Math.max(1, pages) * size;
+  return total - limit < MIN_REMAINDER ? total : limit;
+}
+
+/** Inside one series: story order when every story has one, else newest first. "newest" is always newest first. */
+function inSeriesCompare(sort, stories) {
+  const ordered = sort !== "newest" && stories.every((s) => Number.isInteger(s.seriesOrder));
+  return ordered
+    ? (a, b) => a.seriesOrder - b.seriesOrder || a.title.localeCompare(b.title)
+    : (a, b) => publishedAt(b) - publishedAt(a) || (b.seriesOrder ?? 0) - (a.seriesOrder ?? 0) || a.title.localeCompare(b.title);
+}
+
+/**
+ * Series cards for a set of stories: one group per world and series (stories
+ * with no series gather in one standalone group per world, last). Freshest
+ * series first. Each group's stories follow the sort.
+ * @returns {{key: string, world: string, name: string, standalone: boolean, newest: number, stories: object[]}[]}
+ */
+export function groupStories(stories, sort = "order") {
+  const map = new Map();
+  for (const story of stories) {
+    const key = `${story.world}|${story.series ?? ""}`;
+    if (!map.has(key)) map.set(key, { key, world: story.world, name: story.series ?? "", standalone: !story.series, newest: 0, stories: [] });
+    const group = map.get(key);
+    group.stories.push(story);
+    group.newest = Math.max(group.newest, publishedAt(story));
+  }
+  const groups = [...map.values()];
+  for (const g of groups) g.stories.sort(inSeriesCompare(sort, g.stories));
+  groups.sort((a, b) => Number(a.standalone) - Number(b.standalone) || b.newest - a.newest || a.name.localeCompare(b.name));
+  return groups;
+}
+
+/** The flat results order: newest first for "newest", else the groups' own order, series by series. */
+export function orderStories(stories, sort = "order") {
+  if (sort === "newest") return [...stories].sort((a, b) => publishedAt(b) - publishedAt(a) || (b.seriesOrder ?? 0) - (a.seriesOrder ?? 0) || a.title.localeCompare(b.title));
+  return groupStories(stories, sort).flatMap((g) => g.stories);
+}
+
+/**
+ * The numbers and the next-up hint for a series card.
+ * next: the story in progress touched last ("continue"), else the first story
+ * (in the group's order) not yet finished ("next" once something is heard,
+ * "start" before), else null with allHeard true.
+ */
+export function seriesSummary(stories, records) {
+  let heard = 0;
+  let resume = null;
+  let firstOpen = null;
+  for (const story of stories) {
+    const record = records[story.slug];
+    const state = vmFor(story, record).state;
+    if (state === "finished") heard += 1;
+    else {
+      if (!firstOpen) firstOpen = story;
+      if (state === "in-progress" && (!resume || record.savedAt > records[resume.slug].savedAt)) resume = story;
+    }
+  }
+  const total = stories.length;
+  let next = null;
+  if (resume) next = { kind: "continue", story: resume };
+  else if (firstOpen) next = { kind: heard > 0 ? "next" : "start", story: firstOpen };
+  return { total, heard, allHeard: total > 0 && heard === total, next };
+}
+
+/** slug -> set of traditions, from lore entries (`lore[].stories` are story slugs). */
+function traditionsBySlug(lore) {
+  const map = new Map();
+  for (const entry of lore ?? []) {
+    if (!entry.tradition) continue;
+    for (const slug of entry.stories ?? []) {
+      if (!map.has(slug)) map.set(slug, new Set());
+      map.get(slug).add(entry.tradition);
+    }
+  }
+  return map;
+}
+
+/** Traditions (collections) among the stories in scope: [{name, count}], alphabetical. Empty without lore. */
+export function collectionsFor(stories, lore) {
+  const bySlug = traditionsBySlug(lore);
+  const counts = new Map();
+  for (const story of stories) {
+    for (const name of bySlug.get(story.slug) ?? []) counts.set(name, (counts.get(name) ?? 0) + 1);
+  }
+  return [...counts].map(([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function matchesCollection(story, collection, lore) {
+  if (!collection) return true;
+  return traditionsBySlug(lore).get(story.slug)?.has(collection) ?? false;
 }

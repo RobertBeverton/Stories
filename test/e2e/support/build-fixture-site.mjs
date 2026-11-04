@@ -18,7 +18,20 @@ export const FIXTURE_STORIES = [
   // Tale Two has parts (headings in the body, `parts` in front matter) so the e2e can check the part list.
   { file: "e2e-series/tale-two.md", title: "Tale Two of the Smoke Test", series: "E2E Series", order: 2, audio: true, date: "2026-10-02", parts: [{ title: "Part One. Arrival", start: 0 }, { title: "Part Two. Departure", start: 10 }] },
   { file: "quiet-tale.md", title: "A Quiet Tale Without Audio", series: null, order: null, audio: false, date: "2026-09-01" },
+  // A long series, for the Library's grouping and paging (library.e2e.mjs). No audio.
+  ...Array.from({ length: 12 }, (_, i) => ({
+    file: `saga/saga-${i + 1}.md`, title: `Saga Tale ${i + 1} of the Library Test`, series: "E2E Saga", order: i + 1, audio: false, date: `2026-08-${String(i + 1).padStart(2, "0")}`,
+  })),
 ];
+
+// One invented lore entry, linked from Tale One (by its `stories` list), so the e2e can check the lore chips.
+export const FIXTURE_LORE = {
+  slug: "old-mariner",
+  title: "The Old Mariner",
+  tradition: "Smoke Test Folk Tales",
+  summary: "An invented sailor who appears only in test fixtures.",
+  stories: ["e2e-series/tale-one"],
+};
 
 export const slugOf = (file) => file.replace(/\.md$/, "");
 export const audioUrlOf = (file) => `${AUDIO_ORIGIN}/e2e-world/${slugOf(file)}.mp3?v=e2e`;
@@ -63,6 +76,21 @@ export function buildFixtureSite({ log = () => {} } = {}) {
     manifest[story.file] = "e2e-world";
   }
   fs.writeFileSync(path.join(root, "stories", ".worlds.json"), JSON.stringify(manifest));
+  const loreDir = path.join(root, "lore", "e2e-world");
+  fs.mkdirSync(loreDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(loreDir, `${FIXTURE_LORE.slug}.md`),
+    `---
+title: "${FIXTURE_LORE.title}"
+tradition: "${FIXTURE_LORE.tradition}"
+summary: "${FIXTURE_LORE.summary}"
+stories:
+  - ${FIXTURE_LORE.stories[0]}
+---
+
+Invented placeholder lore for the smoke test.
+`,
+  );
 
   const run = (args) => execFileSync(process.execPath, args, { cwd: root, stdio: ["ignore", "pipe", "inherit"], env: { ...process.env, STORIES_ROUTER: "" } });
   log("generating icons");

@@ -3,7 +3,7 @@ layout: base.njk
 ---
 {# A lore entry page. Expects `entry` (a loreEntries item), `content` (its rendered
    body), and the `stories` global for the story links. The external link, if any,
-   lives only in the closed "For grown-ups" section at the bottom. #}
+   is a plain link card at the bottom, opening in a new tab. #}
 <article class="lore-entry">
   <nav class="crumbs" aria-label="Breadcrumb">
     <a href="{{ '/lore/' | url }}">← Lore</a>
@@ -38,10 +38,6 @@ layout: base.njk
   {% endif %}
 
   {% if entry.link and (entry.link.startsWith('http://') or entry.link.startsWith('https://')) %}
-  <details class="lore-grownups">
-    <summary>For grown-ups</summary>
-    <p>More reading, on another website. It opens in a new tab.</p>
-    <p><a class="btn" href="{{ entry.link }}" target="_blank" rel="noopener noreferrer">Read more on {{ entry.link.split('/')[2] | replace('www.', '') }}</a></p>
-  </details>
+  <p class="lore-more"><a class="btn" href="{{ entry.link }}" target="_blank" rel="noopener noreferrer">Read more on {{ entry.link.split('/')[2] | replace('www.', '') }}</a></p>
   {% endif %}
 </article>

@@ -41,6 +41,7 @@ const chip = (key) => document.querySelector(`[data-filter="${key}"]`);
 
 beforeEach(() => {
   localStorage.clear();
+  sessionStorage.clear();
   resetLibrary();
   useFixedNow();
   stubLibraryFetch();
@@ -119,14 +120,14 @@ describe("search", () => {
 describe("filters", () => {
   async function mounted() {
     mountOn({ mount: mountFilters }, '[data-mount="filters"]');
-    await vi.waitFor(() => expect(chip("under15")).not.toBeNull());
+    await vi.waitFor(() => expect(document.querySelector('[data-role="results-status"]').textContent).not.toBe(""));
   }
   const press = (key) => chip(key).click();
 
   it("builds its own controls with accessible pressed state", async () => {
     await mounted();
     expect(document.querySelector('[role="group"]').getAttribute("aria-label")).toBe("Filter stories");
-    for (const key of ["under15", "in-progress", "finished", "new"]) {
+    for (const key of ["under15", "in-progress", "not-played"]) {
       expect(chip(key).getAttribute("aria-pressed")).toBe("false");
       expect(chip(key).tagName).toBe("BUTTON");
     }
@@ -141,20 +142,17 @@ describe("filters", () => {
     expect(visible()).toEqual(SLUGS);
   });
 
-  it("filters in progress, finished and new (new = recent with no progress)", async () => {
+  it("filters in progress and not played (OR within the status group)", async () => {
     write(FIRST, { audioTime: 300 });
     markCompleted(LONE);
     await mounted();
     press("in-progress");
     expect(visible()).toEqual([FIRST]);
     press("in-progress");
-    press("finished");
-    expect(visible()).toEqual([LONE]);
-    press("finished");
-    press("new");
+    press("not-played");
     expect(visible()).toEqual([SECOND]);
-    press("finished");
-    expect(visible()).toEqual([SECOND, LONE]); // OR within the status group
+    press("in-progress");
+    expect(visible()).toEqual([FIRST, SECOND]);
   });
 
   it("marks rows with progress state and the New marker, and follows progress changes", async () => {
@@ -170,39 +168,12 @@ describe("filters", () => {
     expect(row(SECOND).dataset.state).toBe("finished");
   });
 
-  it("filters by world from stories:world, and by series within it", async () => {
+  it("filters by world from stories:world", async () => {
     await mounted();
-    const select = document.querySelector('[data-role="series"]');
-    expect(select.hidden).toBe(true); // a single series is not worth a control
     document.dispatchEvent(new CustomEvent("stories:world", { detail: { world: "other-world" } }));
-    expect(visible()).toEqual([LONE]);
-    expect(select.hidden).toBe(true); // no series in that world
+    expect(document.querySelector('[data-role="results-status"]').textContent).toBe("1 story");
     document.dispatchEvent(new CustomEvent("stories:world", { detail: { world: "" } }));
-    expect(visible()).toEqual(SLUGS);
-  });
-
-  it("filters by series when a world has several", async () => {
-    resetLibrary();
-    const more = structuredClone(library);
-    more.stories.push({ ...library.stories[0], slug: "test-world/third", title: "Third", series: "Another Series", seriesOrder: 1 });
-    for (const li of document.querySelectorAll('[data-role="story-row"]')) li.remove();
-    stubLibraryFetch(more);
-    for (const story of more.stories) {
-      const li = document.createElement("li");
-      li.dataset.role = "story-row";
-      li.dataset.slug = story.slug;
-      document.querySelector("#stories").append(li);
-    }
-    await mounted();
-    const select = document.querySelector('[data-role="series"]');
-    expect([...select.options].map((o) => o.textContent)).toEqual(["All series", "Another Series", "The Test Series"]);
-    expect(select.hidden).toBe(false);
-    select.value = "Another Series";
-    select.dispatchEvent(new Event("change"));
-    expect(visible()).toEqual(["test-world/third"]);
-    document.dispatchEvent(new CustomEvent("stories:world", { detail: { world: "other-world" } }));
-    expect(select.hidden).toBe(true);
-    expect(select.value).toBe(""); // series reset when it no longer exists in the world
+    expect(document.querySelector('[data-role="results-status"]').textContent).toBe("3 stories");
   });
 
   it("reads the remembered world on mount", async () => {
@@ -225,7 +196,7 @@ describe("filters", () => {
 
   it("shows the empty message when filters hide everything", async () => {
     await mounted();
-    press("finished");
+    press("in-progress");
     expect(visible()).toEqual([]);
     expect(document.querySelector('[data-role="no-results"]').hidden).toBe(false);
   });
@@ -236,13 +207,13 @@ describe("filters", () => {
     stray.dataset.slug = "gone/story";
     document.querySelector("#stories").append(stray);
     await mounted();
-    press("finished");
+    press("in-progress");
     expect(stray.hidden).toBe(false);
   });
 
   it("unmounts cleanly, showing every row again", async () => {
     await mounted();
-    press("finished");
+    press("in-progress");
     unmounts.pop()();
     expect(visible()).toEqual(SLUGS);
     expect(document.querySelector('[data-mount="filters"]').children).toHaveLength(0);
@@ -333,7 +304,7 @@ describe("a remembered world that no longer exists", () => {
   it("is cleared and treated as All by filters", async () => {
     localStorage.setItem("stories-world", "deleted-world");
     mountOn({ mount: mountFilters }, '[data-mount="filters"]');
-    await vi.waitFor(() => expect(document.querySelector('[data-role="filters"]')).not.toBeNull());
+    await vi.waitFor(() => expect(document.querySelector('[data-role="results-status"]').textContent).not.toBe(""));
     expect(visible()).toEqual(SLUGS);
     expect(localStorage.getItem("stories-world")).toBeNull();
   });

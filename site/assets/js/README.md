@@ -22,13 +22,17 @@ Common rules:
 `<section data-mount="continue"></section>`. Renders one
 `a[data-role="card"]` (`data-state="resume|start|again"`, `data-slug`) with children
 `[data-role="kicker"]`, `[data-role="title"]`, optional `progress[data-role="bar"]`
-(resume only) and `[data-role="action"]`. Links to the story with `?autoplay=1`.
+(resume only) and `[data-role="action"]`. Links to the story with `?autoplay=1`. The bar is updated in place (the card is not
+rebuilt) from saved records AND, while a story plays, from the shell audio's clock
+(`withLiveProgress` / `onLiveProgress` in `shell-audio.mjs`), so it moves between the
+five-second saves and shows a story started seconds ago.
 
 ## `played-lately`
 
 `<section data-mount="played-lately"></section>`. Renders
 `ul[data-role="list"] > li[data-role="item"] > a[data-slug][data-state="in-progress|finished"]`
-with `[data-role="title"]` and `[data-role="state"]` inside. At most three.
+with `[data-role="title"]` and `[data-role="state"]` inside. At most three. Like `continue`, it
+follows the playing story's audio clock, not only saved records.
 
 ## `story-resume`
 
@@ -44,7 +48,12 @@ Optional `[data-role="resume"]` inside the article is used as the message area
 (`role="status"`) after the first `h1`. It fills it with
 `button[data-role="resume-button"]`, `button[data-role="restart-button"]`,
 `p[data-role="autoplay-fallback"]`, `p[data-role="audio-error"]` and
-`button[data-role="retry-button"]`. It claims `stories:play` for its own slug.
+`button[data-role="retry-button"]`. It claims `stories:play` for its own slug. A press of Play on a story the audio already holds
+follows one rule (`startPosition` in `shell-audio.mjs`, shared with the player): ended or
+finished-and-paused starts from 0, an unstarted audio goes to the saved place, otherwise it
+carries on; a story already playing is left alone (the page's button is Pause then). Resume
+and Start over are Play buttons with a position: they seek and play while the audio holds the
+story, and otherwise ask the player for it with `stories:play` (after writing the record).
 It saves progress, marks finished (`ended`, and foreground reconciliation against
 the real `audio.duration`) and sets Media Session metadata (only for a loaded story that is
 its own; the player owns Media Session otherwise).
@@ -58,18 +67,47 @@ holding only text uses itself; a button with other children and no label child
 ("Play X", "Resume X", "Play again X") swapped. Label becomes "Resume" or
 "Play again" by progress; `data-state="new|in-progress|finished"` is set. Click
 fires `stories:play`; if nothing claims it, navigates to `<url>?autoplay=1`.
+With the `data-pause-when-playing` attribute (the story page's own button) it is also a Pause
+button: while the shell audio holds this story and plays it, the label is "Pause", the glyph a
+pause, `data-playing="true"` is set, and a press pauses the audio instead of firing
+`stories:play`. It follows the audio however playback was started. Row buttons do not opt in.
 
 ## `search`
 
-`<input type="search" data-mount="search">` (or a container holding an input).
+`<input type="search" data-mount="search">` (or a container holding an input). Hides
+rows that do not match (title, series, tags: every word must appear), remembers the text for
+the tab and announces `stories:search {query}`. Restores the remembered text on mount.
 
 ## `filters`
 
-`<div data-mount="filters"></div>`. Builds a group with `select[data-role="series"]`
-(hidden when the current world has fewer than two series) and toggle buttons
-`button[data-filter="under15|in-progress|finished|new"][aria-pressed]`. Status
-filters OR together; everything else ANDs. It follows the world from
-`stories:world` (and the remembered world on mount).
+`<div data-mount="filters"></div>`: the Library's controls and view (see "Library" below).
+Builds `div[data-role="filters"]` with toggle chips
+`button[data-filter="in-progress|not-played|under15"][aria-pressed]` (statuses OR together;
+everything else ANDs), and, in `[data-role="sort-slot"]` (or after the chips when the page has none),
+`select[data-role="sort"]` (`order` | `newest`), `select[data-role="collection"]` (traditions from lore;
+hidden unless one world is chosen and it has two or more) and `button[data-role="clear"]`.
+It follows the world from `stories:world` (and the remembered world on mount).
+
+## Library (grouped browse)
+
+Default: grouped. Inside `div[data-role="library-view"]` (inserted before the rows' list) it builds
+one `section[data-role="series-group"]` per world and series (stories with no series: "Single stories"),
+freshest first, all collapsed unless the scope has a single series. Each has
+`h2 > button[data-role="group-toggle"][aria-expanded][aria-controls]` (name, `[data-role="group-summary"]`
+"20 stories · 3 heard"), optional `a[data-role="group-next"]` ("Continue: ..." for a story in progress,
+"Next up: ..." once something is heard, nothing before that), and a
+`[data-role="group-body"]` holding the rows in story order (`seriesOrder`, else newest first; "Newest" sort always newest first)
+and `button[data-role="show-more"]` ("Show 10 more"). More than 12 cards: `[data-role="show-more-groups"]`.
+Typing a search or turning any chip or tradition on switches to `[data-role="flat"]`: matching rows only,
+20 at a time (`[data-role="flat-more"]`), count "n of N stories". The count lives in the template's
+`[data-role="results-status"]` (`aria-live="polite"`) and is always filled ("38 stories").
+
+Rows are the template's own `<li data-role="story-row">`; they are moved, never recreated (play buttons
+keep working) and hidden with `hidden` through `data-hidden-by` reasons `filters`, `search`, `page`.
+`data-state`, `--progress` and `data-new="true"` are set on every row. State is kept per tab in
+sessionStorage (see contracts.md section 4) so Back returns to the same view. Unmount puts every
+row back in `#stories` and removes the view. At most about 10 rows per open series are visible;
+all rows stay in the DOM, hidden.
 
 ## `world-switcher`
 
@@ -84,7 +122,16 @@ goes to `<base>/library/`; otherwise `.btn` chips. Remembers the choice in
 
 `<fieldset data-mount="text-size">` holding three `input[type=radio]` (`sm|md|lg`).
 The size is CSS; the module restores the remembered radio on mount and stores
-changes in `localStorage["stories-text-size"]`.
+changes in `localStorage["stories-text-size"]`. The radios are visually hidden with
+`pointer-events: none`; the labels are the 44px touch targets (stacked absolute inputs
+once swallowed every tap meant for A-).
+
+## Lore cards (story page, not a hook)
+
+`lore-links.njk` renders, inside the story hero between the details and the Play row,
+`section.story-lore[data-role="story-lore"]` with one `a.lore-link.lore-chip` per linked
+entry: the tradition, "About <title>" and the one-line summary. Only emitted when the story
+has lore links. It is the only list of lore links on the page.
 
 ## World accent (not a hook)
 
@@ -100,10 +147,11 @@ Every row in the list must be `[data-role="story-row"][data-slug="<slug>"]`. The
 modules toggle `hidden` on rows (via `data-hidden-by`) and set
 `data-state="new|in-progress|finished"` and `data-new="true"` (published in the
 last 14 days with no progress) on each row. An optional
-`[data-role="no-results"]` element is used for the "no stories match" message,
-otherwise one is inserted after the rows' list. An optional
-`[data-role="results-status"]` live region gets "n of N stories" while a search
-or filter hides rows.
+`[data-role="no-results"]` element is used for the "no stories match" message
+(shown when search or filters exclude every row), otherwise one is inserted after the rows' list.
+An optional `[data-role="results-status"]` live region gets the count ("n of N stories" with search alone;
+the filters module always fills it). Rows may carry `.row-series` and `.row-order` spans in `.row-meta`
+(CSS shows the series name in flat lists and "Story n" inside a series).
 
 ## `dock` and the shell (router, player, sleep timer)
 
@@ -112,11 +160,15 @@ and the dock, both outside `#view`. On a story page the audio already holds that
 story (`data-slug`, `src`), so a plain page load works without the router.
 
 - **`dock.mjs`** (`data-mount="dock"`, mounted once, never remounted): fills
-  `.dock-mini` with a title button (opens the player sheet) and a play/pause
-  button, hidden until something has been started. The player sheet is a modal
+  `.dock-mini` with one open button (title, `[data-role="mini-time"]` "elapsed / total" and
+  a chevron: the whole left side opens the player sheet), skip back/forward 15 s buttons, a
+  play/pause button and a thin `[data-role="mini-progress"]` line, all following the audio
+  clock; hidden until something has been started. The player sheet is a modal
   `role="dialog"` (focus trapped, Escape closes, `#view` and the dock rows `inert`
   while open, focus returns to the opener) with a native range seek, back/forward
-  15 s, previous/next, speed (remembered in `stories-speed`), the sleep timer and a
+  15 s (arrow plus "15 sec"), previous/next (the parts of a story that has parts, with the
+  neighbouring stories as text buttons in the options row; otherwise the neighbouring
+  stories), speed (remembered in `stories-speed`), the sleep timer and a
   "Read the story" link. The live region announces only user actions (speed,
   sleep timer). Closing the sheet returns focus to its opener; if that is gone (a router
   swap removed it) focus goes to the mini button when the mini row shows, else the page's

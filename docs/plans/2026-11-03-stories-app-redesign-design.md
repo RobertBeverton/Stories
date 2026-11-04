@@ -114,7 +114,7 @@ World-owned, so canon stays out of this repo.
 - A story's `gods:` field already names the figure. It gains an optional `lore:` slug for an exact match.
 - `content-sources.json` gains an optional `lorePath` per source. `fetch-content` copies it into `lore/<world>/` (namespaced by world, unlike stories, because lore has no legacy progress keys to protect and two worlds may both have an `athena.md`). The build emits entries into `library.json`.
 - The Lore segment lists the current world's entries grouped by tradition. Entries link to stories, and story pages link back. A world with no entries shows no Lore segment. Launching with only new stories covered is expected.
-- **External links** appear only inside a closed "For grown-ups" section at the bottom of an entry, opening in a new tab with `rel="noopener noreferrer"`. They are never in the main reading flow.
+- **External links** appear only as a plain link at the bottom of an entry, opening in a new tab with `rel="noopener noreferrer"`. They are never in the main reading flow.
 - Lore text is written under the same care as the Story Bible, especially for living traditions.
 
 ### Reader sync
@@ -195,4 +195,4 @@ What building it taught us. Decisions above are unchanged.
 - **The build id is a content hash**, not a timestamp, so the nightly rebuild does not force a reload (and kill playback) on an unchanged site. A real deploy still forces one full navigation, because mixing new markup with old modules mid-story is worse than one restart per release.
 - **CI gates the deploy** on unit tests and the Playwright smoke test (`build.yml`, job `verify`).
 - **Narrator run:** real alignment data came back with both `alignment` and `normalized_alignment` and a `request-id` header. The heading-split finding above is cosmetic for part timing and was left alone to avoid re-billing.
-- **Lore links are the `link` property** (validated, shown under a closed "For grown-ups" section), not body text.
+- **Lore links are the `link` property** (validated, shown as a plain link at the bottom of the entry), not body text.

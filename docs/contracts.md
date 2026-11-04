@@ -43,8 +43,16 @@ Per-element data uses `data-slug` (the flat slug).
 
 ## 4. Events
 
-On `document`: `stories:play` `{slug}`, `stories:progress` `{slug}`, `stories:world` `{world}`
-(`CustomEvent`, payload in `detail`).
+On `document`: `stories:play` `{slug}`, `stories:progress` `{slug}`, `stories:world` `{world}`,
+`stories:search` `{query}` (the Library search box changed; `CustomEvent`, payload in `detail`).
+
+Library state kept in storage (guarded, optional): `localStorage["stories-library-sort"]`
+(`order` | `newest`), `sessionStorage["stories-library-view"]` and `["stories-library-query"]`
+(chips, open series, revealed pages, typed search; per tab).
+
+The Library groups stories with no new `library.json` field: series come from `series` and
+`seriesOrder`; the second level (traditions) comes from `lore[].tradition` through
+`lore[].stories`, and the Tradition select simply does not appear for a world without lore.
 
 ## 5. Front matter additions
 
@@ -75,7 +83,9 @@ holds whichever story was started last, which need not be the page's own. **Owne
 the slug, not an id:** a page module (story-resume, parts) finds the audio through
 `site/assets/js/shell-audio.mjs` and may drive or save from it only while
 `audio.dataset.slug` equals its own slug, checked again on every event; it picks the
-audio up on its own once a Play button or the player loads its story. Play buttons and the story article carry
+audio up on its own once a Play button or the player loads its story. Its Resume and Start
+over buttons play (seek and play while the audio holds the story, else a `stories:play`
+request the player answers), and the story page's Play button is Pause while that story plays. Play buttons and the story article carry
 `data-slug` and `data-audio-url` (the player reads the audio URL from them; it is not in
 `library.json`). Kill switch: `<html data-router="off">`, `localStorage["stories-router"]="off"`,
 or `?router=off` / `?router=on`. Details: `site/assets/js/README.md`.
