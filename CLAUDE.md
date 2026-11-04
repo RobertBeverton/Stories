@@ -20,6 +20,9 @@ progress. Don't nest by world without migrating those keys.
 original Stories site and the isles-of-yum redesigns. Check them before
 re-solving something.
 
+Node 24 (`.nvmrc`; `nvm install 24 && nvm use 24`). CI reads the same file, and the AWS SDK used
+by `upload-audio` stops supporting Node 20 in 2027.
+
 ```bash
 npm install
 npm run serve      # fetch content + dev server
