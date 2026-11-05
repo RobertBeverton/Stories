@@ -72,6 +72,13 @@ button: while the shell audio holds this story and plays it, the label is "Pause
 pause, `data-playing="true"` is set, and a press pauses the audio instead of firing
 `stories:play`. It follows the audio however playback was started. Row buttons do not opt in.
 
+## Lore search
+
+On the Lore listing (`data-mount="lore" data-current="lore"`) the `lore` module also wires
+`input[data-role="lore-search"]` (every word must appear in an entry's title, summary or tradition)
+and a live region `[data-role="lore-status"]`. Non-matching `.lore-list > li`, emptied
+`.lore-tradition` and emptied `[data-lore-world]` sections get `hidden`.
+
 ## `search`
 
 `<input type="search" data-mount="search">` (or a container holding an input). Hides

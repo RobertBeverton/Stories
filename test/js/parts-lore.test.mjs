@@ -211,3 +211,50 @@ describe("lore entry page", () => {
     expect(doc.querySelector(".lore-stories")).toBeNull();
   });
 });
+
+describe("Lore search", () => {
+  async function openListing() {
+    loadPage(`<html data-base="/Stories"><body>
+      <div data-mount="lore" data-current="lore"></div>
+      <input type="search" data-role="lore-search"><p data-role="lore-status"></p>
+      <section data-lore-world="test-world">
+        <section class="lore-tradition"><h3>Norse</h3><ul class="lore-list">
+          <li>About Thor The god of thunder</li><li>About Odin The all-father</li></ul></section>
+        <section class="lore-tradition"><h3>Greek</h3><ul class="lore-list">
+          <li>About Zeus King of the gods</li></ul></section>
+      </section></body></html>`);
+    document.documentElement.dataset.base = "/Stories";
+    unmount = mount(document.querySelector('[data-mount="lore"]'));
+    await tick();
+    await tick();
+    const input = document.querySelector("input");
+    const type = (value) => {
+      input.value = value;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    return { type, status: document.querySelector('[data-role="lore-status"]') };
+  }
+  const shown = () => [...document.querySelectorAll(".lore-list > li:not([hidden])")].map((li) => li.textContent);
+
+  it("matches every typed word against title, summary and tradition, and hides empty traditions", async () => {
+    const { type, status } = await openListing();
+    type("thunder");
+    expect(shown()).toEqual(["About Thor The god of thunder"]);
+    expect([...document.querySelectorAll(".lore-tradition")].map((t) => t.hidden)).toEqual([false, true]);
+    expect(status.textContent).toBe("1 of 3 entries");
+    type("greek zeus");
+    expect(shown()).toEqual(["About Zeus King of the gods"]);
+  });
+
+  it("says so when nothing matches, hides the world, and restores everything when cleared", async () => {
+    const { type, status } = await openListing();
+    type("nothing here");
+    expect(shown()).toEqual([]);
+    expect(document.querySelector("[data-lore-world]").hidden).toBe(true);
+    expect(status.textContent).toMatch(/No lore matches/);
+    type("");
+    expect(shown()).toHaveLength(3);
+    expect(document.querySelector("[data-lore-world]").hidden).toBe(false);
+    expect(status.textContent).toBe("");
+  });
+});

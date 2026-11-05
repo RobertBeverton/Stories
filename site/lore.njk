@@ -20,6 +20,10 @@
 <h1 class="page-title">Lore</h1>
 <p class="lore-intro">The people, places and traditions behind the stories.</p>
 
+<label class="visually-hidden" for="lore-search">Search lore</label>
+<input type="search" id="lore-search" class="search-box" data-role="lore-search" placeholder="Search lore" autocomplete="off">
+<p class="lore-status" data-role="lore-status" role="status"></p>
+
 {% for world in worlds %}
   {% set traditions = [] %}
   {% for entry in loreEntries %}
