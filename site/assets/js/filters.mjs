@@ -1,7 +1,7 @@
 // data-mount="filters": the Library's browsing controls and view.
 //
 // It builds (inside the root) one scrolling row of filter chips (In progress,
-// Not played, Under 15 min); puts the sort select, and, when the scope has two
+// Not played, Has audio, Under 15 min); puts the sort select, and, when the scope has two
 // or more lore traditions, a Tradition select, into `[data-role="sort-slot"]`;
 // keeps the count in
 // `[data-role="results-status"]`; and arranges the template's story rows
@@ -55,6 +55,7 @@ export function mount(el) {
   const state = {
     world: getWorld(),
     under15: saved.under15,
+    audio: saved.audio,
     statuses: new Set(saved.statuses),
     collection: saved.collection,
     sort: getSort(),
@@ -63,7 +64,7 @@ export function mount(el) {
     flatPages: saved.flatPages,
     groupPages: saved.groupPages,
   };
-  const hadState = state.under15 || state.statuses.size > 0 || state.collection || Object.keys(state.open).length > 0 || state.flatPages > 1;
+  const hadState = state.under15 || state.audio || state.statuses.size > 0 || state.collection || Object.keys(state.open).length > 0 || state.flatPages > 1;
 
   const originalRows = storyRows();
   const originalList = originalRows[0]?.parentElement ?? document.querySelector("#stories");
@@ -96,11 +97,12 @@ export function mount(el) {
   sortSelect.value = state.sort;
 
   function chip(key, label) {
-    const button = h("button", { type: "button", class: "btn", "aria-pressed": String(key === "under15" ? state.under15 : state.statuses.has(key)), "data-filter": key }, label);
+    const button = h("button", { type: "button", class: "btn", "aria-pressed": String(key === "under15" ? state.under15 : key === "audio" ? state.audio : state.statuses.has(key)), "data-filter": key }, label);
     button.addEventListener("click", () => {
       const on = button.getAttribute("aria-pressed") !== "true";
       button.setAttribute("aria-pressed", String(on));
       if (key === "under15") state.under15 = on;
+      else if (key === "audio") state.audio = on;
       else if (on) state.statuses.add(key);
       else state.statuses.delete(key);
       state.flatPages = 1;
@@ -109,7 +111,7 @@ export function mount(el) {
     buttons.set(key, button);
     return button;
   }
-  chipsRow.append(...STATUSES.map(([key, label]) => chip(key, label)), chip("under15", `Under ${UNDER_MINUTES} min`));
+  chipsRow.append(...STATUSES.map(([key, label]) => chip(key, label)), chip("audio", "Has audio"), chip("under15", `Under ${UNDER_MINUTES} min`));
   el.replaceChildren(chipsRow);
   if (sortSlot) sortSlot.replaceChildren(clearButton, collectionSelect, sortSelect);
   else el.append(clearButton, collectionSelect, sortSelect);
@@ -185,8 +187,8 @@ export function mount(el) {
     const query = currentQuery();
     const scope = library.stories.filter((s) => !state.world || s.world === state.world);
     rebuildCollections(scope);
-    const flat = Boolean(query.trim()) || state.under15 || state.statuses.size > 0 || Boolean(state.collection);
-    const filter = { world: state.world, under15: state.under15, statuses: [...state.statuses], collection: state.collection, lore: library.lore };
+    const flat = Boolean(query.trim()) || state.under15 || state.audio || state.statuses.size > 0 || Boolean(state.collection);
+    const filter = { world: state.world, under15: state.under15, audio: state.audio, statuses: [...state.statuses], collection: state.collection, lore: library.lore };
 
     // Row state, and which stories match everything.
     const matched = [];
@@ -285,6 +287,7 @@ export function mount(el) {
   function persist() {
     writeView({
       under15: state.under15,
+      audio: state.audio,
       statuses: [...state.statuses],
       collection: state.collection,
       open: state.open,
@@ -313,6 +316,7 @@ export function mount(el) {
   });
   clearButton.addEventListener("click", () => {
     state.under15 = false;
+    state.audio = false;
     state.statuses.clear();
     state.collection = "";
     state.flatPages = 1;

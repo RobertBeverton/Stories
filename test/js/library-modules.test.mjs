@@ -133,6 +133,15 @@ describe("filters", () => {
     }
   });
 
+  it("has audio hides stories with no audio duration and clears off again", async () => {
+    await mounted();
+    press("audio");
+    expect(chip("audio").getAttribute("aria-pressed")).toBe("true");
+    expect(visible()).not.toContain(LONE);
+    press("audio");
+    expect(visible()).toEqual(SLUGS);
+  });
+
   it("under 15 minutes keeps only known short stories", async () => {
     await mounted();
     press("under15");

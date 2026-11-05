@@ -20,7 +20,7 @@ function counts(value) {
   return out;
 }
 
-/** @returns {{under15: boolean, statuses: string[], collection: string, open: Record<string, boolean>, pages: Record<string, number>, flatPages: number, groupPages: number}} */
+/** @returns {{under15: boolean, audio: boolean, statuses: string[], collection: string, open: Record<string, boolean>, pages: Record<string, number>, flatPages: number, groupPages: number}} */
 export function readView() {
   let raw = {};
   try {
@@ -33,6 +33,7 @@ export function readView() {
   if (raw.open && typeof raw.open === "object") for (const [k, v] of Object.entries(raw.open)) if (typeof v === "boolean") open[k] = v;
   return {
     under15: raw.under15 === true,
+    audio: raw.audio === true,
     statuses: Array.isArray(raw.statuses) ? raw.statuses.filter((s) => typeof s === "string") : [],
     collection: typeof raw.collection === "string" ? raw.collection : "",
     open,

@@ -123,6 +123,11 @@ describe("matchesFilters", () => {
     expect(all({ under15: true })).toEqual([first.slug]); // 600s; 1500s too long; null unknown
   });
 
+  it("has audio excludes stories with no audio duration", () => {
+    expect(all({ audio: true })).toEqual(library.stories.filter((s) => s.durationSec !== null).map((s) => s.slug));
+    expect(all({ audio: true })).not.toContain(library.stories.find((s) => s.durationSec === null).slug);
+  });
+
   it("status filters: in progress, finished, new (OR within the group)", () => {
     const records = {
       [first.slug]: rec({ audioTime: 300 }),

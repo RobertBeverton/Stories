@@ -74,15 +74,16 @@ export function matchesQuery(story, query) {
 }
 
 /**
- * Filters combine with AND across groups (world, series, collection, under 15
- * minutes, status) and OR within the status group (in progress, not played,
+ * Filters combine with AND across groups (world, series, collection, has audio,
+ * under 15 minutes, status) and OR within the status group (in progress, not played,
  * finished, new).
- * @param {{world?: string, series?: string, collection?: string, lore?: object[], under15?: boolean, statuses?: string[]}} f
+ * @param {{world?: string, series?: string, collection?: string, lore?: object[], under15?: boolean, audio?: boolean, statuses?: string[]}} f
  */
 export function matchesFilters(story, record, f, now = Date.now()) {
   if (f.world && story.world !== f.world) return false;
   if (f.series && story.series !== f.series) return false;
   if (f.collection && !matchesCollection(story, f.collection, f.lore)) return false;
+  if (f.audio && story.durationSec === null) return false; // durationSec comes from audioDuration, which narration writes
   if (f.under15 && !(story.durationSec !== null && story.durationSec < UNDER_MINUTES * 60)) return false;
   const statuses = f.statuses ?? [];
   if (statuses.length > 0) {
