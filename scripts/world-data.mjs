@@ -409,7 +409,11 @@ export async function loadWorldData({
   });
   errors.push(...result.errors);
 
-  const stories = computeStories(result.rawStories, audioFileExists);
+  const stories = computeStories(
+    result.rawStories,
+    audioFileExists,
+    Object.fromEntries(sources.map((w) => [w.name, w.icon])),
+  );
   const loreWorlds = new Set(result.lore.map((e) => e.world));
   const worlds = sources.map((w) => ({
     ...w,

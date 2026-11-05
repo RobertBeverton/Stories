@@ -17,6 +17,16 @@ describe("computeStories", () => {
     expect(result[1].icon).toBe("sun");
   });
 
+  it("falls back to the story's world icon, then to the default", () => {
+    const raw = [
+      { file: "stories/a.md", data: { title: "A", publishDate: "2026-01-01", world: "isles" }, content: "text" },
+      { file: "stories/b.md", data: { title: "B", publishDate: "2026-01-01", world: "other" }, content: "text" },
+      { file: "stories/c.md", data: { title: "C", publishDate: "2026-01-01", world: "isles", icon: "greek" }, content: "text" },
+    ];
+    const result = computeStories(raw, () => true, { isles: "boat" });
+    expect(result.map((s) => s.icon)).toEqual(["boat", "sun", "greek"]);
+  });
+
   it("passes through a valid icon unchanged", () => {
     const raw = [
       {
