@@ -2,6 +2,9 @@
   "name": "stories",
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "fetch-content": "node scripts/fetch-content.mjs",
     "validate": "node scripts/validate-content.mjs",
