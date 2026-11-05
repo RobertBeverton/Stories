@@ -1,6 +1,6 @@
 // data-mount="search" on an <input type="search"> (or a container holding one).
 // Hides library rows (`[data-role="story-row"][data-slug]`) that do not match
-// the words typed, using titles, series and tags from library.json. The typed
+// the words typed, using titles, series, tags and character names from library.json. The typed
 // text is remembered for the tab (so Back finds it) and announced with
 // `stories:search` {query} on document; the filters module uses it to switch
 // the Library between the grouped view and a flat list of results.

@@ -127,7 +127,7 @@ describe("filters", () => {
   it("builds its own controls with accessible pressed state", async () => {
     await mounted();
     expect(document.querySelector('[role="group"]').getAttribute("aria-label")).toBe("Filter stories");
-    for (const key of ["under15", "in-progress", "not-played"]) {
+    for (const key of ["audio", "in-progress", "not-played"]) {
       expect(chip(key).getAttribute("aria-pressed")).toBe("false");
       expect(chip(key).tagName).toBe("BUTTON");
     }
@@ -139,15 +139,6 @@ describe("filters", () => {
     expect(chip("audio").getAttribute("aria-pressed")).toBe("true");
     expect(visible()).not.toContain(LONE);
     press("audio");
-    expect(visible()).toEqual(SLUGS);
-  });
-
-  it("under 15 minutes keeps only known short stories", async () => {
-    await mounted();
-    press("under15");
-    expect(chip("under15").getAttribute("aria-pressed")).toBe("true");
-    expect(visible()).toEqual([FIRST]);
-    press("under15");
     expect(visible()).toEqual(SLUGS);
   });
 
@@ -194,12 +185,12 @@ describe("filters", () => {
   it("composes with search: neither undoes the other", async () => {
     mountOn({ mount: mountSearch }, '[data-mount="search"]');
     await mounted();
-    press("under15");
+    press("audio");
     type(document.querySelector('[data-mount="search"]'), "test");
-    expect(visible()).toEqual([FIRST]);
-    press("under15");
     expect(visible()).toEqual([FIRST, SECOND]);
     type(document.querySelector('[data-mount="search"]'), "");
+    expect(visible()).toEqual([FIRST, SECOND]); // the chip still holds
+    press("audio");
     expect(visible()).toEqual(SLUGS);
   });
 

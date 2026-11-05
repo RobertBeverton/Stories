@@ -273,15 +273,13 @@ describe("search and filters switch to a flat list", () => {
     expect(groups()).toHaveLength(4);
   });
 
-  it("Not played hides started and finished stories; Under 15 min keeps short ones", async () => {
+  it("Not played hides started and finished stories", async () => {
     markCompleted("alpha/short-run-1");
     write("alpha/short-run-2", { audioTime: 5 });
     await open();
     type("short run");
     chip("not-played").click();
     expect(shownRows().map((r) => r.dataset.slug)).toEqual(["alpha/short-run-3", "alpha/short-run-4"]);
-    chip("under15").click();
-    expect(shownRows().map((r) => r.dataset.slug)).toEqual(["alpha/short-run-3"]);
   });
 
   it("a Tradition select lists the world's traditions and filters by one", async () => {
@@ -352,12 +350,12 @@ describe("remembering the view", () => {
   it("restores a typed search and a pressed chip", async () => {
     await open();
     type("short");
-    chip("under15").click();
+    chip("audio").click();
     await reopen();
     expect(document.querySelector('[data-mount="search"]').value).toBe("short");
-    expect(chip("under15").getAttribute("aria-pressed")).toBe("true");
+    expect(chip("audio").getAttribute("aria-pressed")).toBe("true");
     expect(groups()).toHaveLength(0);
-    expect(shownRows().map((r) => r.dataset.slug)).toEqual(["alpha/short-run-1", "alpha/short-run-3"]);
+    expect(shownRows().map((r) => r.dataset.slug)).toEqual(["alpha/short-run-1", "alpha/short-run-2", "alpha/short-run-3", "alpha/short-run-4"]);
   });
 
   it("a collapsed sole group stays collapsed", async () => {

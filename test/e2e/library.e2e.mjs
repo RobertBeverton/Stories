@@ -35,8 +35,8 @@ test("search and chips switch to a flat list and back", async ({ page }) => {
   await expect(page.locator('[data-role="results-status"]')).toHaveText("1 of 15 stories");
   await page.getByRole("button", { name: "Clear" }).tap();
   await expect(page.locator('[data-role="series-group"]:visible')).toHaveCount(3);
-  await page.getByRole("button", { name: "Under 15 min" }).tap();
-  await expect(page.getByRole("button", { name: "Under 15 min" })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Has audio" }).tap();
+  await expect(page.getByRole("button", { name: "Has audio" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator('[data-role="series-group"]:visible')).toHaveCount(0);
 });
 

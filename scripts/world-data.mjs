@@ -330,6 +330,9 @@ export function buildLibrary({ stories, sources, lore }) {
       url: s.url,
       icon: s.icon,
       publishDate: isoDate(s.publishDate),
+      ...(Array.isArray(s.characters) && s.characters.some(isNonEmptyString)
+        ? { characters: s.characters.filter(isNonEmptyString) }
+        : {}),
       ...(s.parts ? { parts: s.parts } : {}),
     })),
     worlds: sources.map((w) => ({

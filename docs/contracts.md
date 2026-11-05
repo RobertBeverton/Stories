@@ -13,7 +13,7 @@ validate with `checkLibrary()` from `scripts/schema/validate.mjs`. Unknown field
 
 - `stories[]`: `slug`, `title`, `world`, `series` (or null), `seriesOrder` (or null),
   `durationSec` (or null), `tags`, `url` (prefixed with the base path), `icon`,
-  `publishDate` (`YYYY-MM-DD…`), optional `parts[]` of `{title, start}` (seconds).
+  `publishDate` (`YYYY-MM-DD…`), optional `characters[]` (names, searchable in the Library), optional `parts[]` of `{title, start}` (seconds).
 - `worlds[]`: `name`, `title`, `tagline`, `accent` (a name in `PALETTE`), `icon`, `hasLore`.
 - `lore[]`: `world`, `slug`, `title`, `tradition`, `summary`, optional `link`, `stories[]` (slugs), `url`.
 

@@ -82,14 +82,14 @@ and a live region `[data-role="lore-status"]`. Non-matching `.lore-list > li`, e
 ## `search`
 
 `<input type="search" data-mount="search">` (or a container holding an input). Hides
-rows that do not match (title, series, tags: every word must appear), remembers the text for
+rows that do not match (title, series, tags, characters: every word must appear), remembers the text for
 the tab and announces `stories:search {query}`. Restores the remembered text on mount.
 
 ## `filters`
 
 `<div data-mount="filters"></div>`: the Library's controls and view (see "Library" below).
 Builds `div[data-role="filters"]` with toggle chips
-`button[data-filter="in-progress|not-played|audio|under15"][aria-pressed]` (`audio`: the story has a known audio duration) (statuses OR together;
+`button[data-filter="in-progress|not-played|audio"][aria-pressed]` (`audio`: the story has a known audio duration) (statuses OR together;
 everything else ANDs), and, in `[data-role="sort-slot"]` (or after the chips when the page has none),
 `select[data-role="sort"]` (`order` | `newest`), `select[data-role="collection"]` (traditions from lore;
 hidden unless one world is chosen and it has two or more) and `button[data-role="clear"]`.

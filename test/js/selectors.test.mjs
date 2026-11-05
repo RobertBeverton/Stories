@@ -99,6 +99,9 @@ describe("matchesQuery", () => {
     expect(matchesQuery(first, "test series")).toBe(true);
     expect(matchesQuery(first, "placeholder")).toBe(true);
     expect(matchesQuery(first, "first nothing")).toBe(false);
+    expect(matchesQuery(first, "elfine")).toBe(true); // a character name
+    expect(matchesQuery(first, "mister harris tale")).toBe(true);
+    expect(matchesQuery(second, "elfine")).toBe(false);
     expect(matchesQuery(lone, "series")).toBe(false); // null series
     expect(matchesQuery(second, '& "quoted"')).toBe(true);
   });
@@ -119,10 +122,6 @@ describe("matchesFilters", () => {
     expect(all({ world: "other-world", series: "The Test Series" })).toEqual([]);
   });
 
-  it("under 15 minutes excludes longer and unknown durations", () => {
-    expect(all({ under15: true })).toEqual([first.slug]); // 600s; 1500s too long; null unknown
-  });
-
   it("has audio excludes stories with no audio duration", () => {
     expect(all({ audio: true })).toEqual(library.stories.filter((s) => s.durationSec !== null).map((s) => s.slug));
     expect(all({ audio: true })).not.toContain(library.stories.find((s) => s.durationSec === null).slug);
@@ -141,6 +140,6 @@ describe("matchesFilters", () => {
 
   it("combines groups with AND", () => {
     const records = { [first.slug]: rec({ audioTime: 300 }), [second.slug]: rec({ audioTime: 300 }) };
-    expect(all({ statuses: ["in-progress"], under15: true }, records)).toEqual([first.slug]);
+    expect(all({ statuses: ["in-progress"], audio: true }, records)).toEqual([first.slug, second.slug]);
   });
 });
