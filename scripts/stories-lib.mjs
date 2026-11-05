@@ -60,7 +60,8 @@ export const PATH_PREFIX = "/Stories";
 // filename doesn't exist) omits audioUrl instead of rendering a broken player.
 const alwaysExists = () => true;
 
-export function computeStories(rawStories, audioFileExists = alwaysExists) {
+// `worldIcons` ({ world: icon }) gives a story with no valid icon its world's icon instead of the global default.
+export function computeStories(rawStories, audioFileExists = alwaysExists, worldIcons = {}) {
   const allStories = rawStories.map(({ file, data, content }) => {
     const basename = path.basename(file, ".md");
     // The full, folder-qualified slug (e.g. "bramble-wall/book-1") is what
@@ -105,7 +106,11 @@ export function computeStories(rawStories, audioFileExists = alwaysExists) {
     return {
       ...data,
       tags: data.tags ?? [],
-      icon: isValidIcon(data.icon) ? data.icon : "sun",
+      icon: isValidIcon(data.icon)
+        ? data.icon
+        : isValidIcon(worldIcons[data.world])
+          ? worldIcons[data.world]
+          : "sun",
       // Computed here (not left to each template context to pass down) so
       // every story card renders its own series' color correctly regardless
       // of which page it appears on — a story-card include has no reliable

@@ -1,12 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { buildIconSvg, iconArtCombosFor } from "./generate-icon-art.mjs";
+import { iconSvgPath } from "./icons.mjs";
 
 describe("buildIconSvg", () => {
   it("produces an SVG string containing the icon's main path and the given background color", () => {
     const svg = buildIconSvg({ icon: "boat", background: "#1f5f8b" });
     expect(svg).toContain("<svg");
     expect(svg).toContain("#1f5f8b");
-    expect(svg).toContain("M25 55h70l-10 14H37Z"); // boat main path
+    expect(svg).toContain(iconSvgPath("boat"));
   });
 
   it("throws for an invalid icon name", () => {
