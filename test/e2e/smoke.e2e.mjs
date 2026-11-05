@@ -166,6 +166,9 @@ test("a story page opened while another story plays: its Play, part list and Sta
   expect((await audioState(page)).slug).toBe(SLUG_ONE);
   const parts = page.locator('[data-role="parts-list"] [data-role="part"]');
   await expect(parts).toHaveCount(2);
+  await expect(parts.first()).toBeHidden(); // the list starts collapsed
+  await page.locator('[data-role="parts-details"] > summary').click();
+  await expect(parts.first()).toBeVisible();
   await expect(page.getByRole("button", { name: "Start over" })).toBeVisible();
   const before = await record(page, SLUG_ONE);
 

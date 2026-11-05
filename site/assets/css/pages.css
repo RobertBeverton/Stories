@@ -246,7 +246,19 @@ section:has(> .lately-root:empty) { display: none; }
 .story:has(#ts-lg:checked) { --reading-scale: 1.25; }
 
 /* Parts: rows divided by hairlines, a tick for parts heard, a marker for the current one */
-.parts-root:not(:empty)::before { content: "Parts"; display: block; margin-top: 1.25rem; color: var(--muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.parts-details { margin-top: 1.25rem; }
+.parts-details summary {
+  display: flex; align-items: center; gap: 0.75rem; min-height: var(--tap);
+  cursor: pointer; list-style: none; color: var(--muted);
+}
+.parts-details summary::-webkit-details-marker { display: none; }
+.parts-details summary::after { content: "▾"; margin-left: auto; transition: transform 0.15s; }
+.parts-details[open] summary::after { transform: rotate(180deg); }
+.parts-details summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.parts-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.parts-now { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--accent); font-size: var(--text-small); }
+.parts-details[open] .parts-now { display: none; }
+@media (prefers-reduced-motion: reduce) { .parts-details summary::after { transition: none; } }
 .parts-list { list-style: none; margin: 0.25rem 0 0; padding: 0; }
 .parts-list li { border-bottom: 1px solid var(--line-soft); }
 .parts-list button { width: 100%; justify-content: flex-start; }

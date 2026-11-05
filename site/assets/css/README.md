@@ -34,7 +34,7 @@ their own inner DOM and can reuse these classes.
 | `filters` | Library | `<div class="filters" data-mount="filters" role="group">`, empty | none (hides while `:empty`) | `.btn` with `aria-pressed` |
 | `play-button` | Library rows, Story | `<button type="button" class="btn btn-primary" data-mount="play-button" data-slug data-audio-url>` | the button (a play icon in rows, icon and "Play" text on Story) | For states set `aria-label` or the `<span>` text, e.g. "Pause", "Play again" |
 | `story-resume` | Story | `<article class="story" data-mount="story-resume" data-slug>` | the story | Resume prompt: `.resume-prompt` |
-| `parts` | Story | `<div class="parts-root" data-mount="parts" data-slug>`, empty (hides while `:empty`) | none | `ul.parts-list > li > button.btn`, current one `aria-current="true"`. Highlight text with `.part-current` |
+| `parts` | Story | `<div class="parts-root" data-mount="parts" data-slug>`, empty (hides while `:empty`) | none | `details.parts-details` (collapsed; summary shows the current part) wrapping `ul.parts-list > li > button.btn`, current one `aria-current="true"`. Highlight text with `.part-current` |
 
 Library page extras: `ul#stories.rows` of `li.row` carrying `data-slug`,
 `data-title`, `data-series`, `data-tags`, `data-description`,

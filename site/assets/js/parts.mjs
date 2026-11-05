@@ -76,7 +76,16 @@ function build(el, slug, parts) {
     { class: "parts-list", "data-role": "parts-list", "aria-label": "Parts of this story" },
     ...buttons.map((button) => h("li", {}, button)),
   );
-  el.replaceChildren(list);
+  // Collapsed by default: ten rows push the story far down the page. The
+  // summary names the current part so the list's value survives being closed.
+  const nowLabel = h("span", { class: "parts-now" });
+  const details = h(
+    "details",
+    { class: "parts-details", "data-role": "parts-details" },
+    h("summary", {}, h("span", { class: "parts-label" }, "Parts"), nowLabel),
+    list,
+  );
+  el.replaceChildren(details);
 
   // The shell's player may be playing another story; only follow our own.
   const ours = () => holdsStory(audio, slug);
@@ -90,6 +99,7 @@ function build(el, slug, parts) {
       else button.removeAttribute("aria-current");
     });
     headings.forEach((heading, i) => heading?.classList.toggle("part-current", i === index));
+    nowLabel.textContent = index >= 0 ? parts[index].title : "";
   }
 
   const sync = () => {
