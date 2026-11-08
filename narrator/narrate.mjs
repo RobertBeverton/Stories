@@ -8,10 +8,13 @@ import matter from "gray-matter";
 // A new scene starts at a `• • •` line or at any markdown heading (the
 // stories use "## Part N. Title" headings for chapters).
 const SCENE_BREAK = /\n\s*•\s*•\s*•\s*\n|\n(?=#{1,6} )/g;
-// eleven_multilingual_v2's real ceiling is 10,000 chars/request; keep
+// The models' real ceiling is 10,000 chars/request; keep
 // headroom so a chunk boundary never lands exactly on the limit.
 const MAX_CHUNK_CHARS = 9000;
-const DEFAULT_MODEL_ID = "eleven_multilingual_v2";
+// Eleven v4 costs the same per character as multilingual_v2 and sounds more
+// expressive (checked on a trial story, Nov 2026). Worlds can still pin a model
+// in narration/narrator.json.
+const DEFAULT_MODEL_ID = "eleven_v4";
 const DEFAULT_VOICE_ID = "ZF6FPAbjXT4488VcRRnw"; // Amelia
 
 // Narrates a story into one mp3 with a single ElevenLabs voice, and writes the part times

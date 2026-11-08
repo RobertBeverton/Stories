@@ -58,7 +58,7 @@ describe("loadWorldNarration", () => {
   it("uses the defaults and the shared respellings when the world has no narration folder", () => {
     const n = loadWorldNarration(root, { sharedPronunciations: shared });
     expect(n.voiceId).toMatch(/\w+/);
-    expect(n.modelId).toBe("eleven_multilingual_v2");
+    expect(n.modelId).toBe("eleven_v4");
     expect(n.pronunciations).toEqual({ Mrs: "Missus", Ms: "Mizz" });
   });
 
@@ -74,7 +74,7 @@ describe("loadWorldNarration", () => {
     fs.writeFileSync(path.join(root, "narration", "narrator.json"), JSON.stringify({ voiceId: "abc", modelId: 7 }));
     const n = loadWorldNarration(root, { sharedPronunciations: shared });
     expect(n.voiceId).toBe("abc");
-    expect(n.modelId).toBe("eleven_multilingual_v2");
+    expect(n.modelId).toBe("eleven_v4");
   });
 
   it("survives a broken settings file", () => {
