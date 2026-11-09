@@ -25,7 +25,7 @@ Run it inline. Spawn subagents only if the user asks.
 | **Senior UX/UI designer** | Hierarchy, density, navigation stability, states, contrast, tap targets | Stacked fixed bars, shifting nav, duplicate entry points, missing empty, loading, error and finished states, arbitrary accent colours failing contrast |
 | **Senior developer** | Build, runtime, tests, failure modes, maintenance | Scripts that don't re-run after a swap, version skew, cache and hashing claims that aren't true yet, no DOM in tests, unvalidated cross-repo contracts, CSP |
 | **The child (5 to 6, pre-reader)** | Pictures, big targets, accidents, repetition | Can't read labels, drags sliders, hits nav by mistake, replays the same story, what happens when it ends |
-| **Parent at bedtime** | Low light, tired, one hand, bad signal | Offline, which stories are new or finished, accidental external links, filters that block the site, anything that can fail at 7pm |
+| **Tired parent, evening** | Low light, tired, one hand, bad signal | Offline, which stories are new or finished, accidental external links, filters that block the site, anything that can fail at 7pm |
 | **Accessibility user** | Screen reader, low vision, motor, zoom | Focus after route changes, live regions, 200% zoom with fixed bars, slider semantics, reduced motion |
 | **Author / maintainer** | Solo workflow across repos | Extra front matter per story, backlog of old stories, three repos to coordinate, time taken from writing |
 | **Skeptical product owner** | YAGNI, ordering, value per effort | Does the feature earn its cost? Is the riskiest step first for the least gain? What is the smallest version that delivers the promise? |
