@@ -3,10 +3,7 @@ layout: base.njk
 ---
 <article class="story" data-mount="story-resume" data-slug="{{ slug }}"{% if audioUrl %} data-audio-url="{{ audioUrl }}"{% endif %}>
   <header class="story-hero" style="--series: {{ accentColor.background }}; --series-ink: {{ accentColor.text }};">
-    <nav class="crumbs" aria-label="Breadcrumb">
-      <a href="{{ '/library/' | url }}">← Library</a>
-      {% if series %}<span aria-hidden="true">·</span><span>{{ series }}</span>{% endif %}
-    </nav>
+    {% if series %}<p class="story-series">{{ series }}</p>{% endif %}
 
     {% set coverStory = { icon: icon, accentColor: accentColor } %}{% set coverClass = 'story-cover' %}
     {% include "cover.njk" %}
