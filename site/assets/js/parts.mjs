@@ -98,12 +98,27 @@ function build(el, slug, parts) {
       if (i === index) button.setAttribute("aria-current", "true");
       else button.removeAttribute("aria-current");
     });
-    headings.forEach((heading, i) => heading?.classList.toggle("part-current", i === index));
     nowLabel.textContent = index >= 0 ? parts[index].title : "";
   }
 
+  // The heading in the text is marked only while this story is playing, so the
+  // mark always means "you are hearing this part now". Paused, finished or
+  // handed to another story: no mark, instead of a stale one.
+  let marked = -2;
+  function mark(index) {
+    if (index === marked) return;
+    marked = index;
+    headings.forEach((heading, i) => heading?.classList.toggle("part-current", i === index));
+  }
+
   const sync = () => {
-    if (ours()) show(currentPartIndex(parts, audio.currentTime));
+    if (!ours()) {
+      mark(-1);
+      return;
+    }
+    const index = currentPartIndex(parts, audio.currentTime);
+    show(index);
+    mark(audio.paused || audio.ended ? -1 : index);
   };
   const onClick = (event) => {
     const button = event.target.closest?.('button[data-role="part"]');
@@ -112,9 +127,10 @@ function build(el, slug, parts) {
     // Seek only: a paused story stays paused, a playing one keeps playing.
     audio.currentTime = parts[index].start;
     show(index);
+    mark(audio.paused || audio.ended ? -1 : index);
   };
 
-  const events = ["timeupdate", "seeked", "loadedmetadata", "play", "ended"];
+  const events = ["timeupdate", "seeked", "loadedmetadata", "play", "playing", "pause", "ended", "emptied"];
   list.addEventListener("click", onClick);
   if (audio) for (const name of events) audio.addEventListener(name, sync);
   sync();

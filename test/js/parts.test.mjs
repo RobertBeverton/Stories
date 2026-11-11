@@ -120,8 +120,14 @@ describe("highlight follows the audio clock", () => {
 
   it("highlights the matching heading in the story text with .part-current", async () => {
     await mountPage();
+    expect(headingsCurrent()).toEqual([]); // nothing is playing, so nothing is marked
+    audio.play();
     expect(headingsCurrent()).toEqual([PARTS[0].title]);
     ctl.tick(250);
+    expect(headingsCurrent()).toEqual([PARTS[1].title]);
+    audio.pause();
+    expect(headingsCurrent()).toEqual([]);
+    audio.play();
     expect(headingsCurrent()).toEqual([PARTS[1].title]);
   });
 
