@@ -67,11 +67,12 @@ describe("classes the CSS styles", () => {
     expect(item.querySelector(".lately-state").textContent).toMatch(/Finished|In progress/);
   });
 
-  it("filters draw .btn chips and a styled series select", async () => {
+  it("filters draw a .btn Filters button and .btn chips in the sheet", async () => {
     mount(mountFilters, '[data-mount="filters"]');
     await vi.waitFor(() => expect(document.querySelector("[data-filter]")).not.toBeNull());
     for (const button of document.querySelectorAll("[data-filter]")) expect(button.classList.contains("btn")).toBe(true);
-    expect(document.querySelector("select").classList.contains("filter-select")).toBe(true);
+    expect(document.querySelector('[data-role="filters-open"]').classList.contains("btn")).toBe(true);
+    for (const button of document.querySelectorAll('[data-role="sort"] button')) expect(button.classList.contains("btn")).toBe(true);
   });
 });
 

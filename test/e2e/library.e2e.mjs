@@ -35,9 +35,18 @@ test("search and chips switch to a flat list and back", async ({ page }) => {
   await expect(page.locator('[data-role="results-status"]')).toHaveText("1 of 15 stories");
   await page.getByRole("button", { name: "Clear" }).tap();
   await expect(page.locator('[data-role="series-group"]:visible')).toHaveCount(3);
-  await page.getByRole("button", { name: "Has audio" }).tap();
-  await expect(page.getByRole("button", { name: "Has audio" })).toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Filters" }).tap();
+  const dialog = page.getByRole("dialog", { name: "Filters" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("button", { name: "Has audio" }).tap();
+  await expect(dialog.getByRole("button", { name: "Has audio" })).toHaveAttribute("aria-pressed", "true");
+  await dialog.getByRole("button", { name: /^Show \d+ stor/ }).tap();
+  await expect(dialog).toBeHidden();
   await expect(page.locator('[data-role="series-group"]:visible')).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Remove Has audio" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Filters, 1 choice on/ })).toBeVisible();
+  await page.getByRole("button", { name: "Remove Has audio" }).tap();
+  await expect(page.locator('[data-role="series-group"]:visible')).toHaveCount(3);
 });
 
 test("the Library comes back as it was left after visiting a story", async ({ page }) => {
@@ -56,9 +65,9 @@ test("fits the phone: chip rows scroll sideways, nothing wraps or overflows, tar
     const chips = [...document.querySelectorAll(".world-chips, .chip-row")];
     return chips.map((c) => ({ height: c.getBoundingClientRect().height, scrolls: c.scrollWidth >= c.clientWidth }));
   });
-  expect(rows.length).toBeGreaterThanOrEqual(2);
+  expect(rows.length).toBeGreaterThanOrEqual(1);
   for (const row of rows) expect(row.height).toBeLessThan(60); // one line each, never wrapped
-  const small = await page.evaluate(() => [...document.querySelectorAll('.chip-row button, .world-chips button, [data-role="group-toggle"], [data-role="sort"]')]
+  const small = await page.evaluate(() => [...document.querySelectorAll('.chip-row button, .world-chips button, [data-role="group-toggle"], [data-role="filters-open"]')]
     .filter((b) => b.getBoundingClientRect().height < 43.5).length);
   expect(small).toBe(0);
 });

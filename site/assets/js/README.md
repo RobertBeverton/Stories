@@ -51,7 +51,7 @@ without that press.
 
 ## `sheet.mjs` (helper, not a mount)
 
-`createSheet({id, title})` returns `{el, body, open, close, destroy, isOpen, onClose}`: a
+`createSheet({id, title})` returns `{el, body, attach, open, close, destroy, isOpen, onClose}` (`attach()` puts the closed sheet in the page so its controls exist before it is first opened): a
 `role="dialog" aria-modal` bottom sheet on `<body>` (so the router never swaps it). While open
 `#view` and `.dock` are `inert`, Escape and the Close button shut it, Tab stays inside and focus
 returns to what opened it. Call `destroy()` on unmount.
@@ -109,19 +109,24 @@ the tab and announces `stories:search {query}`. Restores the remembered text on 
 
 ## `filters`
 
-`<div data-mount="filters"></div>`: the Library's controls and view (see "Library" below).
-Builds `div[data-role="filters"]` with toggle chips
-`button[data-filter="in-progress|not-played|audio"][aria-pressed]` (`audio`: the story has a known audio duration) (statuses OR together;
-everything else ANDs), and, in `[data-role="sort-slot"]` (or after the chips when the page has none),
-`select[data-role="sort"]` (`order` | `newest`), `select[data-role="collection"]` (traditions from lore;
-hidden unless one world is chosen and it has two or more) and `button[data-role="clear"]`.
-It follows the world from `stories:world` (and the remembered world on mount).
+`<div data-mount="filters"></div>` (sits beside the search box): the Library's controls and view (see "Library" below).
+Renders one `button[data-role="filters-open"]` ("Filters", with a `[data-role="filter-count"]` badge when something is on)
+that opens a bottom sheet (`sheet.mjs`, `[data-role="filters-sheet"]`, attached to the page at mount, hidden until opened). The sheet holds
+toggle chips `button[data-filter="in-progress|not-played|audio"][aria-pressed]` in `div[data-role="filters"]`
+(`audio`: the story has a known audio duration) (statuses OR together; everything else ANDs),
+`div[data-role="collection"]` with a `button[data-collection][aria-pressed]` per tradition from lore plus "Any"
+(its `[data-role="collection-section"]` is hidden unless one world is chosen and it has two or more),
+`div[data-role="sort"]` with `button[data-sort="order|newest|plays"]`, "Clear filters" (`[data-role="sheet-clear"]`) and
+"Show N stories" (`[data-role="sheet-done"]`, closes the sheet). In `[data-role="sort-slot"]` (or after the button when the page has none)
+it renders the on filters as removable `button[data-role="active-chip"]` ("Remove Not played") and a `button[data-role="clear"]`
+when two or more filters, or a search, are on. It follows the world from `stories:world` (and the remembered world on mount).
 
 ## Library (grouped browse)
 
 Default: grouped. Inside `div[data-role="library-view"]` (inserted before the rows' list) it builds
 one `section[data-role="series-group"]` per world and series (stories with no series: "Single stories"),
-freshest first, all collapsed unless the scope has a single series. Each has
+freshest first, all collapsed. A scope with a single series (one world with one series) hides the card header and next-up link
+(`section.series-group` stays, `[data-role="groups"][data-solo="true"]`) and lists its stories directly. Each has
 `h2 > button[data-role="group-toggle"][aria-expanded][aria-controls]` (name, `[data-role="group-summary"]`
 "20 stories · 3 heard"), optional `a[data-role="group-next"]` ("Continue: ..." for a story in progress,
 "Next up: ..." once something is heard, nothing before that), and a

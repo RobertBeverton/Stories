@@ -29,7 +29,8 @@ describe("main.js", () => {
     await main.mountAll();
     await vi.waitFor(() => expect(document.querySelector('[data-mount="continue"] a')).not.toBeNull());
     expect(document.querySelector('[data-mount="world-switcher"] button[data-world]')).not.toBeNull();
-    expect(document.querySelector('[data-mount="filters"] [data-filter]')).not.toBeNull();
+    expect(document.querySelector('[data-mount="filters"] [data-role="filters-open"]')).not.toBeNull();
+    expect(document.querySelector('[data-role="filters-sheet"] [data-filter]')).not.toBeNull();
     expect(document.querySelector('[data-mount="played-lately"] li')).not.toBeNull();
     expect(warn.mock.calls.filter((c) => /^mount .* failed$/.test(String(c[0])))).toEqual([]);
   });

@@ -171,10 +171,10 @@ describe("grouped view", () => {
 
   it("the Newest sort puts the newest story first inside a series", async () => {
     await open();
-    const sort = document.querySelector('[data-role="sort"]');
-    expect(sort.value).toBe("order");
-    sort.value = "newest";
-    sort.dispatchEvent(new Event("change"));
+    const sort = (value) => document.querySelector(`[data-role="sort"] [data-sort="${value}"]`);
+    expect(sort("order").getAttribute("aria-pressed")).toBe("true");
+    sort("newest").click();
+    expect(sort("newest").getAttribute("aria-pressed")).toBe("true");
     const g = groupNamed("Long Saga");
     toggleOf(g).click();
     const first = [...g.querySelectorAll('[data-role="story-row"]')].filter(isShown)[0];
@@ -199,9 +199,9 @@ describe("grouped view", () => {
     expect(label("alpha/long-saga-1")).toBe("");
 
     const sort = document.querySelector('[data-role="sort"]');
-    expect([...sort.options].map((o) => o.textContent)).toEqual(["Story order", "Newest", "Most heard"]);
-    sort.value = "plays";
-    sort.dispatchEvent(new Event("change"));
+    expect([...sort.querySelectorAll("button")].map((b) => b.textContent)).toEqual(["Story order", "Newest", "Most heard"]);
+    sort.querySelector('[data-sort="plays"]').click();
+    expect(document.querySelector('[data-role="active-chip"]').textContent).toContain("Most heard");
     const rows = shownRows().map((r) => r.dataset.slug);
     expect(rows.slice(0, 2)).toEqual([thrice, once]); // a flat list, most heard first
     expect(localStorage.getItem("stories-library-sort")).toBe("plays");
@@ -307,27 +307,53 @@ describe("search and filters switch to a flat list", () => {
     expect(shownRows().map((r) => r.dataset.slug)).toEqual(["alpha/short-run-3", "alpha/short-run-4"]);
   });
 
-  it("a Tradition select lists the world's traditions and filters by one", async () => {
+  it("a Tradition group lists the world's traditions and filters by one", async () => {
     await open();
-    expect(document.querySelector('[data-role="collection"]').hidden).toBe(true); // only inside one world
+    const section = document.querySelector('[data-role="collection-section"]');
+    expect(section.hidden).toBe(true); // only inside one world
     localStorage.setItem("stories-world", "alpha");
     document.dispatchEvent(new CustomEvent("stories:world", { detail: { world: "alpha" } }));
-    const select = document.querySelector('[data-role="collection"]');
-    expect(select.hidden).toBe(false);
-    expect([...select.options].map((o) => o.value)).toEqual(["", "Greek", "Norse"]);
-    select.value = "Greek";
-    select.dispatchEvent(new Event("change"));
+    const box = document.querySelector('[data-role="collection"]');
+    expect(section.hidden).toBe(false);
+    expect([...box.querySelectorAll("button")].map((b) => b.dataset.collection)).toEqual(["", "Greek", "Norse"]);
+    box.querySelector('[data-collection="Greek"]').click();
     expect(shownRows().map((r) => r.dataset.slug)).toEqual(["alpha/short-run-1", "alpha/long-saga-5"]);
     expect(status()).toBe("2 of 31 stories");
-    select.value = "";
-    select.dispatchEvent(new Event("change"));
+    expect(document.querySelector('[data-role="active-chip"]').textContent).toContain("Greek");
+    box.querySelector('[data-collection=""]').click();
     expect(groups().length).toBeGreaterThan(0);
   });
 
-  it("hides the Tradition select when the world has no lore", async () => {
+  it("hides the Tradition group when the world has no lore", async () => {
     localStorage.setItem("stories-world", "beta");
     await open();
-    expect(document.querySelector('[data-role="collection"]').hidden).toBe(true);
+    expect(document.querySelector('[data-role="collection-section"]').hidden).toBe(true);
+  });
+
+  it("the Filters button counts what is on, active chips remove one filter, and the sheet opens and closes", async () => {
+    await open();
+    const button = document.querySelector('[data-role="filters-open"]');
+    const badge = document.querySelector('[data-role="filter-count"]');
+    const sheet = document.querySelector('[data-role="filters-sheet"]');
+    expect(badge.hidden).toBe(true);
+    expect(sheet.hidden).toBe(true);
+    button.click();
+    expect(sheet.hidden).toBe(false);
+    chip("not-played").click();
+    chip("audio").click();
+    expect(badge.hidden).toBe(false);
+    expect(badge.textContent).toBe("2");
+    expect(button.getAttribute("aria-label")).toBe("Filters, 2 choices on");
+    expect([...document.querySelectorAll('[data-role="active-chip"]')].map((c) => c.getAttribute("aria-label"))).toEqual(["Remove Not played", "Remove Has audio"]);
+    expect(sheet.querySelector('[data-role="sheet-done"]').textContent).toMatch(/^Show \d+ stor(y|ies)$/);
+    document.querySelector('[data-role="active-chip"]').click(); // remove Not played
+    expect(chip("not-played").getAttribute("aria-pressed")).toBe("false");
+    expect(badge.textContent).toBe("1");
+    sheet.querySelector('[data-role="sheet-clear"]').click();
+    expect(badge.hidden).toBe(true);
+    expect(chip("audio").getAttribute("aria-pressed")).toBe("false");
+    sheet.querySelector('[data-role="sheet-done"]').click();
+    expect(sheet.hidden).toBe(true);
   });
 
   it("the world switch does not turn on flat mode by itself", async () => {
@@ -383,12 +409,20 @@ describe("remembering the view", () => {
     expect(shownRows().map((r) => r.dataset.slug)).toEqual(["alpha/short-run-1", "alpha/short-run-2", "alpha/short-run-3", "alpha/short-run-4"]);
   });
 
-  it("a collapsed sole group stays collapsed", async () => {
+  it("a world with one series shows no card header: the stories sit straight on the page", async () => {
     localStorage.setItem("stories-world", "beta");
     await open();
-    toggleOf(groups()[0]).click();
+    expect(document.querySelector('[data-role="groups"]').dataset.solo).toBe("true");
+    expect(groups()[0].querySelector(".series-head").hidden).toBe(true);
+    expect(shownRows()).toHaveLength(10);
     await reopen();
-    expect(toggleOf(groups()[0]).getAttribute("aria-expanded")).toBe("false");
+    expect(groups()[0].querySelector(".series-head").hidden).toBe(true);
+  });
+
+  it("with several series the cards keep their headers", async () => {
+    await open();
+    expect(document.querySelector('[data-role="groups"]').dataset.solo).toBe("false");
+    expect(groups()[0].querySelector(".series-head").hidden).toBe(false);
   });
 
   it("starts fresh when storage is unavailable", async () => {

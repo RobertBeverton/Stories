@@ -12,7 +12,7 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), selec
 /**
  * @param {{id: string, title: string}} options `id` is unique on the page
  * @returns {{el: HTMLElement, body: HTMLElement, isOpen(): boolean, open(opener?: Element): void,
- *            close(opts?: {restoreFocus?: boolean}): void, destroy(): void, onClose: (fn: () => void) => void}}
+ *            attach(): void, close(opts?: {restoreFocus?: boolean}): void, destroy(): void, onClose: (fn: () => void) => void}}
  */
 export function createSheet({ id, title }) {
   const closeButton = h("button", { type: "button", class: "btn", "data-role": "sheet-close" }, "Close");
@@ -60,11 +60,16 @@ export function createSheet({ id, title }) {
     } else if (event.key === "Tab") trapTab(event);
   }
 
+  /** Puts the closed sheet in the page, so its controls exist before it is first opened. */
+  function attach() {
+    if (!el.isConnected) document.body.append(scrim, el);
+  }
+
   function open(from) {
     if (isOpen) return;
     isOpen = true;
     opener = from ?? (document.activeElement instanceof HTMLElement ? document.activeElement : null);
-    if (!el.isConnected) document.body.append(scrim, el);
+    attach();
     scrim.hidden = false;
     el.hidden = false;
     setInert(true);
@@ -97,6 +102,7 @@ export function createSheet({ id, title }) {
     el,
     body,
     isOpen: () => isOpen,
+    attach,
     open,
     close,
     destroy,

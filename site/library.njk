@@ -11,11 +11,14 @@ permalink: /library/
 <div class="lore-segment-root" data-mount="lore"></div>
 
 <label class="visually-hidden" for="search-box">Search stories</label>
-<input type="search" id="search-box" class="search-box" data-mount="search" placeholder="Search stories" autocomplete="off">
+<div class="search-row">
+  <input type="search" id="search-box" class="search-box" data-mount="search" placeholder="Search stories" autocomplete="off">
+  {# The Filters button and its bottom sheet. Filled by script. #}
+  <div class="filters-host" data-mount="filters"></div>
+</div>
 
-{# Two scrolling chip rows (world, then filters), and the count with the sort control. All filled by script. #}
+{# One scrolling chip row of worlds, and the count with the active filters. Filled by script. #}
 <div class="world-filter chip-bleed" data-mount="world-switcher" data-variant="filter"></div>
-<div class="filters chip-bleed" data-mount="filters" role="group" aria-label="Filter stories"></div>
 
 <div class="library-bar">
   <p class="library-status" id="library-status" role="status" aria-live="polite" data-role="results-status"></p>
