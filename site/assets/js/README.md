@@ -94,12 +94,19 @@ button: while the shell audio holds this story and plays it, the label is "Pause
 pause, `data-playing="true"` is set, and a press pauses the audio instead of firing
 `stories:play`. It follows the audio however playback was started. Row buttons do not opt in.
 
-## Lore search
+## Lore listing (A to Z, search, heard)
 
-On the Lore listing (`data-mount="lore" data-current="lore"`) the `lore` module also wires
-`input[data-role="lore-search"]` (every word must appear in an entry's title, summary or tradition)
-and a live region `[data-role="lore-status"]`. Non-matching `.lore-list > li`, emptied
-`.lore-tradition` and emptied `[data-lore-world]` sections get `hidden`.
+The Lore listing (`lore.njk`) is an A to Z index per world: `section[data-lore-world]` holds one
+`section.lore-letter[data-letter]` per letter (`scripts/lore-index.mjs`, the `loreLetters` filter: sorted ignoring case and
+accents, "#" last) with an `h3.lore-letter-head` and rows `li[data-search] > a.lore-row` (icon, name, tradition). A world
+heading is visually hidden while only one world has lore.
+On it (`data-mount="lore" data-current="lore"`) the `lore` module also wires
+`input[data-role="lore-search"]` (every word must appear in the row's `data-search`: title, tradition, summary)
+and a live region `[data-role="lore-status"]`. Non-matching `li`, emptied `.lore-letter` and emptied
+`[data-lore-world]` sections get `hidden`. It also fills `nav[data-role="letters"]` with a button per letter that
+has entries (only while one world is on show and there are five or more letters; a click scrolls to and focuses that
+letter's heading) and `[data-role="heard"]`: names only, as links, of entries whose stories have been listened to on
+this device (an `audioTime` above zero or a finish), most recent first, up to 8, hidden while a search is typed.
 
 ## `search`
 

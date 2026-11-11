@@ -8,6 +8,7 @@ import nunjucks from "nunjucks";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { iconDetailSvgPath, iconSvgPath } from "../../scripts/icons.mjs";
 import { resetLibrary } from "../../site/assets/js/library.mjs";
+import { write } from "../../site/assets/js/progress.mjs";
 import { mount } from "../../site/assets/js/lore.mjs";
 import { getWorld, setWorld } from "../../site/assets/js/world-state.mjs";
 import { renderStory, root, templateStory } from "../templates/render-pages.mjs";
@@ -212,17 +213,28 @@ describe("lore entry page", () => {
   });
 });
 
-describe("Lore search", () => {
-  async function openListing() {
+describe("Lore listing (A to Z, search, heard)", () => {
+  const row = (title, tradition, summary = "") =>
+    `<li data-search="${title} ${tradition} ${summary}"><a class="lore-row" href="/Stories/lore/x/${title}/"><span class="lore-link-title">${title}</span><span class="lore-row-tradition">${tradition}</span></a></li>`;
+  const letter = (l, world, rows) =>
+    `<section class="lore-letter" data-letter="${l}"><h3 class="lore-letter-head" id="l-${world}-${l}" tabindex="-1">${l}</h3><ul class="lore-list lore-rows">${rows.join("")}</ul></section>`;
+  const ALL = [
+    ["A", [row("Anubis", "Egyptian", "Guide of the lost")]],
+    ["B", [row("Bast", "Egyptian", "The cat goddess")]],
+    ["H", [row("Hadad", "Canaanite", "Storm god")]],
+    ["T", [row("Thor", "Norse", "The god of thunder"), row("Thoth", "Egyptian", "Scribe of the gods")]],
+    ["Z", [row("Zeus", "Greek", "King of the gods")]],
+  ];
+
+  async function openListing({ letters = ALL, extraWorld = false } = {}) {
     loadPage(`<html data-base="/Stories"><body>
       <div data-mount="lore" data-current="lore"></div>
       <input type="search" data-role="lore-search"><p data-role="lore-status"></p>
-      <section data-lore-world="test-world">
-        <section class="lore-tradition"><h3>Norse</h3><ul class="lore-list">
-          <li>About Thor The god of thunder</li><li>About Odin The all-father</li></ul></section>
-        <section class="lore-tradition"><h3>Greek</h3><ul class="lore-list">
-          <li>About Zeus King of the gods</li></ul></section>
-      </section></body></html>`);
+      <div data-role="heard" hidden><ul data-role="heard-list"></ul></div>
+      <nav data-role="letters" hidden></nav>
+      <section data-lore-world="test-world">${letters.map(([l, rows]) => letter(l, "test-world", rows)).join("")}</section>
+      ${extraWorld ? `<section data-lore-world="other">${letter("Q", "other", [row("Quetzal", "Aztec")])}</section>` : ""}
+      </body></html>`);
     document.documentElement.dataset.base = "/Stories";
     unmount = mount(document.querySelector('[data-mount="lore"]'));
     await tick();
@@ -234,16 +246,17 @@ describe("Lore search", () => {
     };
     return { type, status: document.querySelector('[data-role="lore-status"]') };
   }
-  const shown = () => [...document.querySelectorAll(".lore-list > li:not([hidden])")].map((li) => li.textContent);
+  const shown = () => [...document.querySelectorAll(".lore-list > li:not([hidden]) .lore-link-title")].map((n) => n.textContent);
+  const letterButtons = () => [...document.querySelectorAll('[data-role="letters"] button')].map((b) => b.textContent);
 
-  it("matches every typed word against title, summary and tradition, and hides empty traditions", async () => {
+  it("matches every typed word against title, tradition and summary, and hides empty letters", async () => {
     const { type, status } = await openListing();
     type("thunder");
-    expect(shown()).toEqual(["About Thor The god of thunder"]);
-    expect([...document.querySelectorAll(".lore-tradition")].map((t) => t.hidden)).toEqual([false, true]);
-    expect(status.textContent).toBe("1 of 3 entries");
-    type("greek zeus");
-    expect(shown()).toEqual(["About Zeus King of the gods"]);
+    expect(shown()).toEqual(["Thor"]);
+    expect([...document.querySelectorAll(".lore-letter")].filter((s) => !s.hidden).map((s) => s.dataset.letter)).toEqual(["T"]);
+    expect(status.textContent).toBe("1 of 6 entries");
+    type("egyptian bast");
+    expect(shown()).toEqual(["Bast"]);
   });
 
   it("says so when nothing matches, hides the world, and restores everything when cleared", async () => {
@@ -253,8 +266,53 @@ describe("Lore search", () => {
     expect(document.querySelector("[data-lore-world]").hidden).toBe(true);
     expect(status.textContent).toMatch(/No lore matches/);
     type("");
-    expect(shown()).toHaveLength(3);
+    expect(shown()).toHaveLength(6);
     expect(document.querySelector("[data-lore-world]").hidden).toBe(false);
     expect(status.textContent).toBe("");
+  });
+
+  it("builds a letter strip of only the letters that have entries, and a button jumps to its heading", async () => {
+    await openListing();
+    expect(document.querySelector('[data-role="letters"]').hidden).toBe(false);
+    expect(letterButtons()).toEqual(["A", "B", "H", "T", "Z"]);
+    const head = document.getElementById("l-test-world-T");
+    head.scrollIntoView = vi.fn();
+    document.querySelector('[data-role="letters"] [data-letter="T"]').click();
+    expect(head.scrollIntoView).toHaveBeenCalled();
+    expect(document.activeElement).toBe(head);
+  });
+
+  it("the strip follows the search, and goes away when there are fewer than five letters", async () => {
+    const { type } = await openListing();
+    type("egyptian");
+    expect(document.querySelector('[data-role="letters"]').hidden).toBe(true); // A, B, T: only three
+    type("");
+    expect(letterButtons()).toEqual(["A", "B", "H", "T", "Z"]);
+  });
+
+  it("shows no strip while several worlds are on show", async () => {
+    await openListing({ extraWorld: true });
+    expect(document.querySelector('[data-role="letters"]').hidden).toBe(true);
+  });
+
+  it("lists, by name, the entries of stories heard on this device, most recent first, and hides them while searching", async () => {
+    const { type } = await openListing();
+    const box = document.querySelector('[data-role="heard"]');
+    expect(box.hidden).toBe(true); // nothing heard yet
+    write(ENTRY.stories[0], { audioTime: 60 });
+    expect(box.hidden).toBe(false);
+    const names = () => [...box.querySelectorAll("a")].map((a) => a.textContent);
+    expect(names()).toEqual([ENTRY.title]);
+    expect(box.querySelector("a").getAttribute("href")).toBe(ENTRY.url);
+    type("zzz");
+    expect(box.hidden).toBe(true);
+    type("");
+    expect(box.hidden).toBe(false);
+  });
+
+  it("a story that was only opened (no listening) does not count as heard", async () => {
+    await openListing();
+    write(ENTRY.stories[0], { audioTime: 0, scrollY: 0 });
+    expect(document.querySelector('[data-role="heard"]').hidden).toBe(true);
   });
 });

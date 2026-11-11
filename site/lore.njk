@@ -22,28 +22,34 @@
   </nav>
 </div>
 
-<p class="lore-intro">The people, places and traditions behind the stories.</p>
-
 <label class="visually-hidden" for="lore-search">Search lore</label>
 <input type="search" id="lore-search" class="search-box" data-role="lore-search" placeholder="Search lore" autocomplete="off">
 <p class="lore-status" data-role="lore-status" role="status"></p>
 
+{# Names of the entries in stories that have been heard on this device; filled by the lore module. #}
+<div class="lore-heard" data-role="heard" hidden>
+  <p class="lore-heard-label" id="lore-heard-label">From stories you have heard</p>
+  <ul class="lore-heard-list chip-bleed" aria-labelledby="lore-heard-label" data-role="heard-list"></ul>
+</div>
+
+{# Letters that have entries, built by the lore module for the world on show. #}
+<nav class="lore-letters chip-bleed" data-role="letters" aria-label="Jump to a letter" hidden></nav>
+
+{% set loreWorlds = [] %}
+{% for entry in loreEntries %}{% if entry.world not in loreWorlds %}{% set added = loreWorlds.push(entry.world) %}{% endif %}{% endfor %}
+
 {% for world in worlds %}
-  {% set traditions = [] %}
-  {% for entry in loreEntries %}
-    {% if entry.world == world.name and entry.tradition not in traditions %}{% set added = traditions.push(entry.tradition) %}{% endif %}
-  {% endfor %}
-  {% if traditions.length > 0 %}
+  {% set groups = loreEntries | loreLetters(world.name) %}
+  {% if groups.length > 0 %}
   <section class="lore-world" data-lore-world="{{ world.name }}" aria-labelledby="lore-world-{{ world.name }}">
-    <h2 id="lore-world-{{ world.name }}">{{ world.title }}</h2>
-    {% for tradition in traditions %}
-    <section class="lore-tradition" aria-labelledby="lore-tradition-{{ world.name }}-{{ loop.index }}">
-      <h3 id="lore-tradition-{{ world.name }}-{{ loop.index }}">{{ tradition }}</h3>
-      <ul class="lore-list">
-        {% for entry in loreEntries %}
-          {% if entry.world == world.name and entry.tradition == tradition %}
-          <li><a class="lore-link" href="{{ entry.url }}"><span class="lore-link-title">{{ entry.title }}</span><span class="lore-link-summary">{{ entry.summary }}</span></a></li>
-          {% endif %}
+    <h2 id="lore-world-{{ world.name }}"{% if loreWorlds.length < 2 %} class="visually-hidden"{% endif %}>{{ world.title }}</h2>
+    {% for group in groups %}
+    <section class="lore-letter" data-letter="{{ group.letter }}" aria-labelledby="lore-letter-{{ world.name }}-{{ loop.index }}">
+      <h3 class="lore-letter-head" id="lore-letter-{{ world.name }}-{{ loop.index }}" tabindex="-1">{{ group.letter }}</h3>
+      <ul class="lore-list lore-rows">
+        {% for entry in group.entries %}
+        {% set coverStory = stories.bySlug[entry.stories[0]] or world %}{% set coverClass = '' %}
+        <li data-search="{{ entry.title }} {{ entry.tradition }} {{ entry.summary }}"><a class="lore-row" href="{{ entry.url }}">{% include "cover.njk" %}<span class="lore-row-text"><span class="lore-link-title">{{ entry.title }}</span><span class="lore-row-tradition">{{ entry.tradition }}</span></span></a></li>
         {% endfor %}
       </ul>
     </section>

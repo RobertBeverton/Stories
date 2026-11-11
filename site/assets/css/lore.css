@@ -6,11 +6,31 @@
 .lore-segment .btn[aria-current="page"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 750; }
 .lore-segment-root:empty, .lore-segment-root[hidden] { display: none; }
 
-.lore-intro { color: var(--muted); margin: 1rem 0 1.5rem; }
 .lore-status { min-height: 1.25rem; margin: 0.5rem 0 1rem; color: var(--muted); font-size: var(--text-small); }
 .lore-world { margin: 0 0 2rem; }
+.lore-letters { margin: 0.75rem calc(var(--bleed, var(--gutter)) * -1) 0; }
+.lore-letters[hidden], .lore-heard[hidden] { display: none; }
+.lore-letters .btn { min-width: var(--tap); padding: 0 0.7rem; }
+.lore-heard { margin: 1.25rem 0 0; }
+.lore-heard-label { margin: 0 0 0.5rem; color: var(--muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.lore-heard-list {
+  display: flex; gap: 0.5rem; list-style: none; margin: 0 calc(var(--bleed, var(--gutter)) * -1); padding: 0 var(--bleed, var(--gutter)) 2px;
+  overflow-x: auto; scrollbar-width: none; scroll-padding: 0 var(--gutter);
+}
+.lore-heard-list::-webkit-scrollbar { display: none; }
+.lore-heard-list .btn { flex: none; white-space: nowrap; background: var(--surface); }
+.lore-letter-head { margin: 1.5rem 0 0.25rem; font-family: var(--font-display); font-size: 1.5rem; font-weight: 500; color: var(--accent); scroll-margin-top: 0.75rem; }
+.lore-letter-head:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+.lore-rows { gap: 0; }
+.lore-row {
+  display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 0 0.8rem; align-items: center;
+  min-height: var(--tap-lg); padding: 0.5rem 0; color: inherit; text-decoration: none; border-bottom: 1px solid var(--line-soft);
+}
+.lore-row .cover { width: 3rem; height: 3rem; border-radius: 12px; }
+.lore-row-text { display: grid; min-width: 0; }
+.lore-row-tradition { color: var(--muted); font-size: var(--text-small); }
+.lore-row:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 8px; }
 .lore-world h2 { margin: 0 0 0.25rem; font-family: var(--font-display); font-size: 1.5rem; font-weight: 500; }
-.lore-tradition h3 { margin: 1.25rem 0 0.5rem; font-family: var(--font-body); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); }
 
 .lore-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
 .lore-link {
