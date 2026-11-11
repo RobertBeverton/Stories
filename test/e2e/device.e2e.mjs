@@ -309,7 +309,7 @@ test("home: Continue and Played lately follow a story started elsewhere, through
 // ---------------------------------------------------------------------------
 // 4. Lore is discoverable from the top of a story page
 
-test("lore: a story with lore links shows tappable cards near the top, also when reached through the router", async ({ page }) => {
+test("lore: a story with lore links shows a tappable link under the Play row, also when reached through the router", async ({ page }) => {
   await page.goto(LIBRARY);
   await openSeries(page);
   await page.getByRole("link", { name: ONE.title }).tap();
@@ -322,10 +322,10 @@ test("lore: a story with lore links shows tappable cards near the top, also when
   await expect(chip).toContainText(FIXTURE_LORE.summary);
   const box = await chip.boundingBox();
   expect(box.height).toBeGreaterThanOrEqual(44);
-  // Above the fold on a phone, above the Play button's row.
-  expect(box.y + box.height).toBeLessThan(844 * 1.5);
+  // A slim row straight under the Play button's row, within the first screen of a phone.
+  expect(box.y + box.height).toBeLessThan(844);
   const play = await headerPlay(page).boundingBox();
-  expect(box.y).toBeLessThan(play.y);
+  expect(box.y).toBeGreaterThan(play.y);
   // One list, not a second copy at the bottom of the story.
   await expect(page.locator(".story-lore")).toHaveCount(1);
   await expect(page.locator(".story-hero .story-lore")).toHaveCount(1);

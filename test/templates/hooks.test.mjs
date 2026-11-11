@@ -57,7 +57,7 @@ describe("template hooks", () => {
   it("reads the hook list from the contract", () => {
     expect(contractHooks).toEqual([
       "continue", "played-lately", "story-resume", "search", "play-button",
-      "filters", "world-switcher", "text-size", "lore", "parts", "dock", "surprise",
+      "filters", "world-switcher", "text-size", "lore", "parts", "dock", "surprise", "play-float",
     ]);
   });
 
@@ -73,7 +73,7 @@ describe("template hooks", () => {
   it.each([
     ["home", ["continue", "played-lately", "surprise", "world-switcher", "dock"]],
     ["library", ["search", "filters", "world-switcher", "play-button", "dock"]],
-    ["story", ["story-resume", "play-button", "text-size", "parts", "dock"]],
+    ["story", ["story-resume", "play-button", "play-float", "text-size", "parts", "dock"]],
   ])("%s carries its hooks", (name, expected) => {
     for (const hook of expected) expect(hooksIn(doc[name]), `${name}: ${hook}`).toContain(hook);
   });

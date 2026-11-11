@@ -66,8 +66,15 @@
 .lore-body h2, .lore-body h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.3em; margin: 1.75em 0 0.5em; }
 .lore-stories { margin: 2rem auto 0; max-width: 65ch; }
 /* On the story page the cards sit in the hero, between the details and the Play row */
-.story-lore { margin: 0 0 1rem; }
-.story-lore .lore-link { border-color: color-mix(in srgb, var(--accent) 35%, var(--line-soft)); }
+/* On a story page the lore link is one slim row: "Learn more  [About Anubis  Egyptian →]" */
+.story-lore { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.75rem; margin: 0.9rem 0 0; }
+.story-lore h2 { margin: 0; }
+.story-lore .lore-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.story-lore .lore-chip { flex-direction: row; align-items: center; gap: 0.5rem; min-height: var(--tap); padding: 0 1rem; border-radius: var(--radius-pill); background: var(--surface); border-color: var(--line); }
+.story-lore .lore-chip::after { position: static; transform: none; order: 3; font-size: 1rem; }
+.story-lore .lore-link-title { order: 1; font-size: 1rem; }
+.story-lore .lore-link-kicker { order: 2; color: var(--muted); font-size: var(--text-small); font-weight: 500; letter-spacing: 0; text-transform: none; }
+.story-lore .lore-link-summary { display: none; }
 .lore-stories h2, .story-lore h2 { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin: 0 0 0.75rem; }
 
 /* Outside link: a plain link card at the bottom of an entry */

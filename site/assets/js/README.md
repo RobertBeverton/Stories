@@ -49,6 +49,14 @@ The last world is remembered in `localStorage["stories-surprise-world"]`. Play c
 fires `stories:play`, falling back to the story page with `?autoplay=1`; audio never starts
 without that press.
 
+## `play-float`
+
+`<div data-mount="play-float" data-slug="<slug>" data-title="<title>"></div>` on the story page (only when the story has audio). Renders
+`button[data-role="play-float"]`, a floating Play pill above the dock. It shows only while the page's own
+`[data-mount="play-button"][data-pause-when-playing]` for the same slug is out of sight (IntersectionObserver, with the dock
+counted as covering the bottom 80px) and the shell audio is not playing this story. A press clicks the page's own button, and the
+label follows it (Play, Resume, Play again). Without IntersectionObserver it stays hidden.
+
 ## `sheet.mjs` (helper, not a mount)
 
 `createSheet({id, title})` returns `{el, body, attach, open, close, destroy, isOpen, onClose}` (`attach()` puts the closed sheet in the page so its controls exist before it is first opened): a

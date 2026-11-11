@@ -12,16 +12,7 @@ layout: base.njk
     {% include "cover.njk" %}
 
     <h1>{{ title }}</h1>
-    {% if description %}<p class="story-description">{{ description }}</p>{% endif %}
-    {% if keyIslands.length > 0 or characters.length > 0 %}
-    <ul class="lozenges" aria-label="Characters and places">
-      {% for character in characters %}<li class="lozenge">{{ character }}</li>{% endfor %}
-      {% for island in keyIslands %}<li class="lozenge">{{ island }}</li>{% endfor %}
-    </ul>
-    {% endif %}
     <p class="story-meta">~{{ readMinutes }} min read{% if audioMinutes %} · ~{{ audioMinutes }} min listen{% endif %}</p>
-
-    {% include "lore-links.njk" %}
 
     <div class="story-actions">
       {% if audioUrl %}
@@ -37,6 +28,12 @@ layout: base.njk
         <input type="radio" name="textsize" id="ts-lg" value="lg"><label for="ts-lg"><span class="visually-hidden">Larger text </span><span aria-hidden="true">A+</span></label>
       </fieldset>
     </div>
+
+    {% if audioUrl %}<div data-mount="play-float" data-slug="{{ slug }}" data-title="{{ title }}"></div>{% endif %}
+
+    {% include "lore-links.njk" %}
+
+    {% if description %}<p class="story-description">{{ description }}</p>{% endif %}
 
     <div class="parts-root" data-mount="parts" data-slug="{{ slug }}"></div>
   </header>

@@ -235,14 +235,8 @@ section:has(> .lately-root:empty) { display: none; }
 }
 .story-cover svg { width: 44%; max-height: 80%; filter: drop-shadow(0 0 14px color-mix(in srgb, var(--series) 60%, transparent)); }
 .story-hero h1 { font-size: 2rem; line-height: 1.08; }
-.story-description { margin: 0.6rem 0 0.75rem; }
-.lozenges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0 0 0.75rem; padding: 0; list-style: none; }
-.lozenge {
-  padding: 0.15rem 0.8rem; border-radius: var(--radius-pill);
-  border: 1px solid var(--line-soft); background: color-mix(in srgb, var(--series) 12%, transparent);
-  color: var(--text); font-size: var(--text-small);
-}
-.story-meta { margin: 0 0 1rem; color: var(--muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+.story-description { margin: 0.9rem 0 0.75rem; }
+.story-meta { margin: 0.6rem 0 0.9rem; color: var(--muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
 
 .story-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; }
 
@@ -316,6 +310,24 @@ section:has(> .lately-root:empty) { display: none; }
 }
 .resume-note { flex: 1 1 100%; margin: 0; }
 
+/* Phone: a small cover tile beside the title, Play and text size straight under it. */
+@media (max-width: 719px) {
+  .story-hero { display: grid; grid-template-columns: 4.25rem minmax(0, 1fr); column-gap: 0.9rem; align-items: center; }
+  .story-hero > * { grid-column: 1 / -1; }
+  .story-hero > .story-cover { grid-column: 1; width: 4.25rem; height: 4.25rem; margin: 0; border-radius: 16px; }
+  .story-hero > .story-cover svg { width: 62%; }
+  .story-hero > h1 { grid-column: 2; margin: 0; font-size: 1.75rem; line-height: 1.05; }
+}
+
+/* The floating Play pill (play-float.mjs): above the dock, and above the mini player when one is showing. */
+.play-float {
+  position: fixed; z-index: 25; min-height: var(--tap-lg); padding: 0 1.4rem; font-size: 1.0625rem;
+  right: max(var(--gutter), calc((100vw - var(--page-max)) / 2 + var(--gutter)));
+  bottom: calc(var(--dock-h) + 0.9rem);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+.play-float[hidden] { display: none; }
+body.has-mini-player .play-float { bottom: calc(var(--dock-h) + var(--dock-mini-h) + 0.9rem); }
 @media (min-width: 720px) {
   main { padding-left: 1.5rem; padding-right: 1.5rem; }
   .story-hero { margin: 1rem 0 0; border-radius: var(--radius); padding: 1.5rem; display: grid; grid-template-columns: 16rem 1fr; gap: 0 1.5rem; align-items: start; border: 1px solid var(--line-soft); }

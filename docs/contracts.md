@@ -46,7 +46,7 @@ counts read as 0. Recency of a listen is the record's `completedAt`.
 ## 3. DOM hooks
 
 Behaviour attaches through `data-mount="<name>"`. Names: `continue`, `played-lately`,
-`story-resume`, `search`, `play-button`, `filters`, `world-switcher`, `text-size`, `lore`, `parts`, `dock`, `surprise`.
+`story-resume`, `search`, `play-button`, `filters`, `world-switcher`, `text-size`, `lore`, `parts`, `dock`, `surprise`, `play-float`.
 Each name maps to `site/assets/js/<name>.mjs`, which exports `mount(el)` and returns
 `unmount()`. `site/assets/js/main.js` mounts them. Templates (WP-B) emit the
 attributes; modules implement them. CSS class names are WP-B's private business.
