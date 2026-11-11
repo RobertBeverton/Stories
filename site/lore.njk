@@ -10,6 +10,11 @@
 {# The Lore listing: each world's entries grouped by tradition. Built only when
    some world has entries; the Library links here only for a world with lore.
    The lore module hides the sections of other worlds once a world is chosen. #}
+<header class="page-head">
+  <p class="eyebrow">Explore the library</p>
+  <h1 class="page-title">Library</h1>
+</header>
+
 <div class="lore-segment-root" data-mount="lore" data-current="lore">
   <nav class="lore-segment" aria-label="Library sections" data-role="segment">
     <a class="btn" href="{{ '/library/' | url }}">Stories</a>
@@ -17,7 +22,6 @@
   </nav>
 </div>
 
-<h1 class="page-title">Lore</h1>
 <p class="lore-intro">The people, places and traditions behind the stories.</p>
 
 <label class="visually-hidden" for="lore-search">Search lore</label>
