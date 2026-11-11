@@ -11,7 +11,7 @@
   padding: 1.25rem; margin: 0.75rem 0 0.5rem;
   background:
     radial-gradient(ellipse at 90% 5%, color-mix(in srgb, var(--accent) 24%, transparent), transparent 48%),
-    linear-gradient(135deg, var(--surface), #20291f);
+    linear-gradient(135deg, var(--surface), var(--surface-deep));
   border: 1px solid var(--line-soft);
   border-radius: var(--radius);
   color: inherit; text-decoration: none;
@@ -39,20 +39,21 @@
 /* No history yet: hide the whole section */
 section:has(> .lately-root:empty) { display: none; }
 
-/* World picker: cards with a glowing icon tile, name, tagline and an arrow */
-.world-tiles { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
+/* World picker (Home): compact tiles, three across. More than three worlds: two tiles
+   and an "All N worlds" tile that opens a sheet of every world. */
+.world-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.6rem; }
 .world-tile {
-  display: grid; grid-template-columns: 4rem minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 1rem; row-gap: 0.1rem; align-items: center;
-  min-height: 5.5rem; padding: 0.9rem 1rem; width: 100%;
+  --tile: var(--accent);
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 0.35rem;
+  min-height: 6.25rem; padding: 0.65rem 0.4rem 0.6rem; width: 100%;
   background: linear-gradient(135deg, var(--surface), var(--raised));
   color: var(--text);
-  border: 1px solid var(--line-soft); border-radius: var(--radius);
-  font: inherit; text-align: left; text-decoration: none; cursor: pointer;
-  --tile: var(--accent);
+  border: 1px solid var(--line-soft); border-radius: var(--radius-sm);
+  font: inherit; text-align: center; text-decoration: none; cursor: pointer;
 }
 .world-picker > .world-tile { max-width: none; } /* the no-script link tile */
-.world-tile > svg {
-  grid-row: 1 / span 2; width: 4rem; height: 4rem; padding: 0.55rem; border-radius: 16px;
+.world-tile > svg, .world-tile > b {
+  flex: none; width: 2.9rem; height: 2.9rem; padding: 0.4rem; border-radius: 14px;
   color: var(--tile);
   background:
     radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--tile) 32%, transparent), transparent 64%),
@@ -61,14 +62,13 @@ section:has(> .lately-root:empty) { display: none; }
 }
 .world-tile .tile-all { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; }
 .world-tile .icon-main { fill: color-mix(in srgb, var(--tile) 26%, transparent); }
-.world-tile > span { align-self: end; font-size: 1.125rem; font-weight: 700; line-height: 1.2; }
-.world-tile > small { align-self: start; color: var(--muted); font-size: var(--text-small); line-height: 1.3; }
-.world-tile::after { content: "→" / ""; grid-column: 3; grid-row: 1 / span 2; color: var(--muted); font-size: 1.25rem; }
+.world-tile > span { font-size: 0.9375rem; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
 .world-tile[aria-pressed="true"], .world-tile[aria-current="true"] { border-color: var(--tile); background: linear-gradient(135deg, color-mix(in srgb, var(--tile) 14%, var(--surface)), var(--raised)); }
-.world-tile[aria-pressed="true"]::after { content: "✓" / ""; color: var(--tile); font-weight: 700; }
+/* "All N worlds": a count in place of an icon, dashed so it reads as a door to the rest */
+.world-tile-all { --tile: var(--muted); border-style: dashed; border-color: var(--line); }
+.world-tile > b { display: flex; align-items: center; justify-content: center; padding: 0; font-size: 1.15rem; background: var(--raised); color: var(--text); }
 /* The no-script link tile has no icon or data-world */
-.world-tile:not([data-world]) { grid-template-columns: minmax(0, 1fr) auto; min-height: var(--tap-lg); font-weight: 700; }
-.world-tile:not([data-world])::after { grid-column: 2; }
+.world-tile:not([data-world]):not(.world-tile-all) { flex-direction: row; justify-content: center; min-height: var(--tap-lg); font-weight: 700; }
 
 /* ===== Library (grouped browse): start ===== */
 .page-head { padding: 1.25rem 0 0.75rem; }
@@ -197,7 +197,7 @@ section:has(> .lately-root:empty) { display: none; }
   padding: 0.5rem var(--gutter) 1.5rem;
   background:
     radial-gradient(ellipse at 85% 0%, color-mix(in srgb, var(--series) 24%, transparent), transparent 55%),
-    linear-gradient(160deg, var(--surface), #151b17);
+    linear-gradient(160deg, var(--surface), var(--surface-sunk));
   color: var(--text);
   border-bottom: 1px solid var(--line-soft);
   border-radius: 0 0 var(--radius) var(--radius);
@@ -267,7 +267,7 @@ section:has(> .lately-root:empty) { display: none; }
   max-width: 65ch; margin: 1.5rem auto 0;
   font-family: var(--font-display);
   font-size: calc(1.25rem * var(--reading-scale));
-  line-height: 1.7; color: #e6e7dd;
+  line-height: 1.7; color: var(--text-reading);
 }
 .story-body h2, .story-body h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.3em; margin: 2em 0 0.5em; }
 .story-body hr { border: 0; border-top: 1px solid var(--line-soft); margin: 2rem 0; }
@@ -304,3 +304,60 @@ section:has(> .lately-root:empty) { display: none; }
 }
 
 .parts-root:empty { display: none; }
+
+/* Play count in a row's meta line ("· Heard 3 times"); empty until the story has been heard */
+.row-plays { white-space: nowrap; }
+.row-plays:empty { display: none; }
+
+/* "Pick a story" row: the Surprise me tile is a button that looks like its two neighbours */
+.lately-surprise { width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.lately-surprise .cover {
+  aspect-ratio: 1; border-radius: 18px; color: var(--accent);
+  background:
+    radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--accent) 30%, transparent), transparent 62%),
+    linear-gradient(145deg, color-mix(in srgb, var(--accent) 22%, var(--surface)), var(--raised));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.lately-surprise .cover svg {
+  width: 46%; height: auto; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 55%, transparent));
+}
+.lately-surprise .cover circle { fill: currentColor; stroke: none; }
+.lately-surprise .lately-state { color: var(--accent); }
+.lately-item[data-state="new"] .lately-state { color: var(--muted); }
+
+/* Bottom sheets made by sheet.mjs (Surprise me, All worlds). Above the dock (30) and player sheet (40). */
+.sheet-scrim { position: fixed; inset: 0; z-index: 55; background: rgba(0, 0, 0, 0.6); }
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+  max-width: var(--page-max); margin: 0 auto; max-height: 88vh; overflow-y: auto;
+  padding: 1rem var(--gutter) calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  background: var(--bg); color: var(--text);
+  border: 1px solid var(--line); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.sheet-head h2 { margin: 0; font-family: var(--font-display); font-size: 1.4rem; font-weight: 500; }
+.sheet-label { margin: 1rem 0 0.5rem; color: var(--muted); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.sheet-chips {
+  display: flex; flex-wrap: nowrap; gap: 0.5rem; overflow-x: auto; overscroll-behavior-x: contain; position: relative;
+  margin: 0 calc(var(--gutter) * -1); padding: 0 var(--gutter) 2px; scroll-padding: 0 var(--gutter); scrollbar-width: none;
+}
+.sheet-chips::-webkit-scrollbar { display: none; }
+.sheet-chips .btn { flex: none; background: var(--surface); white-space: nowrap; }
+.sheet .world-tiles { margin-top: 0.75rem; }
+.surprise-result {
+  display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: 1rem; align-items: center;
+  margin-top: 1.25rem; padding: 1rem; min-height: 8.5rem;
+  background:
+    radial-gradient(ellipse at 90% 5%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 50%),
+    linear-gradient(135deg, var(--surface), var(--raised));
+  border: 1px solid var(--line-soft); border-radius: var(--radius);
+}
+.surprise-result .cover { width: 5.5rem; aspect-ratio: 1; border-radius: 18px; }
+.surprise-result .empty { grid-column: 1 / -1; padding: 0.5rem 0; }
+.surprise-status { margin: 0 0 0.2rem; color: var(--accent); font-size: var(--text-small); font-weight: 600; }
+.surprise-title { margin: 0 0 0.25rem; font-family: var(--font-display); font-size: 1.35rem; font-weight: 500; line-height: 1.12; overflow-wrap: anywhere; }
+.surprise-meta { margin: 0; color: var(--muted); font-size: var(--text-small); }
+.sheet-actions { display: flex; gap: 0.6rem; margin-top: 1rem; }
+.sheet-actions .btn { flex: 1 1 0; white-space: nowrap; padding: 0 1rem; }
+.sheet-actions .btn:last-child { flex-grow: 1.3; }

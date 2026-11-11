@@ -131,9 +131,82 @@ export function write(slug, partial = {}) {
   return record;
 }
 
-/** Sets completedAt, resets audioTime to 0 and clears `playing`. */
+// Play counts live under their own key, `story-plays:<slug>` = {"n": <whole number>},
+// not in the v2 record: a record with an extra field would be rejected as invalid by
+// any older copy of this module still open in another tab. One count is one listen
+// to the end. A story finished before counts existed (completedAt, no count) is 1.
+const PLAYS_PREFIX = "story-plays:";
+
+function readStoredPlays(s, slug) {
+  const raw = parse(s.getItem(PLAYS_PREFIX + slug));
+  return raw && Number.isInteger(raw.n) && raw.n > 0 ? raw.n : 0;
+}
+
+/** @param {string} slug @param {object|null} [record] the story's v2 record, if already read
+ *  @returns {number} how many times the story has been listened to the end on this device */
+export function playCount(slug, record = read(slug)) {
+  const s = store();
+  let n = 0;
+  try {
+    if (s && typeof slug === "string" && slug) n = readStoredPlays(s, slug);
+  } catch {
+    // storage unavailable: fall back to the record alone
+  }
+  return Math.max(n, record && record.completedAt !== undefined ? 1 : 0);
+}
+
+/** @param {Record<string, object>} [records] readAll() output
+ *  @returns {Record<string, number>} count per slug, only for stories heard at least once */
+export function readPlays(records = readAll()) {
+  const out = {};
+  for (const [slug, record] of Object.entries(records)) {
+    const n = playCount(slug, record);
+    if (n > 0) out[slug] = n;
+  }
+  const s = store();
+  if (!s) return out;
+  try {
+    for (let i = 0; i < s.length; i++) {
+      const key = s.key(i);
+      if (!key || !key.startsWith(PLAYS_PREFIX) || key.length === PLAYS_PREFIX.length) continue;
+      const slug = key.slice(PLAYS_PREFIX.length);
+      const n = playCount(slug, records[slug] ?? null);
+      if (n > 0) out[slug] = n;
+    }
+  } catch {
+    // return what we have
+  }
+  return out;
+}
+
+/**
+ * Sets completedAt, resets audioTime to 0, clears `playing` and counts one more
+ * listen, unless this story is already sitting finished (a second call for the
+ * same listen: `ended` and the foreground check can both fire).
+ */
 export function markCompleted(slug) {
-  return write(slug, { completedAt: Date.now(), audioTime: 0, playing: false });
+  const prev = read(slug);
+  const alreadyCounted = prev && prev.completedAt !== undefined && prev.audioTime <= REPLAY_THRESHOLD_SEC;
+  const before = playCount(slug, prev);
+  let counted = false;
+  if (!alreadyCounted) {
+    // The count goes in first: write() announces the change and listeners re-read it.
+    try {
+      store()?.setItem(PLAYS_PREFIX + slug, JSON.stringify({ n: before + 1 }));
+      counted = true;
+    } catch {
+      // quota or blocked storage: the story is still marked finished
+    }
+  }
+  const record = write(slug, { completedAt: Date.now(), audioTime: 0, playing: false });
+  if (!record && counted) {
+    try {
+      store()?.setItem(PLAYS_PREFIX + slug, JSON.stringify({ n: before }));
+    } catch {
+      // nothing more to do
+    }
+  }
+  return record;
 }
 
 /**

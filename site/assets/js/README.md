@@ -29,10 +29,32 @@ five-second saves and shows a story started seconds ago.
 
 ## `played-lately`
 
-`<section data-mount="played-lately"></section>`. Renders
-`ul[data-role="list"] > li[data-role="item"] > a[data-slug][data-state="in-progress|finished"]`
-with `[data-role="title"]` and `[data-role="state"]` inside. At most three. Like `continue`, it
-follows the playing story's audio clock, not only saved records.
+The "Pick a story" row on Home: `<div data-mount="played-lately"></div>`. Renders
+`ul[data-role="list"] > li[data-role="item"]`: two `a[data-slug][data-state="in-progress|finished|new"]`
+(with `[data-role="title"]` and `[data-role="state"]`), then a
+`button[data-role="surprise-tile"]` that dispatches `stories:surprise`. The two stories are the most
+recently played, leaving out the story the Continue card shows; with less history the row is
+filled with the newest other stories (state `new`, "Not played yet"). A finished story heard more
+than once says "Heard N times". Like `continue`, it follows the playing story's audio clock.
+
+## `surprise`
+
+`<div data-mount="surprise" hidden></div>` (an anchor; nothing renders in place). Listens for
+`stories:surprise` on `document` and opens a bottom sheet (`sheet.mjs`,
+`[data-role="surprise-sheet"]`) with world chips (All worlds, then worlds by last played), the
+pick (`.surprise-title`, `.surprise-status`), `[data-role="surprise-play"]` and
+`[data-role="surprise-again"]`. The pick is `selectors.pickSurprise`: never heard to the end
+first, else among those heard longest ago; "Another one" never repeats until the world runs out.
+The last world is remembered in `localStorage["stories-surprise-world"]`. Play closes the sheet and
+fires `stories:play`, falling back to the story page with `?autoplay=1`; audio never starts
+without that press.
+
+## `sheet.mjs` (helper, not a mount)
+
+`createSheet({id, title})` returns `{el, body, open, close, destroy, isOpen, onClose}`: a
+`role="dialog" aria-modal` bottom sheet on `<body>` (so the router never swaps it). While open
+`#view` and `.dock` are `inert`, Escape and the Close button shut it, Tab stays inside and focus
+returns to what opened it. Call `destroy()` on unmount.
 
 ## `story-resume`
 
@@ -120,9 +142,11 @@ all rows stay in the DOM, hidden.
 
 `<div data-mount="world-switcher"></div>`. Builds `div[role="group"]` with
 `button[data-world="<name>"]` per world plus `button[data-world=""]` for All
-(`aria-pressed`). `data-variant="picker"` (Home) draws `.world-tile` buttons with
-the world's icon and PALETTE colours (`--tile`, `--tile-ink`) and, after a choice,
-goes to `<base>/library/`; otherwise `.btn` chips. Remembers the choice in
+(`aria-pressed`). `data-variant="picker"` (Home) draws compact `.world-tile` buttons with
+the world's icon and PALETTE colours (`--tile`, `--tile-ink`), most recently played world first,
+and, after a choice, goes to `<base>/library/`. Up to three worlds are tiles; with four or more only
+the first two are, plus an `[data-role="all-worlds"]` tile ("All N worlds") that opens a sheet of
+every world and All stories. Otherwise `.btn` chips in the configured order. Remembers the choice in
 `localStorage["stories-world"]` and emits `stories:world`.
 
 ## `text-size`

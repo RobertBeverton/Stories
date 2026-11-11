@@ -9,10 +9,15 @@
   --bg: #101411;
   --surface: #1a211c;
   --raised: #232b25;
+  /* Gradient ends: the deeper panel (Continue card) and the sunken one (story hero) */
+  --surface-deep: #20291f;
+  --surface-sunk: #151b17;
 
   /* Text */
   --text: #f1f2e9;
   --muted: #abb5aa;
+  /* The story text and lore text: a touch softer than --text for long reading */
+  --text-reading: #e6e7dd;
 
   /* Borders of form controls, seek tracks, outlines: 3:1 or more against every surface */
   --line: #6a796d;

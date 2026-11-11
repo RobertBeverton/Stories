@@ -32,10 +32,21 @@ v1 records (with `url`, `title`, `artworkUrl`) are still read, ignoring those
 fields, and rewritten as v2 on the next save. Title, URL and art always come from
 `library.json`, never from storage. Check with `checkProgressRecord()`.
 
+### Play counts
+
+Module: `progress.mjs` also exports `playCount(slug)` and `readPlays()`. localStorage
+key `story-plays:<slug>`, value `{"n": <whole number >= 1>}`. One count is one listen
+to the end on this device, added by `markCompleted` (never for a second call about
+the same listen, so `ended` plus the foreground check count once). A story with
+`completedAt` and no count is 1. Counts are a separate key and not a field of the v2
+record on purpose: an older copy of the module open in another tab rejects records
+with unknown fields, which would hide the listener's progress. Junk or negative
+counts read as 0. Recency of a listen is the record's `completedAt`.
+
 ## 3. DOM hooks
 
 Behaviour attaches through `data-mount="<name>"`. Names: `continue`, `played-lately`,
-`story-resume`, `search`, `play-button`, `filters`, `world-switcher`, `text-size`, `lore`, `parts`, `dock`.
+`story-resume`, `search`, `play-button`, `filters`, `world-switcher`, `text-size`, `lore`, `parts`, `dock`, `surprise`.
 Each name maps to `site/assets/js/<name>.mjs`, which exports `mount(el)` and returns
 `unmount()`. `site/assets/js/main.js` mounts them. Templates (WP-B) emit the
 attributes; modules implement them. CSS class names are WP-B's private business.
@@ -44,7 +55,8 @@ Per-element data uses `data-slug` (the flat slug).
 ## 4. Events
 
 On `document`: `stories:play` `{slug}`, `stories:progress` `{slug}`, `stories:world` `{world}`,
-`stories:search` `{query}` (the Library search box changed; `CustomEvent`, payload in `detail`).
+`stories:search` `{query}` (the Library search box changed; `CustomEvent`, payload in `detail`),
+`stories:surprise` (no payload; opens the Surprise me sheet, which the `surprise` module on Home listens for).
 
 Library state kept in storage (guarded, optional): `localStorage["stories-library-sort"]`
 (`order` | `newest`), `sessionStorage["stories-library-view"]` and `["stories-library-query"]`

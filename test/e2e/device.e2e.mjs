@@ -291,7 +291,8 @@ test("home: Continue and Played lately follow a story started elsewhere, through
   const value = () => bar.evaluate((el) => el.value);
   const first = await value();
   await expect.poll(value, { timeout: 8000 }).toBeGreaterThan(first); // moves with the audio clock
-  await expect(page.locator('[data-mount="played-lately"] a[data-slug="' + SLUG_ONE + '"]')).toHaveAttribute("data-state", "in-progress");
+  // The story that is playing is the Continue story, so the Pick a story row leaves it out.
+  await expect(page.locator('[data-mount="played-lately"] a[data-slug="' + SLUG_ONE + '"]')).toHaveCount(0);
 
   // Skipping moves it at once.
   const mid = await value();

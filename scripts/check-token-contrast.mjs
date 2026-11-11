@@ -52,6 +52,18 @@ export function checkTokenContrast(tokens, palette = PALETTE) {
     pair("--focus", tokens.focus, `--${s}`, tokens[s], NON_TEXT_FLOOR);
   }
 
+  // The deeper gradient ends and the reading colour, when the tokens define them
+  const extraSurfaces = ["surface-deep", "surface-sunk"].filter((n) => tokens[n]);
+  for (const s of extraSurfaces) {
+    pair("--text", tokens.text, `--${s}`, tokens[s], TEXT_FLOOR);
+    pair("--muted", tokens.muted, `--${s}`, tokens[s], TEXT_FLOOR);
+    pair("--line", tokens.line, `--${s}`, tokens[s], NON_TEXT_FLOOR);
+    pair("--focus", tokens.focus, `--${s}`, tokens[s], NON_TEXT_FLOOR);
+  }
+  if (tokens["text-reading"]) {
+    for (const s of [...SURFACES, ...extraSurfaces]) pair("--text-reading", tokens["text-reading"], `--${s}`, tokens[s], TEXT_FLOOR);
+  }
+
   // Defaults declared on :root
   pair("--accent-ink", tokens["accent-ink"], "--accent", tokens.accent, TEXT_FLOOR);
   pair("--series-ink", tokens["series-ink"], "--series", tokens.series, TEXT_FLOOR);

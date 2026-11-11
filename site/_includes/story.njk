@@ -51,7 +51,7 @@ layout: base.njk
   {% endif %}
 
   <div class="story-body">
-    {{ content | safe }}
+    {{ content | dropTitleHeading(title) | safe }}
   </div>
 
   <nav class="series-nav" aria-label="More in this series">

@@ -42,7 +42,7 @@
 .lore-tradition-label { margin: 0; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); }
 .lore-header h1 { font-size: 2.125rem; line-height: 1.02; margin: 0.4rem 0 0; }
 .lore-summary { font-family: var(--font-display); font-size: 1.125rem; line-height: 1.55; color: var(--text); margin: 0.75rem 0 0; }
-.lore-body { font-family: var(--font-display); font-size: calc(1.25rem * var(--reading-scale)); line-height: 1.7; color: #e6e7dd; max-width: 65ch; }
+.lore-body { font-family: var(--font-display); font-size: calc(1.25rem * var(--reading-scale)); line-height: 1.7; color: var(--text-reading); max-width: 65ch; }
 .lore-body h2, .lore-body h3 { font-family: var(--font-display); font-weight: 500; font-size: 1.3em; margin: 1.75em 0 0.5em; }
 .lore-stories { margin: 2rem auto 0; max-width: 65ch; }
 /* On the story page the cards sit in the hero, between the details and the Play row */

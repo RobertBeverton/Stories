@@ -3,7 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { escapeHtml, safeHref } from "../../site/assets/js/escape.mjs";
 import {
-  markCompleted, read, readAll, toViewModel, write,
+  markCompleted, playCount, read, readAll, readPlays, toViewModel, write,
 } from "../../site/assets/js/progress.mjs";
 import { library, NOW, progressV1, progressV2, seed, useFixedNow } from "./helpers.mjs";
 
@@ -109,6 +109,44 @@ describe("progress store", () => {
       v: 2, audioTime: 0, scrollY: 1200, playing: false, savedAt: NOW, completedAt: NOW,
     });
     expect(stored("test-world/first-tale")).toEqual(record);
+  });
+
+  it("counts one listen per finish, and not twice for the same listen", () => {
+    expect(playCount("a/b")).toBe(0);
+    markCompleted("a/b");
+    expect(playCount("a/b")).toBe(1);
+    markCompleted("a/b"); // `ended` and the foreground check can both fire for one listen
+    expect(playCount("a/b")).toBe(1);
+
+    write("a/b", { audioTime: 30, playing: true }); // a real replay, past the threshold
+    markCompleted("a/b");
+    expect(playCount("a/b")).toBe(2);
+    expect(JSON.parse(localStorage.getItem("story-plays:a/b"))).toEqual({ n: 2 });
+  });
+
+  it("a story finished before counts existed is 1, and the next finish makes it 2", () => {
+    localStorage.setItem(KEY("old/tale"), JSON.stringify({ v: 2, audioTime: 40, scrollY: 0, playing: false, savedAt: 5, completedAt: 3 }));
+    expect(playCount("old/tale")).toBe(1);
+    markCompleted("old/tale");
+    expect(playCount("old/tale")).toBe(2);
+  });
+
+  it("readPlays lists only stories heard at least once, from counts or old completions", () => {
+    markCompleted("a/b");
+    localStorage.setItem(KEY("old/tale"), JSON.stringify({ v: 2, audioTime: 0, scrollY: 0, playing: false, savedAt: 5, completedAt: 3 }));
+    write("c/d", { audioTime: 200 }); // started, never finished
+    expect(readPlays()).toEqual({ "a/b": 1, "old/tale": 1 });
+  });
+
+  it("junk in a play count key is ignored, and counts do not touch the v2 record", () => {
+    localStorage.setItem("story-plays:x/y", "not json");
+    localStorage.setItem("story-plays:p/q", JSON.stringify({ n: -4 }));
+    expect(playCount("x/y")).toBe(0);
+    expect(playCount("p/q")).toBe(0);
+    markCompleted("a/b");
+    expect(Object.keys(stored("a/b")).sort()).toEqual(["audioTime", "completedAt", "playing", "savedAt", "scrollY", "v"]);
+    expect(readAll()["a/b"]).toBeTruthy();
+    expect(Object.keys(readAll())).toEqual(["a/b"]); // play keys are not progress records
   });
 
   it("replay: completedAt survives; counts as in progress again only after 10s of playback", () => {

@@ -5,12 +5,12 @@
 //   open, how many stories each has revealed. Per tab, so a Back from a story
 //   finds the Library as it was left, and a new visit starts calm.
 // - sessionStorage `stories-library-query`: the typed search.
-// - localStorage `stories-library-sort`: "order" (default) or "newest", a
+// - localStorage `stories-library-sort`: "order" (default), "newest" or "plays", a
 //   preference that stays.
 const VIEW = "stories-library-view";
 const QUERY = "stories-library-query";
 const SORT = "stories-library-sort";
-export const SORTS = ["order", "newest"];
+export const SORTS = ["order", "newest", "plays"];
 
 const isCount = (n) => Number.isInteger(n) && n >= 1 && n <= 1000;
 

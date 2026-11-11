@@ -178,23 +178,40 @@ describe("home page", () => {
     expect(card.querySelector("progress").value).toBe(50);
     expect(document.querySelectorAll('[data-mount="continue"] a')).toHaveLength(1);
 
-    await vi.waitFor(() => expect(document.querySelectorAll(".lately-item")).toHaveLength(2));
-    const slugs = [...document.querySelectorAll(".lately-item")].map((a) => a.dataset.slug);
-    expect(slugs).toEqual([SECOND, FIRST]); // most recently touched first
+    // Pick a story: the Continue story is left out, so the played one (SECOND), then the
+    // newest story with no history fills the row, then the Surprise me tile.
+    await vi.waitFor(() => expect(document.querySelectorAll("a.lately-item")).toHaveLength(2));
+    const slugs = [...document.querySelectorAll("a.lately-item")].map((a) => a.dataset.slug);
+    expect(slugs).toEqual([SECOND, LONE]);
+    expect(document.querySelector('[data-role="surprise-tile"]')).not.toBeNull();
     expect(document.querySelector('[data-mount="played-lately"]').hidden).toBe(false);
   });
 
-  it("with no history: Continue starts the newest story and Played lately stays empty", async () => {
+  it("with no history: Continue starts the newest story and Pick a story offers the next two plus Surprise me", async () => {
     await open("home");
     await vi.waitFor(() => expect(document.querySelector('[data-mount="continue"] [data-state="start"]')).not.toBeNull());
     expect(document.querySelector('[data-mount="continue"] a').dataset.slug).toBe(SECOND);
-    expect(document.querySelector('[data-mount="played-lately"]').children).toHaveLength(0);
+    await vi.waitFor(() => expect(document.querySelectorAll("a.lately-item")).toHaveLength(2));
+    expect([...document.querySelectorAll("a.lately-item")].map((a) => a.dataset.slug)).toEqual([FIRST, LONE]);
+    expect(document.querySelector('[data-role="surprise-tile"]')).not.toBeNull();
   });
 
-  it("the world picker draws a tile per world and All, and a pick sets the accent and goes to the Library", async () => {
+  it("the Surprise me tile opens a sheet with a pick, and Another one offers a different story", async () => {
+    await open("home");
+    await vi.waitFor(() => expect(document.querySelector('[data-role="surprise-tile"]')).not.toBeNull());
+    document.querySelector('[data-role="surprise-tile"]').click();
+    const sheet = document.querySelector('[data-role="surprise-sheet"]');
+    expect(sheet.hidden).toBe(false);
+    const first = sheet.querySelector(".surprise-title").textContent;
+    expect(first).toBeTruthy();
+    sheet.querySelector('[data-role="surprise-again"]').click();
+    expect(sheet.querySelector(".surprise-title").textContent).not.toBe(first);
+  });
+
+  it("the world picker draws a tile per world (three or fewer), and a pick sets the accent and goes to the Library", async () => {
     const go = vi.spyOn(nav, "go").mockImplementation(() => {});
     await open("home");
-    await vi.waitFor(() => expect(document.querySelectorAll(".world-tile")).toHaveLength(library.worlds.length + 1));
+    await vi.waitFor(() => expect(document.querySelectorAll(".world-tile")).toHaveLength(library.worlds.length));
     document.querySelector('.world-tile[data-world="test-world"]').click();
     expect(localStorage.getItem("stories-world")).toBe("test-world");
     expect(document.documentElement.style.getPropertyValue("--accent")).toBe("#a5c695");

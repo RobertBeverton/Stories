@@ -23,6 +23,9 @@ body.has-mini-player main { padding-bottom: calc(var(--dock-h) + var(--dock-mini
 
 h1, h2, h3 { font-family: var(--font-display); line-height: 1.12; margin: 0; }
 h1 { font-size: 2rem; font-weight: 500; }
+/* No one-word last lines: balance short headings, tidy the end of paragraphs */
+h1, h2, h3 { text-wrap: balance; }
+p, li { text-wrap: pretty; }
 /* Section heads are sans and bold, like the Hearth design's section rows */
 h2 { font-family: var(--font-body); font-size: 1.125rem; font-weight: 700; line-height: 1.25; margin: 1.75rem 0 0.75rem; }
 

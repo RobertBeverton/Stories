@@ -2,6 +2,7 @@ import fg from "fast-glob";
 import fs from "node:fs";
 import matter from "gray-matter";
 import { slugify } from "./scripts/slugify.mjs";
+import { dropTitleHeading } from "./scripts/story-body.mjs";
 import { PATH_PREFIX } from "./scripts/stories-lib.mjs";
 import { iconDetailSvgPath, iconSvgPath } from "./scripts/icons.mjs";
 
@@ -14,6 +15,7 @@ export default function (eleventyConfig) {
   // library.json is emitted by site/library.json.11ty.js, a template.
 
   eleventyConfig.addFilter("slugify", slugify);
+  eleventyConfig.addFilter("dropTitleHeading", dropTitleHeading);
   eleventyConfig.addNunjucksGlobal("icons", { path: iconSvgPath, detail: iconDetailSvgPath });
 
   // `stories/**/*.md` lives outside the configured input directory (`site/`),

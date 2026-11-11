@@ -1,12 +1,18 @@
 // data-mount="world-switcher": big buttons for "All" and each world. Remembers
 // the choice per device and announces it with `stories:world` {world}.
-// data-variant="picker" (Home) draws big tiles and goes on to the Library after
-// a choice; anything else draws compact filter buttons (Library).
+// data-variant="picker" (Home) draws compact tiles, most recently played world
+// first, and goes on to the Library after a choice. Up to 3 worlds show as tiles;
+// with 4 or more, the first two show and an "All N worlds" tile opens a sheet
+// listing every world (plus All stories). Anything else draws compact filter
+// buttons in a fixed order (Library).
 import { paletteByName } from "./accent-colors.mjs";
 import { iconSvg } from "./cover.mjs";
 import { basePath, h } from "./dom.mjs";
 import { loadLibrary } from "./library.mjs";
 import { nav } from "./nav.mjs";
+import { readAll } from "./progress.mjs";
+import { worldsByRecent } from "./selectors.mjs";
+import { createSheet } from "./sheet.mjs";
 import { getWorld, knownWorld, setWorld } from "./world-state.mjs";
 
 export function mount(el) {
@@ -30,10 +36,12 @@ export function mount(el) {
     current = event.detail?.world ?? "";
     syncPressed();
   };
+  let sheet = null;
   const onClick = (event) => {
     const button = event.target.closest?.("button[data-world]");
-    if (!button || !el.contains(button)) return;
+    if (!button || !(el.contains(button) || sheet?.el.contains(button))) return;
     setWorld(button.dataset.world);
+    if (sheet?.isOpen()) sheet.close({ restoreFocus: false });
     if (picker) nav.open(`${basePath()}/library/`);
   };
 
@@ -70,7 +78,6 @@ export function mount(el) {
       },
       picker ? (world.name === "" ? allIcon() : iconSvg(world.icon)) : null,
       picker ? h("span", {}, world.title) : world.title,
-      picker ? h("small", {}, world.tagline) : null,
     );
   }
 
@@ -83,8 +90,30 @@ export function mount(el) {
       class: picker ? "world-tiles" : "world-chips",
       "data-role": "worlds",
     });
-    group.append(choice({ name: "", title: "All", tagline: "Every story, every world" }));
-    for (const world of lib.worlds) group.append(choice(world));
+    if (picker) {
+      const ordered = worldsByRecent(lib.worlds, lib.stories, readAll());
+      const shown = ordered.length <= 3 ? ordered : ordered.slice(0, 2);
+      for (const world of shown) group.append(choice(world));
+      if (ordered.length > 3) {
+        sheet = createSheet({ id: "worlds-sheet", title: "All worlds" });
+        const all = h("div", { class: "world-tiles", role: "group", "aria-label": "All worlds" });
+        all.append(choice({ name: "", title: "All stories" }));
+        for (const world of ordered) all.append(choice(world));
+        sheet.body.append(all);
+        sheet.el.addEventListener("click", onClick);
+        const more = h(
+          "button",
+          { type: "button", class: "world-tile world-tile-all", "data-role": "all-worlds", "aria-haspopup": "dialog" },
+          h("b", { "aria-hidden": "true" }, String(ordered.length)),
+          h("span", {}, `All ${ordered.length} worlds`),
+        );
+        more.addEventListener("click", () => sheet.open(more));
+        group.append(more);
+      }
+    } else {
+      group.append(choice({ name: "", title: "All" }));
+      for (const world of lib.worlds) group.append(choice(world));
+    }
     el.replaceChildren(group);
     syncPressed();
   });
@@ -93,6 +122,7 @@ export function mount(el) {
     disposed = true;
     document.removeEventListener("stories:world", onWorld);
     el.removeEventListener("click", onClick);
+    sheet?.destroy();
     el.replaceChildren();
   };
 }

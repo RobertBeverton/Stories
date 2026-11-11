@@ -38,6 +38,8 @@
 .player-sheet input[type="range"] {
   -webkit-appearance: none; appearance: none;
   width: 100%; height: var(--tap-lg); margin: 0; background: transparent; cursor: pointer;
+  /* A sideways drag moves the thumb; an up or down drag still scrolls the sheet */
+  touch-action: pan-y;
 }
 /* --fill (set by dock.mjs) paints the played part in the accent */
 .player-sheet input[type="range"]::-webkit-slider-runnable-track {

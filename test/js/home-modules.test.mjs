@@ -119,20 +119,42 @@ describe("continue", () => {
 });
 
 describe("played-lately", () => {
-  it("lists the three most recent stories, finished or not, newest first", async () => {
+  it("lists the two most recent stories after the Continue story, finished or not, then Surprise me", async () => {
     stubLibraryFetch();
     seed(progressV2); // first-tale in progress (older), second-tale finished (newer)
-    write("other-world/lone-tale", { audioTime: 30 });
+    write("other-world/lone-tale", { audioTime: 30 }); // newest touch: this is the Continue story
     const el = document.querySelector('[data-mount="played-lately"]');
     mountPlayedLately(el);
     await vi.waitFor(() => expect(el.querySelectorAll("li")).toHaveLength(3));
     const items = [...el.querySelectorAll("a")];
-    expect(items.map((a) => a.dataset.slug)).toEqual([
-      "other-world/lone-tale", "test-world/second-tale", "test-world/first-tale",
-    ]);
-    expect(items.map((a) => a.dataset.state)).toEqual(["in-progress", "finished", "in-progress"]);
-    expect(items[1].querySelector('[data-role="state"]').textContent).toBe("Finished");
-    expect(items[2].getAttribute("href")).toBe("/Stories/stories/the-test-series/first-tale/");
+    expect(items.map((a) => a.dataset.slug)).toEqual(["test-world/second-tale", "test-world/first-tale"]);
+    expect(items.map((a) => a.dataset.state)).toEqual(["finished", "in-progress"]);
+    expect(items[0].querySelector('[data-role="state"]').textContent).toBe("Finished");
+    expect(items[1].getAttribute("href")).toBe("/Stories/stories/the-test-series/first-tale/");
+    expect(el.querySelector('button[data-role="surprise-tile"]')).not.toBeNull();
+  });
+
+  it("shows how many times a story has been heard", async () => {
+    stubLibraryFetch();
+    markCompleted("test-world/first-tale");
+    write("test-world/first-tale", { audioTime: 30 });
+    markCompleted("test-world/first-tale");
+    const el = document.querySelector('[data-mount="played-lately"]');
+    mountPlayedLately(el);
+    await vi.waitFor(() => expect(el.querySelector('a[data-slug="test-world/first-tale"]')).not.toBeNull());
+    expect(el.querySelector('a[data-slug="test-world/first-tale"] [data-role="state"]').textContent).toBe("Heard 2 times");
+  });
+
+  it("the Surprise me tile asks the sheet to open", async () => {
+    stubLibraryFetch();
+    const el = document.querySelector('[data-mount="played-lately"]');
+    mountPlayedLately(el);
+    await vi.waitFor(() => expect(el.querySelector('[data-role="surprise-tile"]')).not.toBeNull());
+    const seen = vi.fn();
+    document.addEventListener("stories:surprise", seen);
+    el.querySelector('[data-role="surprise-tile"]').click();
+    document.removeEventListener("stories:surprise", seen);
+    expect(seen).toHaveBeenCalledTimes(1);
   });
 
   it("keeps a finished story visible, unlike Continue", async () => {
@@ -140,16 +162,21 @@ describe("played-lately", () => {
     markCompleted("test-world/first-tale");
     const lately = document.querySelector('[data-mount="played-lately"]');
     mountPlayedLately(lately);
-    await vi.waitFor(() => expect(lately.querySelectorAll("li")).toHaveLength(1));
-    expect(lately.querySelector("a").dataset.state).toBe("finished");
+    await vi.waitFor(() => expect(lately.querySelectorAll("li")).toHaveLength(3));
+    const link = lately.querySelector('a[data-slug="test-world/first-tale"]');
+    expect(link.dataset.state).toBe("finished");
   });
 
-  it("is hidden with no history", async () => {
+  it("with no history it offers the newest stories, not played yet, and Surprise me", async () => {
     stubLibraryFetch();
     const el = document.querySelector('[data-mount="played-lately"]');
     mountPlayedLately(el);
-    await vi.waitFor(() => expect(el.hidden).toBe(true));
-    expect(el.children).toHaveLength(0);
+    await vi.waitFor(() => expect(el.querySelectorAll("li")).toHaveLength(3));
+    expect(el.hidden).toBe(false);
+    const items = [...el.querySelectorAll("a")];
+    expect(items.map((a) => a.dataset.state)).toEqual(["new", "new"]);
+    expect(items.map((a) => a.dataset.slug)).not.toContain("test-world/second-tale"); // the Continue story
+    expect(items[0].querySelector('[data-role="state"]').textContent).toBe("Not played yet");
   });
 
   it("uses library titles and safe links, not stored ones", async () => {
@@ -157,7 +184,7 @@ describe("played-lately", () => {
     seed(progressV1);
     const el = document.querySelector('[data-mount="played-lately"]');
     mountPlayedLately(el);
-    await vi.waitFor(() => expect(el.querySelectorAll("li")).toHaveLength(2));
+    await vi.waitFor(() => expect(el.querySelectorAll("li")).toHaveLength(3));
     expect(el.querySelector("img")).toBeNull();
     expect(el.textContent).not.toContain("onerror=alert(1)>");
     for (const a of el.querySelectorAll("a")) expect(a.getAttribute("href")).toMatch(/^\/Stories\/stories\//);
@@ -167,10 +194,11 @@ describe("played-lately", () => {
     stubLibraryFetch();
     const el = document.querySelector('[data-mount="played-lately"]');
     mountPlayedLately(el);
-    await vi.waitFor(() => expect(el.hidden).toBe(true));
-    write("test-world/first-tale", { audioTime: 30 });
-    expect(el.hidden).toBe(false);
-    expect(el.querySelectorAll("li")).toHaveLength(1);
+    await vi.waitFor(() => expect(el.querySelectorAll("a")).toHaveLength(2));
+    expect([...el.querySelectorAll("a")].map((a) => a.dataset.slug)).toContain("test-world/first-tale");
+    write("test-world/first-tale", { audioTime: 30 }); // now the Continue story, so the row leaves it out
+    expect([...el.querySelectorAll("a")].map((a) => a.dataset.slug)).not.toContain("test-world/first-tale");
+    expect(el.querySelectorAll("a")).toHaveLength(2);
   });
 });
 
@@ -382,17 +410,16 @@ describe("Home follows the audio clock of the story that is playing", () => {
     expect(el.querySelector("progress").value).toBe(10);
   });
 
-  it("Played lately lists it as in progress at once", async () => {
+  it("Pick a story leaves out the story that is playing, because Continue shows it", async () => {
     stubLibraryFetch();
     playingShell();
     const el = document.querySelector('[data-mount="played-lately"]');
     mountPlayedLately(el);
-    await vi.waitFor(() => expect(el.hidden).toBe(true));
+    await vi.waitFor(() => expect(el.querySelectorAll("a")).toHaveLength(2));
     audio.play();
     ctl.tick(3);
-    expect(el.hidden).toBe(false);
-    const item = el.querySelector(`a[data-slug="${SLUG}"]`);
-    expect(item.dataset.state).toBe("in-progress");
+    expect(el.querySelector(`a[data-slug="${SLUG}"]`)).toBeNull();
+    expect(el.querySelectorAll("a")).toHaveLength(2);
   });
 
   it("does not let a loaded but paused story overwrite what was saved", async () => {

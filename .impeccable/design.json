@@ -1,0 +1,400 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-11T11:18:39.846Z",
+  "title": "Design System: Stories",
+  "extensions": {
+    "colorMeta": {
+      "hearth-night": {
+        "role": "neutral",
+        "displayName": "Hearth Night",
+        "canonical": "#101411",
+        "tonalRamp": [
+          "#050605",
+          "#080a09",
+          "#0b0e0c",
+          "#0e110e",
+          "#101411",
+          "#404341",
+          "#7c7e7c",
+          "#b7b9b8"
+        ]
+      },
+      "hearth-surface": {
+        "role": "neutral",
+        "displayName": "Hearth Surface",
+        "canonical": "#1a211c",
+        "tonalRamp": [
+          "#080a08",
+          "#0d110e",
+          "#121714",
+          "#161c18",
+          "#1a211c",
+          "#484d49",
+          "#818582",
+          "#babcbb"
+        ]
+      },
+      "hearth-raised": {
+        "role": "neutral",
+        "displayName": "Hearth Raised",
+        "canonical": "#232b25",
+        "tonalRamp": [
+          "#0b0d0b",
+          "#121613",
+          "#191e1a",
+          "#1e251f",
+          "#232b25",
+          "#4f5551",
+          "#868a87",
+          "#bdbfbe"
+        ]
+      },
+      "lantern-text": {
+        "role": "neutral",
+        "displayName": "Lantern Text",
+        "canonical": "#f1f2e9",
+        "tonalRamp": [
+          "#484946",
+          "#797975",
+          "#a9a9a3",
+          "#cdcec6",
+          "#f1f2e9",
+          "#f4f5ed",
+          "#f7f8f3",
+          "#fbfbf8"
+        ]
+      },
+      "moss-muted": {
+        "role": "neutral",
+        "displayName": "Moss Muted",
+        "canonical": "#abb5aa",
+        "tonalRamp": [
+          "#333633",
+          "#565b55",
+          "#787f77",
+          "#919a91",
+          "#abb5aa",
+          "#bcc4bb",
+          "#d1d6d0",
+          "#e6e9e6"
+        ]
+      },
+      "control-line": {
+        "role": "neutral",
+        "displayName": "Control Line",
+        "canonical": "#6a796d",
+        "tonalRamp": [
+          "#202421",
+          "#353d37",
+          "#4a554c",
+          "#5a675d",
+          "#6a796d",
+          "#88948a",
+          "#adb5af",
+          "#d2d7d3"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#374239",
+        "tonalRamp": [
+          "#111411",
+          "#1c211d",
+          "#272e28",
+          "#2f3830",
+          "#374239",
+          "#5f6861",
+          "#919792",
+          "#c3c6c4"
+        ]
+      },
+      "focus-amber": {
+        "role": "neutral",
+        "displayName": "Focus Amber",
+        "canonical": "#ffd37a",
+        "tonalRamp": [
+          "#4d3f25",
+          "#806a3d",
+          "#b39455",
+          "#d9b368",
+          "#ffd37a",
+          "#ffdc95",
+          "#ffe7b6",
+          "#fff2d7"
+        ]
+      },
+      "accent-lime": {
+        "role": "primary",
+        "displayName": "Hearth Lime",
+        "canonical": "#c4ed8e",
+        "tonalRamp": [
+          "#3b472b",
+          "#627747",
+          "#89a663",
+          "#a7c979",
+          "#c4ed8e",
+          "#d0f1a5",
+          "#dff5c1",
+          "#edfadd"
+        ]
+      },
+      "world-sage": {
+        "role": "secondary",
+        "displayName": "Sage",
+        "canonical": "#a5c695",
+        "tonalRamp": [
+          "#323b2d",
+          "#53634b",
+          "#748b68",
+          "#8ca87f",
+          "#a5c695",
+          "#b7d1aa",
+          "#cee0c5",
+          "#e4eedf"
+        ]
+      },
+      "world-lavender": {
+        "role": "secondary",
+        "displayName": "Lavender",
+        "canonical": "#c4b3db",
+        "tonalRamp": [
+          "#3b3642",
+          "#625a6e",
+          "#897d99",
+          "#a798ba",
+          "#c4b3db",
+          "#d0c2e2",
+          "#dfd5eb",
+          "#ede8f4"
+        ]
+      },
+      "world-butter": {
+        "role": "secondary",
+        "displayName": "Butter",
+        "canonical": "#d7b975",
+        "tonalRamp": [
+          "#413823",
+          "#6c5d3b",
+          "#978252",
+          "#b79d63",
+          "#d7b975",
+          "#dfc791",
+          "#e9d9b3",
+          "#f3ead6"
+        ]
+      },
+      "world-sky": {
+        "role": "secondary",
+        "displayName": "Sky",
+        "canonical": "#97c2d8",
+        "tonalRamp": [
+          "#2d3a41",
+          "#4c616c",
+          "#6a8897",
+          "#80a5b8",
+          "#97c2d8",
+          "#accee0",
+          "#c6ddea",
+          "#e0edf3"
+        ]
+      },
+      "world-raspberry": {
+        "role": "secondary",
+        "displayName": "Raspberry",
+        "canonical": "#e0aebe",
+        "tonalRamp": [
+          "#433439",
+          "#70575f",
+          "#9d7a85",
+          "#be94a2",
+          "#e0aebe",
+          "#e6becb",
+          "#eed2db",
+          "#f6e7ec"
+        ]
+      },
+      "world-coral": {
+        "role": "secondary",
+        "displayName": "Coral",
+        "canonical": "#eab09e",
+        "tonalRamp": [
+          "#46352f",
+          "#75584f",
+          "#a47b6f",
+          "#c79686",
+          "#eab09e",
+          "#eec0b1",
+          "#f3d4ca",
+          "#f9e7e2"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Story and page titles."
+      },
+      "reading": {
+        "displayName": "Reading",
+        "purpose": "Story text, 65ch column, user-scalable."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Eyebrows and kickers, uppercase."
+      }
+    },
+    "shadows": [
+      {
+        "name": "play-glow",
+        "value": "0 6px 24px color-mix(in srgb, var(--accent) 28%, transparent)",
+        "purpose": "Round play button only."
+      },
+      {
+        "name": "icon-glow",
+        "value": "drop-shadow(0 0 7px color-mix(in srgb, var(--series) 55%, transparent))",
+        "purpose": "Cover line icons."
+      }
+    ],
+    "motion": [
+      {
+        "name": "sheet-in",
+        "value": "0.2s ease-out",
+        "purpose": "Player sheet slide-up; disabled under reduced motion."
+      },
+      {
+        "name": "chevron",
+        "value": "0.15s",
+        "purpose": "Disclosure rotation."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "wide",
+        "value": "720px"
+      },
+      {
+        "name": "short",
+        "value": "max-height 480px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one lime fill per screen; pill, dark ink.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Play story</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;border-radius:999px;border:1px solid #374239;background:#232b25;color:#f1f2e9;font:600 18px system-ui,sans-serif;cursor:pointer}.ds-btn:focus-visible{outline:3px solid #ffd37a;outline-offset:3px}.ds-btn-primary{background:#c4ed8e;color:#151a13;border-color:#c4ed8e;font-weight:750}"
+    },
+    {
+      "name": "Default Button",
+      "kind": "button",
+      "refersTo": "button-default",
+      "description": "Quiet raised pill with a hairline edge.",
+      "html": "<button class=\"ds-btn\">Text size</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;border-radius:999px;border:1px solid #374239;background:#232b25;color:#f1f2e9;font:600 18px system-ui,sans-serif;cursor:pointer}.ds-btn:focus-visible{outline:3px solid #ffd37a;outline-offset:3px}"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "description": "Transparent pill in a sideways-scrolling row; pressed gets an accent tint.",
+      "html": "<button class=\"ds-btn ds-chip\">All worlds</button> <button class=\"ds-btn ds-chip ds-chip-on\">Has audio</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 20px;border-radius:999px;border:1px solid #374239;background:#232b25;color:#f1f2e9;font:600 18px system-ui,sans-serif;cursor:pointer}.ds-btn:focus-visible{outline:3px solid #ffd37a;outline-offset:3px}.ds-chip{background:transparent;color:#abb5aa}.ds-chip-on{background:color-mix(in srgb,#c4ed8e 20%,#1a211c);color:#f1f2e9;border-color:#c4ed8e}"
+    },
+    {
+      "name": "Search Box",
+      "kind": "input",
+      "refersTo": "search-box",
+      "description": "56px field with Control Line border and magnifier.",
+      "html": "<input class=\"ds-search\" placeholder=\"Search stories\">",
+      "css": ".ds-search{width:100%;min-height:56px;padding:0 16px 0 46px;background:#1a211c url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23abb5aa' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='6.5'/%3E%3Cpath d='m16 16 4 4'/%3E%3C/svg%3E\") no-repeat 15px 50%/22px;color:#f1f2e9;border:1px solid #6a796d;border-radius:16px;font:18px system-ui,sans-serif}.ds-search:focus-visible{outline:3px solid #ffd37a;outline-offset:3px}"
+    },
+    {
+      "name": "Dock Navigation",
+      "kind": "nav",
+      "description": "Two pill links; the current page is accent text on a 14% tint.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-a ds-nav-cur\" href=\"#\">Home</a><a class=\"ds-nav-a\" href=\"#\">Library</a></nav>",
+      "css": ".ds-nav{display:flex;background:#101411;border-top:1px solid #374239;padding:8px}.ds-nav-a{flex:1;text-align:center;padding:12px;border-radius:999px;color:#abb5aa;font:600 15px system-ui,sans-serif;text-decoration:none}.ds-nav-cur{color:#c4ed8e;background:color-mix(in srgb,#c4ed8e 14%,transparent)}.ds-nav-a:focus-visible{outline:3px solid #ffd37a;outline-offset:3px}"
+    },
+    {
+      "name": "Continue Card",
+      "kind": "card",
+      "refersTo": "card-continue",
+      "description": "Hero card with accent glow, serif title, progress bar.",
+      "html": "<div class=\"ds-card\"><p class=\"ds-k\">UP NEXT</p><h3>The Lantern Boat</h3><div class=\"ds-bar\"><i></i></div></div>",
+      "css": ".ds-card{padding:20px;border:1px solid #374239;border-radius:22px;color:#f1f2e9;background:radial-gradient(ellipse at 90% 5%,color-mix(in srgb,#c4ed8e 24%,transparent),transparent 48%),linear-gradient(135deg,#1a211c,#20291f)}.ds-k{margin:0;color:#abb5aa;font:700 12px system-ui,sans-serif;letter-spacing:.16em}.ds-card h3{margin:4px 0 12px;font:500 28px/1.06 Georgia,serif}.ds-bar{height:6px;border-radius:999px;background:rgba(241,242,233,.14);overflow:hidden}.ds-bar i{display:block;width:40%;height:100%;background:#c4ed8e}"
+    },
+    {
+      "name": "Cover Tile",
+      "kind": "custom",
+      "description": "Series-tinted gradient tile with a glowing line icon.",
+      "html": "<div class=\"ds-cover\"><svg viewBox=\"0 0 100 100\" width=\"70\" height=\"70\"><path d=\"M15 60h70l-10 20H25z M50 20v40 M50 24l22 28H50z\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"5\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/></svg></div>",
+      "css": ".ds-cover{display:flex;align-items:center;justify-content:center;width:96px;height:96px;border-radius:20px;color:#97c2d8;background:radial-gradient(circle at 50% 38%,color-mix(in srgb,#97c2d8 32%,transparent),transparent 62%),linear-gradient(145deg,color-mix(in srgb,#97c2d8 28%,#1a211c),#232b25);box-shadow:inset 0 0 0 1px color-mix(in srgb,#97c2d8 18%,transparent)}.ds-cover svg{filter:drop-shadow(0 0 7px color-mix(in srgb,#97c2d8 55%,transparent))}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Hearth",
+    "overview": "A low-lit fireside that suits any hour of the day. Surfaces are dark and faintly green, and the only light comes from the stories themselves: covers glow in their series colour, and one soft lime accent marks what to press.",
+    "keyCharacteristics": [
+      "Dark, green-tinted tonal layers instead of shadows.",
+      "One lime accent per screen, used as a fill with dark ink; pastel world and series colours appear as glows and tints.",
+      "Pills and soft 16-26px corners everywhere; nothing sharp.",
+      "Line-icon covers on a tinted gradient tile; the icon is the art.",
+      "System fonts and Georgia only; no network requests."
+    ],
+    "rules": [
+      {
+        "name": "The One Lime Rule",
+        "body": "The accent marks what to press or what is playing. It is never decoration, and a screen has one primary accent fill.",
+        "section": "colors"
+      },
+      {
+        "name": "The Vetted Colour Rule",
+        "body": "Colours come from the fixed palette or the tokens file, never generated. A new pair must pass `scripts/check-token-contrast.mjs` before it is added.",
+        "section": "colors"
+      },
+      {
+        "name": "The Hairline Honesty Rule",
+        "body": "Anything a person must find to use goes in Control Line. Hairline is only for edges that could vanish without harm.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Voices Rule",
+        "body": "Serif is for stories (titles, text); sans is for operating the app. Do not use serif for buttons or sans for story text.",
+        "section": "colors"
+      },
+      {
+        "name": "The Floor Rule",
+        "body": "Body is at least 16px, labels at least 12px, with no exceptions for density.",
+        "section": "colors"
+      },
+      {
+        "name": "The Never-Cover Rule",
+        "body": "Fixed chrome must yield to content in short viewports and zoom.",
+        "section": "colors"
+      },
+      {
+        "name": "The Glow Is The Story Rule",
+        "body": "Glow belongs to covers and the play button. Cards and chrome do not glow.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "**Do** use 56px for primary controls (play, seek, Continue) and at least 44px for everything else.",
+      "**Do** keep one lime fill per screen and let pastel series colours appear as glows and tints.",
+      "**Do** build depth from the tonal stack (Night, Surface, Raised) and soft radial glows.",
+      "**Do** honour `prefers-reduced-motion`; motion is a 0.2s sheet slide and 0.15s chevrons only.",
+      "**Do** read every colour from `tokens.css`; new pairs must pass `scripts/check-token-contrast.mjs`."
+    ],
+    "donts": [
+      "**Don't** use bright primary colours, cartoon styling, confetti or mascots.",
+      "**Don't** add a light theme, or bouncing, flashing or looping motion.",
+      "**Don't** use Hairline for anything a person needs to find; use Control Line.",
+      "**Don't** put text below 12px or body below 16px, or use external fonts or other network requests.",
+      "**Don't** put pastel world colours behind light text; they carry dark Series Ink.",
+      "**Don't** nest accent fills or add glows to cards and chrome."
+    ]
+  }
+}

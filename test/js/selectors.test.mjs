@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  isNew, matchesFilters, matchesQuery, pickContinue, pickPlayedLately,
+  buildSearchIndex, isNew, matchesFilters, matchesQuery, pickContinue, pickPlayedLately, pickSurprise, queryScore, worldsByRecent,
 } from "../../site/assets/js/selectors.mjs";
 import { library, progressV2 } from "./helpers-node.mjs";
 
@@ -107,6 +107,38 @@ describe("matchesQuery", () => {
   });
 });
 
+describe("search index", () => {
+  const mk = (slug, title, characters = []) => ({ slug, title, series: null, tags: [], characters });
+  const stories = [
+    mk("a", "The Quiz Mistress", ["Alex", "Felix", "Willow"]),
+    mk("b", "The Lady Under the Floor", ["Alex", "Felix"]),
+    mk("c", "The Supply Teacher Who Was LOKI", ["Alex", "Felix", "Ollie"]),
+    mk("d", "A Walk in the Orchard", ["Alex"]),
+  ];
+  const lore = [{ title: "Pachamama", tradition: "Andean", stories: ["b"] }];
+  const index = buildSearchIndex(stories, lore);
+
+  it("finds a story through the lore entry that lists it, though the title never names them", () => {
+    expect(matchesQuery(stories[1], "pachamama", index)).toBe(true);
+    expect(matchesQuery(stories[1], "andean", index)).toBe(true);
+    expect(matchesQuery(stories[0], "pachamama", index)).toBe(false);
+  });
+
+  it("ignores characters that appear in most stories", () => {
+    expect(matchesQuery(stories[0], "alex", index)).toBe(false); // in all 4
+    expect(matchesQuery(stories[0], "felix", index)).toBe(false); // in 3 of 4
+    expect(matchesQuery(stories[0], "willow", index)).toBe(true); // rare, still searchable
+    expect(matchesQuery(stories[2], "ollie", index)).toBe(true);
+  });
+
+  it("ranks a title match above a character match", () => {
+    const titled = mk("t", "Willow Wood", []);
+    const withChar = mk("w", "Other", ["Willow"]);
+    const idx = buildSearchIndex([titled, withChar, ...stories], []);
+    expect(queryScore(titled, "willow", idx)).toBeGreaterThan(queryScore(withChar, "willow", idx));
+  });
+});
+
 describe("matchesFilters", () => {
   const all = (f, records = {}) => library.stories
     .filter((s) => matchesFilters(s, records[s.slug], f, NOW))
@@ -141,5 +173,68 @@ describe("matchesFilters", () => {
   it("combines groups with AND", () => {
     const records = { [first.slug]: rec({ audioTime: 300 }), [second.slug]: rec({ audioTime: 300 }) };
     expect(all({ statuses: ["in-progress"], audio: true }, records)).toEqual([first.slug, second.slug]);
+  });
+});
+
+describe("pickSurprise", () => {
+  const mk = (slug, world, durationSec = 600) => ({ slug, title: slug, world, durationSec });
+  const stories = [mk("a", "w1"), mk("b", "w1"), mk("c", "w1"), mk("d", "w2"), mk("e", "w1", null)];
+  const first = () => 0;
+
+  it("prefers stories never heard to the end, and only those while any remain", () => {
+    const plays = { a: 2, b: 1 };
+    const pick = pickSurprise(stories, { plays, world: "w1", random: first });
+    expect(pick.story.slug).toBe("c");
+    expect(pick.heard).toBe(false);
+  });
+
+  it("stays inside the chosen world, and ignores stories with no audio when others have it", () => {
+    for (let i = 0; i < 20; i++) {
+      const slug = pickSurprise(stories, { world: "w1", random: () => i / 20 }).story.slug;
+      expect(["a", "b", "c"]).toContain(slug);
+    }
+    expect(pickSurprise(stories, { world: "w2", random: first }).story.slug).toBe("d");
+    const noAudio = [mk("x", "w3", null), mk("y", "w3", null)];
+    expect(pickSurprise(noAudio, { world: "w3", random: first }).story.slug).toBe("x");
+  });
+
+  it("when everything is heard, picks from those heard longest ago", () => {
+    const many = Array.from({ length: 12 }, (_, i) => mk("s" + i, "w1"));
+    const records = Object.fromEntries(many.map((s, i) => [s.slug, { completedAt: 1000 + i }]));
+    const picks = new Set();
+    for (let i = 0; i < 30; i++) picks.add(pickSurprise(many, { records, world: "w1", random: () => i / 30 }).story.slug);
+    expect([...picks].sort()).toEqual(["s0", "s1", "s2"]); // the oldest quarter, at least 3
+  });
+
+  it("another one never repeats until the pool runs out, then skips only the last offer", () => {
+    const seen = [];
+    for (let i = 0; i < 3; i++) seen.push(pickSurprise(stories, { world: "w1", exclude: seen.map((p) => p), random: first }).story.slug);
+    expect(new Set(seen).size).toBe(3);
+    const again = pickSurprise(stories, { world: "w1", exclude: seen, random: first });
+    expect(again.story.slug).not.toBe(seen[2]);
+  });
+
+  it("returns null when the world has no stories, and the only story when there is one", () => {
+    expect(pickSurprise(stories, { world: "nope" })).toBeNull();
+    expect(pickSurprise([mk("solo", "w9")], { world: "w9", exclude: ["solo"] }).story.slug).toBe("solo");
+  });
+});
+
+describe("worldsByRecent", () => {
+  const worlds = [{ name: "w1" }, { name: "w2" }, { name: "w3" }];
+  const stories = [
+    { slug: "a", world: "w1" }, { slug: "b", world: "w2" }, { slug: "c", world: "w3" },
+  ];
+  const rec = (o) => ({ v: 2, audioTime: 0, scrollY: 0, playing: false, savedAt: 1, ...o });
+
+  it("puts the world played most recently first, unplayed worlds keep their order", () => {
+    const records = { a: rec({ audioTime: 50, savedAt: 100 }), b: rec({ audioTime: 50, savedAt: 200 }) };
+    expect(worldsByRecent(worlds, stories, records).map((w) => w.name)).toEqual(["w2", "w1", "w3"]);
+    expect(worldsByRecent(worlds, stories, {}).map((w) => w.name)).toEqual(["w1", "w2", "w3"]);
+  });
+
+  it("ignores a bare page visit", () => {
+    const records = { c: rec({ audioTime: 0.2, savedAt: 999 }), a: rec({ completedAt: 5, savedAt: 5 }) };
+    expect(worldsByRecent(worlds, stories, records).map((w) => w.name)).toEqual(["w1", "w2", "w3"]);
   });
 });

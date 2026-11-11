@@ -21,9 +21,9 @@ import { cover } from "./cover.mjs";
 import { h, onProgressChange } from "./dom.mjs";
 import { loadLibrary } from "./library.mjs";
 import { getSort, readView, setSort, SORTS, writeView } from "./library-state.mjs";
-import { readAll, toViewModel } from "./progress.mjs";
+import { readAll, readPlays, toViewModel } from "./progress.mjs";
 import {
-  collectionsFor, groupStories, isNew, matchesFilters, matchesQuery, orderStories, PAGE_SIZE,
+  buildSearchIndex, byMostHeard, collectionsFor, groupStories, isNew, matchesFilters, matchesQuery, orderStories, PAGE_SIZE, queryScore,
   seriesSummary, visibleLimit,
 } from "./selectors.mjs";
 import { setHiddenReason, storyRows, updateNoResults } from "./visibility.mjs";
@@ -35,7 +35,7 @@ const STATUSES = [
 ];
 const FLAT_PAGE = 20;
 const GROUP_PAGE = 12;
-const SORT_LABELS = { order: "Story order", newest: "Newest" };
+const SORT_LABELS = { order: "Story order", newest: "Newest", plays: "Most heard" };
 const NEXT_LABELS = { continue: "Continue", next: "Next up" };
 let uid = 0;
 
@@ -51,6 +51,7 @@ function ensureOrder(parent, items) {
 export function mount(el) {
   let disposed = false;
   let library = null;
+  let searchIndex = null;
   const saved = readView();
   const state = {
     world: getWorld(),
@@ -181,11 +182,12 @@ export function mount(el) {
   function render() {
     if (disposed || !library) return;
     const records = readAll();
+    const plays = readPlays(records);
     const now = Date.now();
     const query = currentQuery();
     const scope = library.stories.filter((s) => !state.world || s.world === state.world);
     rebuildCollections(scope);
-    const flat = Boolean(query.trim()) || state.audio || state.statuses.size > 0 || Boolean(state.collection);
+    const flat = Boolean(query.trim()) || state.sort === "plays" || state.audio || state.statuses.size > 0 || Boolean(state.collection);
     const filter = { world: state.world, audio: state.audio, statuses: [...state.statuses], collection: state.collection, lore: library.lore };
 
     // Row state, and which stories match everything.
@@ -197,11 +199,17 @@ export function mount(el) {
       const vm = toViewModel(record, { durationSec: story.durationSec });
       row.dataset.state = vm.state;
       row.style.setProperty("--progress", `${Math.round(vm.fraction * 100)}%`);
+      const playsEl = row.querySelector('[data-role="plays"]');
+      if (playsEl) {
+        const n = plays[story.slug] ?? 0;
+        const label = n > 0 ? ` · Heard ${n === 1 ? "once" : `${n} times`}` : "";
+        if (playsEl.textContent !== label) playsEl.textContent = label;
+      }
       if (isNew(story, record, now)) row.dataset.new = "true";
       else delete row.dataset.new;
       const ok = matchesFilters(story, record, filter, now);
       setHiddenReason(row, "filters", !ok);
-      if (ok && matchesQuery(story, query)) matched.push(story);
+      if (ok && matchesQuery(story, query, searchIndex)) matched.push(story);
     }
 
     const pageHidden = new Set();
@@ -211,7 +219,9 @@ export function mount(el) {
       groupsEl.hidden = true;
       groupsMore.hidden = true;
       flatEl.hidden = false;
-      const ordered = orderStories(matched, state.sort);
+      const sorted = state.sort === "plays" ? byMostHeard(matched, plays, records) : orderStories(matched, state.sort);
+      // With a query, best matches first (the sort order breaks ties: the sort is stable).
+      const ordered = query.trim() ? sorted.map((s) => ({ s, score: queryScore(s, query, searchIndex) })).sort((a, b) => b.score - a.score).map((x) => x.s) : sorted;
       ensureOrder(flatList, rowsOf(ordered));
       const limit = visibleLimit(ordered.length, state.flatPages, FLAT_PAGE);
       ordered.slice(limit).forEach((s) => pageHidden.add(s.slug));

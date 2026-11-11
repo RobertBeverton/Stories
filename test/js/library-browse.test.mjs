@@ -182,6 +182,31 @@ describe("grouped view", () => {
     expect(localStorage.getItem("stories-library-sort")).toBe("newest");
   });
 
+  it("rows say how often a story was heard, and the Most heard sort lists them by that", async () => {
+    for (const li of document.querySelectorAll('[data-role="story-row"]')) {
+      const span = document.createElement("span");
+      span.dataset.role = "plays";
+      li.append(span);
+    }
+    const once = "alpha/long-saga-7";
+    const thrice = "alpha/long-saga-9";
+    markCompleted(once);
+    for (let i = 0; i < 3; i++) { write(thrice, { audioTime: 40 }); markCompleted(thrice); }
+    await open();
+    const label = (slug) => document.querySelector(`[data-slug="${slug}"] [data-role="plays"]`).textContent;
+    expect(label(once)).toBe(" · Heard once");
+    expect(label(thrice)).toBe(" · Heard 3 times");
+    expect(label("alpha/long-saga-1")).toBe("");
+
+    const sort = document.querySelector('[data-role="sort"]');
+    expect([...sort.options].map((o) => o.textContent)).toEqual(["Story order", "Newest", "Most heard"]);
+    sort.value = "plays";
+    sort.dispatchEvent(new Event("change"));
+    const rows = shownRows().map((r) => r.dataset.slug);
+    expect(rows.slice(0, 2)).toEqual([thrice, once]); // a flat list, most heard first
+    expect(localStorage.getItem("stories-library-sort")).toBe("plays");
+  });
+
   it("opens the only group when the scope has a single series", async () => {
     localStorage.setItem("stories-world", "beta");
     await open();

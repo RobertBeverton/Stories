@@ -10,12 +10,14 @@ import nunjucks from "nunjucks";
 import { accentColorFor } from "../../scripts/accent-colors.mjs";
 import { iconDetailSvgPath, iconSvgPath } from "../../scripts/icons.mjs";
 import { pageSecurity } from "../../scripts/page-security.mjs";
+import { dropTitleHeading } from "../../scripts/story-body.mjs";
 
 export const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const site = path.join(root, "site");
 
 const env = new nunjucks.Environment(new nunjucks.FileSystemLoader(path.join(site, "_includes")), { autoescape: true });
 env.addFilter("url", (p) => "/Stories" + p);
+env.addFilter("dropTitleHeading", dropTitleHeading);
 env.addGlobal("icons", { path: iconSvgPath, detail: iconDetailSvgPath });
 
 /** A template-shaped story (what site/_data/stories.js provides) from a library.json story. */

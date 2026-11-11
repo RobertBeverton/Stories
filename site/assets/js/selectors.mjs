@@ -64,12 +64,71 @@ export function pickPlayedLately(stories, records, count = 3) {
     .map(({ story, vm }) => ({ story, state: vm.state, fraction: vm.fraction }));
 }
 
-/** Every whitespace-separated word must appear in title, series or tags. */
-export function matchesQuery(story, query) {
-  const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+// Search. A story is found by its title, series, tags, the lore entries that
+// list it (so searching a god by name finds their story even when the title
+// does not say who they are) and its character names. Characters that appear
+// in more than half of all stories (the boys themselves) are left out: typing
+// "alex" should not return the whole library.
+const WEIGHT = { title: 4, series: 3, lore: 3, tags: 2, characters: 1 };
+
+/**
+ * Builds the per-story search fields once per library load.
+ * @param {object[]} stories
+ * @param {object[]} [lore] library.json lore entries ({title, tradition, stories[]})
+ * @returns {Map<string, Record<keyof typeof WEIGHT, string>>}
+ */
+export function buildSearchIndex(stories, lore = []) {
+  const counts = new Map();
+  for (const s of stories) {
+    for (const name of new Set((s.characters ?? []).map((c) => c.toLowerCase()))) counts.set(name, (counts.get(name) ?? 0) + 1);
+  }
+  const common = new Set([...counts].filter(([, n]) => stories.length > 2 && n > stories.length / 2).map(([name]) => name));
+  const loreBySlug = new Map();
+  for (const entry of lore) {
+    for (const slug of entry.stories ?? []) {
+      const list = loreBySlug.get(slug) ?? [];
+      list.push(entry.title, entry.tradition ?? "");
+      loreBySlug.set(slug, list);
+    }
+  }
+  return new Map(stories.map((s) => [s.slug, {
+    title: s.title ?? "",
+    series: s.series ?? "",
+    lore: (loreBySlug.get(s.slug) ?? []).join(" ").toLowerCase(),
+    tags: (s.tags ?? []).join(" ").toLowerCase(),
+    characters: (s.characters ?? []).filter((c) => !common.has(c.toLowerCase())).join(" ").toLowerCase(),
+  }]));
+}
+
+function fieldsFor(story, index) {
+  return index?.get(story.slug) ?? {
+    title: story.title ?? "", series: story.series ?? "", lore: "",
+    tags: (story.tags ?? []).join(" "), characters: (story.characters ?? []).join(" "),
+  };
+}
+
+const wordsOf = (query) => query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+
+/** Every whitespace-separated word must appear in at least one search field. */
+export function matchesQuery(story, query, index) {
+  const words = wordsOf(query);
   if (words.length === 0) return true;
-  const haystack = [story.title, story.series ?? "", ...(story.tags ?? []), ...(story.characters ?? [])].join(" ").toLowerCase();
-  return words.every((w) => haystack.includes(w));
+  const f = fieldsFor(story, index);
+  const hay = Object.values(f).join(" ").toLowerCase();
+  return words.every((w) => hay.includes(w));
+}
+
+/** Higher is a better match: title beats series and lore, which beat tags, then characters. */
+export function queryScore(story, query, index) {
+  const words = wordsOf(query);
+  const f = fieldsFor(story, index);
+  let score = 0;
+  for (const w of words) {
+    for (const [field, weight] of Object.entries(WEIGHT)) {
+      if (String(f[field]).toLowerCase().includes(w)) score += weight;
+    }
+  }
+  return score;
 }
 
 /**
@@ -199,4 +258,67 @@ export function collectionsFor(stories, lore) {
 export function matchesCollection(story, collection, lore) {
   if (!collection) return true;
   return traditionsBySlug(lore).get(story.slug)?.has(collection) ?? false;
+}
+
+/**
+ * "Surprise me": a story to try next, from one world or all.
+ * Stories never heard to the end come first, picked at random. When every
+ * story in the pool has been heard, it picks at random from the quarter heard
+ * longest ago (at least 3 of them). Stories with audio are preferred, since
+ * the point is to press play. `exclude` holds the slugs already offered, so
+ * "Another one" never repeats a pick until the pool runs out; then it starts
+ * the list again but still skips the story just offered.
+ * @param {object[]} stories
+ * @param {{records?: Record<string, object>, plays?: Record<string, number>, world?: string,
+ *          exclude?: string[], random?: () => number}} [opts]
+ * @returns {{story: object, heard: boolean, plays: number, poolSize: number}|null}
+ */
+export function pickSurprise(stories, opts = {}) {
+  const { records = {}, plays = {}, world = "", exclude = [], random = Math.random } = opts;
+  const inWorld = stories.filter((s) => !world || s.world === world);
+  const withAudio = inWorld.filter((s) => s.durationSec !== null && s.durationSec !== undefined);
+  const pool = withAudio.length > 0 ? withAudio : inWorld;
+  if (pool.length === 0) return null;
+  const last = exclude[exclude.length - 1];
+  let fresh = pool.filter((s) => !exclude.includes(s.slug));
+  if (fresh.length === 0) fresh = pool.length > 1 ? pool.filter((s) => s.slug !== last) : pool;
+  const heard = (s) => (plays[s.slug] ?? 0) > 0 || records[s.slug]?.completedAt !== undefined;
+  const never = fresh.filter((s) => !heard(s));
+  let from = never;
+  if (never.length === 0) {
+    const oldest = [...fresh].sort((a, b) => (records[a.slug]?.completedAt ?? 0) - (records[b.slug]?.completedAt ?? 0));
+    from = oldest.slice(0, Math.max(3, Math.ceil(oldest.length / 4)));
+  }
+  const story = from[Math.min(from.length - 1, Math.floor(random() * from.length))];
+  return { story, heard: heard(story), plays: plays[story.slug] ?? (records[story.slug]?.completedAt !== undefined ? 1 : 0), poolSize: pool.length };
+}
+
+/**
+ * Worlds ordered by when something in them was last played (most recent
+ * first). Worlds with no listening keep their configured order after those.
+ * A bare page visit does not count: it needs real listening or a finish.
+ * @param {{name: string}[]} worlds
+ * @param {object[]} stories
+ * @param {Record<string, object>} records
+ */
+export function worldsByRecent(worlds, stories, records) {
+  const lastPlayed = new Map();
+  for (const story of stories) {
+    const r = records[story.slug];
+    if (!r || (r.completedAt === undefined && r.audioTime < 1)) continue;
+    const at = Math.max(r.savedAt ?? 0, r.completedAt ?? 0);
+    if (at > (lastPlayed.get(story.world) ?? 0)) lastPlayed.set(story.world, at);
+  }
+  return worlds
+    .map((world, index) => ({ world, index, at: lastPlayed.get(world.name) ?? 0 }))
+    .sort((a, b) => b.at - a.at || a.index - b.index)
+    .map((x) => x.world);
+}
+
+/** Most listens first; ties go to the one heard most recently, then by title. */
+export function byMostHeard(stories, plays, records) {
+  return [...stories].sort((a, b) =>
+    (plays[b.slug] ?? 0) - (plays[a.slug] ?? 0)
+    || (records[b.slug]?.completedAt ?? 0) - (records[a.slug]?.completedAt ?? 0)
+    || a.title.localeCompare(b.title));
 }
