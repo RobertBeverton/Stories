@@ -135,7 +135,7 @@ export function createPlayer(audio, { doc = document } = {}) {
     const entry = library?.bySlug.get(forSlug);
     if (!entry) return null;
     try {
-      const res = await fetch(safeHref(entry.url), { credentials: "same-origin" });
+      const res = await fetch(safeHref(entry.url), { credentials: "same-origin", headers: { Accept: "text/html" } });
       if (!res.ok) return null;
       const parsed = new DOMParser().parseFromString(await res.text(), "text/html");
       for (const el of parsed.querySelectorAll("[data-audio-url]")) {

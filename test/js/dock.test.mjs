@@ -584,6 +584,9 @@ describe("Media Session", () => {
     audio.dispatchEvent(new Event("playing"));
     await vi.waitFor(() => expect(base.mock.calls.some(([u]) => String(u).endsWith(storyOf(B).url))).toBe(true));
     await tick();
+    // Asks for HTML like the router does, so the offline worker answers with its Offline page instead of a failed request.
+    const pageCall = base.mock.calls.find(([u]) => String(u).endsWith(storyOf(B).url));
+    expect(pageCall[1]?.headers).toEqual({ Accept: "text/html" });
     handlers.nexttrack();
     await vi.waitFor(() => expect(audio.dataset.slug).toBe(B));
   });
