@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { JSDOM } from "jsdom";
 import { accentColorFor } from "../../scripts/accent-colors.mjs";
 import { AUDIO_ORIGIN } from "../../scripts/audio-origin.mjs";
-import { buildImportMap, pageSecurity, scriptHash } from "../../scripts/page-security.mjs";
+import { buildImportMap, contentSecurityPolicy, pageSecurity, scriptHash } from "../../scripts/page-security.mjs";
 import { renderHome, renderLibrary, renderStory } from "./render-pages.mjs";
 
 const SERIES = "The Placeholder Series";
@@ -90,12 +90,20 @@ describe("content security policy", () => {
     expect(directive(policy, "media-src")).toBe(`media-src 'self' ${AUDIO_ORIGIN}`);
   });
 
+  it("lets scripts fetch the audio origin and run the service worker", () => {
+    const p = contentSecurityPolicy({ importMapHash: "sha256-x", audioOrigin: AUDIO_ORIGIN });
+    expect(p).toContain(`connect-src 'self' ${AUDIO_ORIGIN}`);
+    expect(p).toContain("worker-src 'self'");
+    expect(p).toContain(`media-src 'self' ${AUDIO_ORIGIN}`);
+  });
+
   it("sets the remaining directives", () => {
     for (const d of [
       "default-src 'self'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
-      "connect-src 'self'",
+      `connect-src 'self' ${AUDIO_ORIGIN}`,
+      "worker-src 'self'",
       "font-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",
