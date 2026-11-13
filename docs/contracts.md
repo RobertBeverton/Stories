@@ -131,7 +131,8 @@ Design: [plans/2026-11-12-offline-listening-design.md](plans/2026-11-12-offline-
   never versioned by build.
 - **Index.** `localStorage["stories-offline"]` = `{ "<slug>": { url, bytes, savedAt } }`. `url` is the
   `audioUrl` that was saved; a story whose current `audioUrl` differs is "stale" (update available).
-  The index is advisory: `reconcile()` drops entries whose cache entry is gone and re-adopts cache entries.
+  The index `url` and the `audio-v1` key are the absolute, normalised form of `audioUrl` (relative paths are
+  resolved against the page URL). The index is advisory: `reconcile()` drops entries whose cache entry is gone and re-adopts cache entries.
 - **Audio is fetched with CORS** (`fetch(audioUrl, {mode: "cors"})`), so the R2 bucket needs the CORS rule in
   `docs/audio-hosting.md`. The CSP allows the audio origin in `connect-src` and `media-src`.
 - **Sizes.** `audioBytes` when present, else `durationSec` x 16000 bytes, shown with "~".

@@ -236,9 +236,9 @@ describe("hardening", () => {
     const f206 = vi.fn(async () => new Response(new Uint8Array([1, 2, 3, 4]), { status: 206 }));
     const a = makeBase({ fetch: f206 });
     await expect(a.store.save(story(1))).rejects.toThrow();
-    const big = story(2, { audioBytes: 1000 });
+    const big = story(2, { audioBytes: 10000 });
     const b = makeBase();
-    await expect(b.store.save(big)).rejects.toThrow(/implausible|incomplete/);
+    await expect(b.store.save(big)).rejects.toThrow(/size mismatch/);
     expect((await b.caches.open("audio-v1")).entries.size).toBe(0);
   });
 
@@ -299,5 +299,158 @@ describe("hardening", () => {
     const job = await store.startJob([story(1)]);
     expect(job).toMatchObject({ state: "error", done: 0, failed: ["w/tale-1"], noSpace: true });
     expect(fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe("review fixes", () => {
+  const sized = (bytes, headers = {}) =>
+    vi.fn(async () => new Response(new Uint8Array(bytes), { status: 200, headers: { "content-length": String(bytes), ...headers } }));
+  function build({ fetch = audioFetch(), storage = memoryStorage(), navigator, whenOnline, caches = fakeCaches() } = {}) {
+    const store = createStore({
+      caches, fetch, storage, buildId: "b2", baseUrl: "https://robertbeverton.github.io/Stories/", whenOnline,
+      navigator: navigator ?? { storage: { estimate: async () => ({ quota: 1e9, usage: 0 }) } },
+    });
+    return { store, caches, storage };
+  }
+
+  it("remove() does not clobber a save that finished meanwhile", async () => {
+    const caches = fakeCaches();
+    const { store } = build({ caches });
+    await store.save(story(1));
+    const audio = await caches.open("audio-v1");
+    const realDelete = audio.delete;
+    let release;
+    const gate = new Promise((r) => { release = r; });
+    audio.delete = async (k) => { await gate; return realDelete(k); };
+    const removing = store.remove("w/tale-1");
+    await store.save(story(2));
+    release();
+    await removing;
+    expect(Object.keys(store.index())).toEqual(["w/tale-2"]);
+  });
+
+  it("reconcile() does not clobber a save that finished meanwhile", async () => {
+    const caches = fakeCaches();
+    const { store } = build({ caches });
+    await store.save(story(1));
+    const audio = await caches.open("audio-v1");
+    const realKeys = audio.keys;
+    let release;
+    const gate = new Promise((r) => { release = r; });
+    audio.keys = async () => { const k = await realKeys(); await gate; return k; };
+    const reconciling = store.reconcile([story(1), story(2)]);
+    audio.keys = realKeys;
+    await store.save(story(2));
+    release();
+    await reconciling;
+    expect(Object.keys(store.index()).sort()).toEqual(["w/tale-1", "w/tale-2"]);
+    expect((await caches.open("audio-v1")).entries.has(story(2).audioUrl)).toBe(true);
+  });
+
+  it("removing the story being downloaded aborts it and the job does not re-save it", async () => {
+    const hang = story(2).audioUrl;
+    const fetch = vi.fn(async (url, init = {}) => {
+      if (String(url) === hang) {
+        const body = new ReadableStream({
+          start(c) { init.signal.addEventListener("abort", () => c.error(new DOMException("x", "AbortError"))); },
+        });
+        return new Response(body, { status: 200 });
+      }
+      return new Response(new Uint8Array([1, 2, 3, 4]), { status: 200, headers: { "content-length": "4" } });
+    });
+    const { store, caches } = build({ fetch });
+    const started = store.startJob([story(1), story(2), story(3)]);
+    await vi.waitFor(() => expect(store.getJob()?.current).toBe("w/tale-2"));
+    await store.remove("w/tale-2");
+    const job = await started;
+    expect(job.state).toBe("done");
+    expect(job.failed).toEqual([]);
+    expect(store.status(story(2))).toBe("none");
+    expect(store.status(story(3))).toBe("saved");
+    expect((await caches.open("audio-v1")).entries.has(hang)).toBe(false);
+  });
+
+  it("a queued story removed before its turn is skipped", async () => {
+    const { store } = build();
+    const started = store.startJob([story(1), story(2)]);
+    await store.remove("w/tale-2");
+    const job = await started;
+    expect(store.status(story(2))).toBe("none");
+    expect(job.failed).toEqual([]);
+  });
+
+  it("records a reason for each failure", async () => {
+    const f = vi.fn(async (url) => {
+      const u = String(url);
+      if (u.includes("tale-1")) return new Response("no", { status: 500 });
+      if (u.includes("tale-2")) return new Response(new Uint8Array([1, 2]), { status: 200, headers: { "content-length": "4" } });
+      if (u.includes("tale-3")) return new Response(new Uint8Array(4000), { status: 200, headers: { "content-length": "4000" } });
+      return new Response("<html>", { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
+    });
+    const { store } = build({ fetch: f });
+    const job = await store.startJob([story(1), story(2), story(3, { audioBytes: 9000 }), story(4)]);
+    expect(job.failedReasons).toEqual({
+      "w/tale-1": "not ok", "w/tale-2": "incomplete", "w/tale-3": "size mismatch", "w/tale-4": "wrong type",
+    });
+  });
+
+  it("records no space as the reason", async () => {
+    const { store } = build({ navigator: { storage: { estimate: async () => ({ quota: 100, usage: 99 }) } } });
+    expect((await store.startJob([story(1)])).failedReasons).toEqual({ "w/tale-1": "no space" });
+  });
+
+  it("accepts a size within 1 KB of audioBytes and rejects beyond it", async () => {
+    const ok = build({ fetch: sized(5000) });
+    await ok.store.save(story(1, { audioBytes: 5000 + 1024 }));
+    expect(ok.store.status(story(1, { audioBytes: 5000 + 1024 }))).toBe("saved");
+    const bad = build({ fetch: sized(5000) });
+    await expect(bad.store.save(story(1, { audioBytes: 5000 + 1025 }))).rejects.toThrow(/size mismatch/);
+    const exact = build({ fetch: sized(5000) });
+    await exact.store.save(story(1, { audioBytes: 5000 }));
+  });
+
+  it("never deletes audio when reconcile gets no stories", async () => {
+    const storage = memoryStorage();
+    const { store, caches } = build({ storage });
+    await store.save(story(1));
+    storage.removeItem("stories-offline");
+    await store.reconcile([]);
+    await store.reconcile(undefined);
+    expect((await caches.open("audio-v1")).entries.has(story(1).audioUrl)).toBe(true);
+  });
+
+  it("a throwing listener does not stop the others or the save", async () => {
+    const { store } = build();
+    const seen = vi.fn();
+    store.subscribe(() => { throw new Error("boom"); });
+    store.subscribe(seen);
+    await store.save(story(1));
+    expect(seen).toHaveBeenCalled();
+    expect(store.status(story(1))).toBe("saved");
+  });
+
+  it("keeps the old audio when the index write failed during an update", async () => {
+    const mem = memoryStorage();
+    let broken = false;
+    const storage = { getItem: mem.getItem, removeItem: mem.removeItem, setItem(k, v) { if (broken) throw new Error("full"); mem.setItem(k, v); } };
+    const { store, caches } = build({ storage });
+    await store.save(story(1));
+    broken = true;
+    await store.save(story(1, { audioUrl: "https://audio.example/w/tale-1.mp3?v=2" }));
+    expect((await caches.open("audio-v1")).entries.has(story(1).audioUrl)).toBe(true);
+  });
+
+  it("retries a story when the network drops mid-download", async () => {
+    const nav = { onLine: true, storage: {} };
+    let calls = 0;
+    const f = vi.fn(async () => {
+      calls += 1;
+      if (calls === 1) { nav.onLine = false; throw new TypeError("network"); }
+      return new Response(new Uint8Array([1, 2, 3, 4]), { status: 200, headers: { "content-length": "4" } });
+    });
+    const { store } = build({ fetch: f, navigator: nav, whenOnline: async () => { nav.onLine = true; } });
+    const job = await store.startJob([story(1)]);
+    expect(job).toMatchObject({ state: "done", done: 1, failed: [] });
+    expect(f.mock.calls.filter(([u]) => String(u).includes(".mp3"))).toHaveLength(2);
   });
 });
