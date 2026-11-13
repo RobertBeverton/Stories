@@ -1,5 +1,6 @@
 // Offline listening, in a real browser: save a story, go offline, reload, play and seek it, remove it.
 import { expect, test } from "@playwright/test";
+import { AUDIO_ORIGIN } from "../../scripts/audio-origin.mjs";
 import { routeAudio } from "./support/audio.mjs";
 import { FIXTURE_STORIES } from "./support/build-fixture-site.mjs";
 import { openSeries } from "./support/library.mjs";
@@ -38,6 +39,11 @@ test("a saved story plays and seeks with no network, and can be removed", async 
   const saved = page.getByRole("button", { name: "Saved for offline" });
   await expect(saved).toBeVisible({ timeout: 20_000 });
 
+  // From here on nothing may answer for the audio origin but the worker's Cache API: drop the stub and
+  // record (and refuse) any request that reaches the network, so a pass cannot be the stub answering.
+  await context.unrouteAll({ behavior: "wait" });
+  const audioHits = [];
+  await context.route(`${AUDIO_ORIGIN}/**`, (route) => { audioHits.push(route.request().url()); return route.abort(); });
   await context.setOffline(true);
   await page.goto(ONE); // served by the worker from the shell cache
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Tale One");
@@ -54,6 +60,7 @@ test("a saved story plays and seeks with no network, and can be removed", async 
   expect(probe.status).toBe(206);
   expect(probe.bytes).toBe(100);
   expect(probe.range).toMatch(/^bytes 100-199\//);
+  expect(audioHits).toEqual([]); // the mp3 was never requested from the network while offline
 
   // The Offline page lists the saved story, from the cache.
   await page.goto(OFFLINE);
@@ -75,6 +82,8 @@ test("a saved story plays and seeks with no network, and can be removed", async 
   await expect(libRow("Tale One")).toBeVisible();
   await expect(libRow("Tale Two")).toBeHidden();
 
+  await context.unrouteAll({ behavior: "wait" });
+  await routeAudio(context);
   await context.setOffline(false);
   await page.goto(ONE);
   await page.getByRole("button", { name: "Saved for offline" }).click();

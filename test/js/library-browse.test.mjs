@@ -530,12 +530,16 @@ describe("offline: Saved chip, badge and dimming", () => {
     other.append(link);
     window.dispatchEvent(new Event("offline"));
     expect(link.getAttribute("aria-description")).toBe("Not saved on this tablet");
+    // The live region exists (empty, not hidden) before the tap, so a screen reader announces the text when it is filled in.
+    const notice = document.querySelector('[data-role="offline-notice"]');
+    expect(notice.hidden).toBe(false);
+    expect(notice.textContent).toBe("");
     const event = new MouseEvent("click", { bubbles: true, cancelable: true });
     link.dispatchEvent(event);
     expect(event.defaultPrevented).toBe(true);
-    const notice = document.querySelector('[data-role="offline-notice"]');
     expect(notice.getAttribute("role")).toBe("status");
     expect(notice.textContent).toBe("Not saved on this tablet");
+    expect(notice.hidden).toBe(false);
     // a saved row is left alone
     const savedLink = document.createElement("a");
     savedLink.href = "/Stories/alpha/3/";

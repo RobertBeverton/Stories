@@ -210,6 +210,72 @@ describe("offline page", () => {
     expect(document.contains(before)).toBe(true);
   });
 
+  const running = (extra = {}) => ({ state: "running", total: 2, done: 0, slugs: [A.slug, B.slug], failed: [], bytesTotal: 1000, bytesDone: 0, currentBytes: 100, ...extra });
+
+  it("updates the progress bar and text in place on each tick, keeping Cancel and its focus", async () => {
+    const store = fakeStore();
+    const { el } = await render(store);
+    store.job = running();
+    store.emit();
+    const cancel = el.querySelector('[data-role="job-cancel"]');
+    const bar = el.querySelector('[data-role="job-bar"]');
+    cancel.focus();
+    store.job = running({ currentBytes: 500 });
+    store.emit();
+    expect(el.querySelector('[data-role="job-cancel"]')).toBe(cancel);
+    expect(el.querySelector('[data-role="job-bar"]')).toBe(bar);
+    expect(document.activeElement).toBe(cancel);
+    expect(bar.value).toBe(50);
+    expect(text(el, "job-text")).toBe("Saving 1 of 2 · 50%");
+    store.job = running({ done: 1, currentBytes: 0, bytesDone: 500 });
+    store.emit();
+    expect(text(el, "job-text")).toBe("Saving 2 of 2 · 50%");
+  });
+
+  it("does not read the storage estimate on every progress tick", async () => {
+    const store = fakeStore();
+    await render(store);
+    store.job = running();
+    store.emit();
+    await tick();
+    const calls = store.storageInfo.mock.calls.length;
+    for (let i = 1; i <= 10; i += 1) { store.job = running({ currentBytes: i * 50 }); store.emit(); }
+    await tick();
+    expect(store.storageInfo.mock.calls.length).toBe(calls);
+    store.job = { ...running(), state: "done", done: 2 };
+    store.emit();
+    await tick();
+    expect(store.storageInfo.mock.calls.length).toBe(calls + 1);
+  });
+
+  it("moves focus to the story's checkbox after Remove", async () => {
+    const store = fakeStore({ saved: [A.slug] });
+    const { el } = await render(store);
+    click(el, "world-toggle");
+    el.querySelector('[data-role="story-remove"]').focus();
+    store.removeMany.mockImplementation(async () => { store.ids.delete(A.slug); store.emit(); });
+    el.querySelector('[data-role="story-remove"]').click();
+    await tick();
+    const pick = el.querySelector(`[data-slug="${A.slug}"] [data-role="story-pick"]`);
+    expect(pick).not.toBeNull();
+    expect(document.activeElement).toBe(pick);
+  });
+
+  it("does not show a finished job on a fresh mount, but does show one that finishes while open", async () => {
+    const finished = { state: "done", total: 3, done: 3, slugs: [], failed: [] };
+    const { el, unmount } = await render(fakeStore({ job: finished }));
+    expect(el.querySelector('[data-role="job"]').hidden).toBe(true);
+    unmount();
+    const store = fakeStore();
+    const second = await render(store);
+    store.job = running();
+    store.emit();
+    store.job = { ...running(), state: "done", done: 2 };
+    store.emit();
+    expect(second.el.querySelector('[data-role="job"]').hidden).toBe(false);
+    expect(text(second.el, "job-text")).toBe("Saved 2 stories.");
+  });
+
   it("keeps focus on the world toggle when it expands", async () => {
     const { el } = await render(fakeStore());
     el.querySelector('[data-role="world-toggle"]').focus();

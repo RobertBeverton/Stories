@@ -106,7 +106,7 @@ export function mount(el) {
   const flatEl = h("div", { class: "flat-results", "data-role": "flat" }, flatList, flatMore);
   const view = h("div", { class: "library-view", "data-role": "library-view" }, groupsEl, groupsMore, flatEl);
   originalList?.before(view);
-  const notice = h("p", { class: "offline-toast", role: "status", "aria-live": "polite", "data-role": "offline-notice", hidden: true });
+  const notice = h("p", { class: "offline-toast", role: "status", "aria-live": "polite", "data-role": "offline-notice" });
   const savedEmptyEl = h("p", { class: "saved-empty", role: "status", "data-role": "saved-empty", hidden: true },
     "Nothing saved yet. ", h("a", { href: `${basePath()}/offline/` }, "Open Offline"), " to save stories.");
   view.append(savedEmptyEl);
@@ -405,9 +405,8 @@ export function mount(el) {
     event.stopPropagation(); // the router and the play button never see it
     notice.textContent = "";
     notice.textContent = NOT_SAVED;
-    notice.hidden = false;
     clearTimeout(noticeTimer);
-    noticeTimer = setTimeout(() => { notice.textContent = ""; notice.hidden = true; }, 5000);
+    noticeTimer = setTimeout(() => { notice.textContent = ""; }, 5000);
   };
 
   function fillNext(parts, next) {

@@ -117,39 +117,63 @@ export function mount(el) {
   }
 
   // ---- job ----
+  // A job finished before this page mounted is old news: do not show it. A job that
+  // finishes while the page is open is shown (it is a different object).
+  const startedWith = store.getJob();
+  const staleJob = startedWith && (startedWith.state === "done" || startedWith.state === "cancelled") ? startedWith : null;
+  let jobSig = "";
+  let jobText = null;
+  let jobBar = null;
+
+  const jobProgress = (job) => (job.bytesTotal ? Math.min(99, Math.round((((job.bytesDone ?? 0) + (job.currentBytes ?? 0)) / job.bytesTotal) * 100)) : 0);
+  const runningMessage = (job, pct) => `Saving ${Math.min(job.total, job.done + 1)} of ${job.total} \u00b7 ${pct}%`;
+
+  /** Rebuilds the job box only when its shape changes; a progress tick just updates the bar and text in place. */
   function renderJob() {
     const job = store.getJob();
-    jobBox.hidden = !job;
-    if (!job) { jobBox.replaceChildren(); return; }
-    const failed = job.failed ?? [];
-    const pct = job.bytesTotal ? Math.min(99, Math.round((((job.bytesDone ?? 0) + (job.currentBytes ?? 0)) / job.bytesTotal) * 100)) : 0;
+    const shown = job && job !== staleJob ? job : null;
+    jobBox.hidden = !shown;
+    if (!shown) { jobSig = ""; jobText = jobBar = null; jobBox.replaceChildren(); return; }
+    const failed = shown.failed ?? [];
+    const pct = jobProgress(shown);
+    const sig = JSON.stringify([shown.state, failed, shown.total, shown.done, shown.state === "failed" ? shown.failedReasons ?? null : null]);
+    if (sig === jobSig) {
+      if (shown.state === "running" && jobBar && jobText) {
+        jobBar.value = pct;
+        jobText.textContent = runningMessage(shown, pct);
+      }
+      return;
+    }
+    jobSig = sig;
+    jobText = jobBar = null;
     let message;
     const controls = [];
-    if (job.state === "running") {
-      message = `Saving ${Math.min(job.total, job.done + 1)} of ${job.total} · ${pct}%`;
-      controls.push(
-        h("progress", { class: "offline-bar", "data-role": "job-bar", max: 100, value: pct, "aria-label": "Download progress" }),
-        h("button", { type: "button", class: "btn", "data-role": "job-cancel" }, "Cancel"),
-      );
-    } else if (job.state === "done") {
-      message = job.total ? `Saved ${plural(job.done, "story", "stories")}.` : "Everything chosen is already saved.";
-    } else if (job.state === "cancelled") {
-      message = `Cancelled. ${plural(job.done, "story", "stories")} saved.`;
+    if (shown.state === "running") {
+      message = runningMessage(shown, pct);
+      jobBar = h("progress", { class: "offline-bar", "data-role": "job-bar", max: 100, value: pct, "aria-label": "Download progress" });
+      controls.push(jobBar, h("button", { type: "button", class: "btn", "data-role": "job-cancel" }, "Cancel"));
+    } else if (shown.state === "done") {
+      message = shown.total ? `Saved ${plural(shown.done, "story", "stories")}.` : "Everything chosen is already saved.";
+    } else if (shown.state === "cancelled") {
+      message = `Cancelled. ${plural(shown.done, "story", "stories")} saved.`;
     } else {
       message = `${failed.length} could not be saved`;
       const titles = new Map((library?.stories ?? []).map((s) => [s.slug, s.title]));
       const why = h("ul", { class: "offline-failures", "data-role": "job-failures" }, failed.map((slug) => {
-        const reason = failureWords(job.failedReasons?.[slug]) ?? "Try again";
+        const reason = failureWords(shown.failedReasons?.[slug]) ?? "Try again";
         return h("li", {}, `${titles.get(slug) ?? slug}: ${reason}`);
       }));
       controls.push(why, h("button", { type: "button", class: "btn btn-primary", "data-role": "job-retry" }, "Retry"));
     }
-    jobBox.replaceChildren(h("p", { "data-role": "job-text" }, message), ...controls);
+    const hadFocus = jobBox.contains(document.activeElement);
+    jobText = h("p", { "data-role": "job-text" }, message);
+    jobBox.replaceChildren(jobText, ...controls);
     jobBox.querySelector('[data-role="job-cancel"]')?.addEventListener("click", () => store.cancel());
     jobBox.querySelector('[data-role="job-retry"]')?.addEventListener("click", () => {
       const again = new Set(failed);
       saveStories(withAudio().filter((s) => again.has(s.slug)));
     });
+    if (hadFocus) (jobBox.querySelector("button") ?? jobText).focus?.();
   }
 
   // ---- the lists (rebuilt only when the saved set, the open worlds or the ticks change) ----
@@ -171,9 +195,20 @@ export function mount(el) {
 
   function refocus(key) {
     if (!key) return;
-    for (const node of lists.querySelectorAll(`[data-role="${key.role}"]`)) {
-      const owner = node.closest("[data-world], [data-slug]");
-      if (owner?.dataset.world === key.world && owner?.dataset.slug === key.slug) { node.focus(); return; }
+    const find = (role, world, slug) => {
+      for (const node of lists.querySelectorAll(`[data-role="${role}"]`)) {
+        const owner = node.closest("[data-world], [data-slug]");
+        if (owner?.dataset.world === world && owner?.dataset.slug === slug) return node;
+      }
+      return null;
+    };
+    const direct = find(key.role, key.world, key.slug);
+    if (direct) { direct.focus(); return; }
+    // A removed story swaps its Remove button for a checkbox: follow the focus there, or to its world.
+    if (key.role === "story-remove") {
+      const pick = find("story-pick", key.world, key.slug);
+      if (pick) { pick.focus(); return; }
+      lists.querySelector('[data-role="world-toggle"]')?.focus();
     }
   }
 
@@ -297,7 +332,20 @@ export function mount(el) {
     renderLists();
   }
 
-  const stop = store.subscribe(() => { renderAll(); refreshInfo(); });
+  // The storage estimate is read when a job starts or ends, and at most every 2 seconds otherwise,
+  // not on each ~250 ms progress notification.
+  let infoState = null;
+  let infoAt = 0;
+  const stop = store.subscribe(() => {
+    renderAll();
+    const state = store.getJob()?.state ?? null;
+    const now = Date.now();
+    if (state !== infoState || now - infoAt >= 2000) {
+      infoState = state;
+      infoAt = now;
+      refreshInfo();
+    }
+  });
   const onNet = () => renderAll();
   window.addEventListener("online", onNet);
   window.addEventListener("offline", onNet);

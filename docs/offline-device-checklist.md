@@ -5,7 +5,7 @@ For the two Samsung Galaxy Tab A9 tablets (Chrome on Android). Do this at home o
 ## Before the flight
 
 1. Save everything **before** you leave, on wifi. Nothing can be saved in the air.
-2. Open the Offline page and check every story you want shows the Saved badge and the meter looks right.
+2. Open the Offline page, expand the world, and check every story you want reads "Saved" (plain text on its row) and the meter looks right. In the Library, saved stories show the Saved badge.
 3. Test in airplane mode at home (steps 5 to 7 below) while you can still fix things.
 4. Charge the tablets and bring headphones.
 5. Do not clear Chrome's site data or storage before the flight.
@@ -23,7 +23,7 @@ For the two Samsung Galaxy Tab A9 tablets (Chrome on Android). Do this at home o
 9. **Back on wifi.** Turn airplane mode off. Remove one story from the Offline page and confirm the meter drops and the badge goes.
 10. **Save a whole world.** On the Offline page save everything for one world. Watch the totals and progress, and check each story ends saved.
 11. **Large selection and free space.** Try to save everything. If it will not fit it must say how much is needed against how much is free and save nothing, rather than failing part way.
-12. **Update available.** To simulate a re-narration: on a laptop, change one saved story's `audioUrl` `?v=` value in its world repo (any other working value for the same file is enough), push, and let the site deploy. On the tablet, online, open the Offline page. That story shows "Update available". Tap it and confirm it re-saves and the badge clears.
+12. **Update available.** To simulate a re-narration: on a laptop, change one saved story's `audioUrl` `?v=` value in its world repo (any other working value for the same file is enough), push, and let the site deploy. On the tablet, online, open the Offline page. That story shows "Update available" as plain text on its row. Tick the story and press Save (or press "Update available" on the story page) and confirm it re-saves and the state clears.
 13. **Kill switch.** Open `https://robertbeverton.github.io/Stories/?sw=off`. The site must still work, now without offline. Open `...?sw=on` and reload to turn it back on, then check the saved stories are still there.
 
 ## If Chrome clears site data

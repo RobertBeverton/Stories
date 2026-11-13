@@ -58,7 +58,7 @@
 .row[data-offline="unavailable"] .cover { opacity: 0.45; }
 .row[data-offline="unavailable"] .btn-primary { background: var(--raised); color: var(--muted); border-color: var(--line); }
 .offline-toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--dock-h) + 1rem); z-index: 20; margin: 0; max-width: calc(100vw - 2rem); padding: 0.7rem 1.1rem; background: var(--raised); color: var(--text); border: 1px solid var(--line); border-radius: var(--radius-pill); font-weight: 700; }
-.offline-toast[hidden] { display: none; }
+.offline-toast:empty { opacity: 0; padding: 0; border: 0; pointer-events: none; } /* stays rendered so the live region announces its text */
 body.has-mini-player .offline-toast { bottom: calc(var(--dock-h) + var(--dock-mini-h) + 1rem); }
 .saved-empty { margin: 1rem 0; color: var(--text); }
 .saved-empty a { color: var(--accent); }
