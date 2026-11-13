@@ -9,6 +9,7 @@ import { startWorldAccent } from "./world-accent.mjs";
 export const NAMES = [
   "continue", "played-lately", "story-resume", "search", "play-button",
   "filters", "world-switcher", "text-size", "lore", "parts", "dock", "surprise", "play-float",
+  "offline-save",
 ];
 const unmounts = new Map();
 

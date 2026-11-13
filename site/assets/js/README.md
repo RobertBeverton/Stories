@@ -295,6 +295,15 @@ was hidden (device spike). `player.mjs` assigns a fresh `MediaMetadata` again wh
 `playing` fires and on every return to the foreground; there is no other workaround.
 iOS has not been tested.
 
+## `offline-save`
+
+`<div class="offline-save" data-mount="offline-save" data-slug>` on a story with audio. Builds one
+`button.btn[data-role="save"]` (`data-state="none|saving|queued|saved|stale|error"`, `aria-pressed="true"`
+when saved) and `p.offline-note[role="status"][aria-live="polite"][data-role="note"]`, which carries the
+space message or the failure reason from `job.failedReasons` in plain words. Hides itself (`hidden`)
+where the browser has no Cache API or service worker, or the story has no audio. Everything comes from
+`library.json` and `offline.mjs`.
+
 ## Missing modules
 
 `main.js` logs a warning and carries on when a module file is missing.

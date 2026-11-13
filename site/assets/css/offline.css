@@ -1,0 +1,7 @@
+/* Offline listening (Save for offline button, notes). Existing tokens only. */
+.offline-save { display: flex; flex-direction: column; gap: 0.35rem; }
+.offline-save[hidden] { display: none; }
+.offline-save-button { min-height: var(--tap); }
+.offline-save-button[aria-pressed="true"] { border-color: var(--accent); }
+.offline-note { margin: 0; color: var(--muted); font-size: var(--text-small); }
+.offline-note:empty { display: none; }

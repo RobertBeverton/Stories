@@ -21,8 +21,8 @@ const contractHooks = (() => {
   return [...line.matchAll(/`([a-z-]+)`/g)].map((m) => m[1]);
 })();
 // Hooks named in the contract whose module is not built yet. Anything else unresolved is a bug.
-// Offline listening (contracts section 9): remove each name when its task lands (plan Tasks 10 and 11).
-const PENDING_WAVE_2 = ["offline-page", "offline-save"];
+// Offline listening (contracts section 9): remove each name when its task lands (plan Task 11).
+const PENDING_WAVE_2 = ["offline-page"];
 
 const pages = {
   home: () => renderHome(stories),

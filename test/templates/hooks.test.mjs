@@ -13,8 +13,8 @@ import { renderHome, renderLibrary, renderStory } from "./render-pages.mjs";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const site = path.join(root, "site");
 
-// Offline listening hooks (contracts section 9) have no template yet; remove each when its task lands (plan Tasks 10 and 11).
-const PENDING_TEMPLATES = ["offline-save", "offline-page"];
+// Offline listening hooks (contracts section 9) have no template yet; remove each when its task lands (plan Task 11).
+const PENDING_TEMPLATES = ["offline-page"];
 
 const contractHooks = (() => {
   const md = fs.readFileSync(path.join(root, "docs", "contracts.md"), "utf8");
@@ -70,6 +70,11 @@ describe("template hooks", () => {
     for (const hook of contractHooks.filter((h) => !PENDING_TEMPLATES.includes(h))) expect(all, hook).toContain(hook);
   });
 
+  it("lists no pending hook that a template already emits (a stale entry fails)", () => {
+    const all = new Set(Object.values(doc).flatMap((d) => [...hooksIn(d)]));
+    for (const hook of PENDING_TEMPLATES) expect(all, `${hook} is emitted: remove it from PENDING_TEMPLATES`).not.toContain(hook);
+  });
+
   it("emits no hook the contract does not name", () => {
     for (const d of Object.values(doc)) for (const h of hooksIn(d)) expect(contractHooks).toContain(h);
   });
@@ -77,7 +82,7 @@ describe("template hooks", () => {
   it.each([
     ["home", ["continue", "played-lately", "surprise", "world-switcher", "dock"]],
     ["library", ["search", "filters", "world-switcher", "play-button", "dock"]],
-    ["story", ["story-resume", "play-button", "play-float", "text-size", "parts", "dock"]],
+    ["story", ["story-resume", "play-button", "play-float", "offline-save", "text-size", "parts", "dock"]],
   ])("%s carries its hooks", (name, expected) => {
     for (const hook of expected) expect(hooksIn(doc[name]), `${name}: ${hook}`).toContain(hook);
   });
