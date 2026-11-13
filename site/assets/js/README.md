@@ -127,14 +127,18 @@ the tab and announces `stories:search {query}`. Restores the remembered text on 
 `<div data-mount="filters"></div>` (sits beside the search box): the Library's controls and view (see "Library" below).
 Renders one `button[data-role="filters-open"]` ("Filters", with a `[data-role="filter-count"]` badge when something is on)
 that opens a bottom sheet (`sheet.mjs`, `[data-role="filters-sheet"]`, attached to the page at mount, hidden until opened). The sheet holds
-toggle chips `button[data-filter="in-progress|not-played|audio"][aria-pressed]` in `div[data-role="filters"]`
-(`audio`: the story has a known audio duration) (statuses OR together; everything else ANDs),
+toggle chips `button[data-filter="in-progress|not-played|audio|saved"][aria-pressed]` in `div[data-role="filters"]`
+(`audio`: the story has a known audio duration; `saved`, "Saved on this tablet": the story is in the offline store, and the chip only exists when `offlineSupported()`) (statuses OR together; everything else ANDs),
 `div[data-role="collection"]` with a `button[data-collection][aria-pressed]` per tradition from lore plus "Any"
 (its `[data-role="collection-section"]` is hidden unless one world is chosen and it has two or more),
 `div[data-role="sort"]` with `button[data-sort="order|newest|plays"]`, "Clear filters" (`[data-role="sheet-clear"]`) and
 "Show N stories" (`[data-role="sheet-done"]`, closes the sheet). In `[data-role="sort-slot"]` (or after the button when the page has none)
 it renders the on filters as removable `button[data-role="active-chip"]` ("Remove Not played") and a `button[data-role="clear"]`
 when two or more filters, or a search, are on. It follows the world from `stories:world` (and the remembered world on mount).
+It also re-runs on `stories:offline` and the window `online`/`offline` events and sets `data-offline="saved|unavailable"` on every row
+(`unavailable` = offline and not saved; the row title link gets `aria-description="Not saved on this tablet"`). While a row is
+`unavailable`, a tap on its link or button is stopped and a polite `[data-role="offline-notice"]` (role=status) says "Not saved on this tablet".
+A Saved filter with nothing saved shows `[data-role="saved-empty"]` ("Nothing saved yet", linking to `<base>/offline/`).
 
 ## Library (grouped browse)
 

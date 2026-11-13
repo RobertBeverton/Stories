@@ -58,7 +58,9 @@ Per-element data uses `data-slug` (the flat slug).
 On `document`: `stories:play` `{slug}`, `stories:progress` `{slug}`, `stories:world` `{world}`,
 `stories:search` `{query}` (the Library search box changed; `CustomEvent`, payload in `detail`),
 `stories:surprise` (no payload; opens the Surprise me sheet, which the `surprise` module on Home listens for),
-`stories:offline` `{slug}` (a story was saved, removed or updated for offline; `slug` is `null` for a bulk change).
+`stories:offline` `{slug}` (a story was saved, removed or updated for offline; `slug` is `null` for a bulk change). The Library's `filters` module re-runs on it, and on the window `online`/`offline` events.
+
+Library rows (`[data-role="story-row"]`) get `data-offline="saved"` (in the offline store) or `data-offline="unavailable"` (the tablet is offline and the story is not saved) from `filters`; the attribute is absent otherwise, and always when offline saving is unsupported. Saved state comes from the offline store, never from progress keys. Rows carry `[data-role="saved-badge"]` and `[data-role="unsaved-badge"]` spans; CSS shows them by `data-offline`.
 
 Library state kept in storage (guarded, optional): `localStorage["stories-library-sort"]`
 (`order` | `newest`), `sessionStorage["stories-library-view"]` and `["stories-library-query"]`

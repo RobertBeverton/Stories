@@ -20,8 +20,9 @@
 // reasons (filters, search, page). Every row also gets data-state, --progress
 // and data-new="true" (the New marker) for CSS.
 import { cover } from "./cover.mjs";
-import { h, onProgressChange } from "./dom.mjs";
+import { basePath, h, onProgressChange } from "./dom.mjs";
 import { loadLibrary } from "./library.mjs";
+import * as offline from "./offline.mjs";
 import { getSort, readView, setSort, SORTS, writeView } from "./library-state.mjs";
 import { readAll, readPlays, toViewModel } from "./progress.mjs";
 import {
@@ -36,6 +37,7 @@ const STATUSES = [
   ["in-progress", "In progress"],
   ["not-played", "Not played"],
 ];
+const NOT_SAVED = "Not saved on this tablet";
 const FLAT_PAGE = 20;
 const GROUP_PAGE = 12;
 const SORT_LABELS = { order: "Story order", newest: "Newest", plays: "Most heard" };
@@ -77,6 +79,7 @@ export function mount(el) {
   const state = {
     world: getWorld(),
     audio: saved.audio,
+    saved: saved.saved && offline.offlineSupported(),
     statuses: new Set(saved.statuses),
     collection: saved.collection,
     sort: getSort(),
@@ -85,8 +88,9 @@ export function mount(el) {
     flatPages: saved.flatPages,
     groupPages: saved.groupPages,
   };
-  const hadState = state.audio || state.statuses.size > 0 || state.collection || Object.keys(state.open).length > 0 || state.flatPages > 1;
+  const hadState = state.audio || state.saved || state.statuses.size > 0 || state.collection || Object.keys(state.open).length > 0 || state.flatPages > 1;
 
+  const canSave = offline.offlineSupported();
   const originalRows = storyRows();
   const originalList = originalRows[0]?.parentElement ?? document.querySelector("#stories");
   const rowBySlug = new Map(originalRows.map((row) => [row.dataset.slug, row]));
@@ -102,6 +106,11 @@ export function mount(el) {
   const flatEl = h("div", { class: "flat-results", "data-role": "flat" }, flatList, flatMore);
   const view = h("div", { class: "library-view", "data-role": "library-view" }, groupsEl, groupsMore, flatEl);
   originalList?.before(view);
+  const notice = h("p", { class: "offline-toast", role: "status", "aria-live": "polite", "data-role": "offline-notice", hidden: true });
+  const savedEmptyEl = h("p", { class: "saved-empty", role: "status", "data-role": "saved-empty", hidden: true },
+    "Nothing saved yet. ", h("a", { href: `${basePath()}/offline/` }, "Open Offline"), " to save stories.");
+  view.append(savedEmptyEl);
+  view.after(notice);
 
   // ---- controls ----
   const buttons = new Map();
@@ -132,11 +141,12 @@ export function mount(el) {
   }
 
   function chip(key, label) {
-    const button = h("button", { type: "button", class: "btn", "aria-pressed": String(key === "audio" ? state.audio : state.statuses.has(key)), "data-filter": key }, label);
+    const button = h("button", { type: "button", class: "btn", "aria-pressed": String(key === "audio" ? state.audio : key === "saved" ? state.saved : state.statuses.has(key)), "data-filter": key }, label);
     button.addEventListener("click", () => {
       const on = button.getAttribute("aria-pressed") !== "true";
       button.setAttribute("aria-pressed", String(on));
       if (key === "audio") state.audio = on;
+      else if (key === "saved") state.saved = on;
       else if (on) state.statuses.add(key);
       else state.statuses.delete(key);
       state.flatPages = 1;
@@ -145,7 +155,7 @@ export function mount(el) {
     buttons.set(key, button);
     return button;
   }
-  chipsRow.append(...STATUSES.map(([key, label]) => chip(key, label)), chip("audio", "Has audio"));
+  chipsRow.append(...STATUSES.map(([key, label]) => chip(key, label)), chip("audio", "Has audio"), ...(canSave ? [chip("saved", "Saved on this tablet")] : []));
   sheet.body.append(
     h("p", { class: "sheet-label" }, "Show"), chipsRow,
     collectionSection,
@@ -237,6 +247,7 @@ export function mount(el) {
     const active = [];
     for (const [key, label] of STATUSES) if (state.statuses.has(key)) active.push([label, () => { state.statuses.delete(key); buttons.get(key).setAttribute("aria-pressed", "false"); }]);
     if (state.audio) active.push(["Has audio", () => { state.audio = false; buttons.get("audio").setAttribute("aria-pressed", "false"); }]);
+    if (state.saved) active.push(["Saved", () => { state.saved = false; buttons.get("saved")?.setAttribute("aria-pressed", "false"); }]);
     if (state.collection) active.push([state.collection, () => { state.collection = ""; }]);
     const filters = active.length;
     if (state.sort !== "order") active.push([SORT_LABELS[state.sort], () => { state.sort = "order"; setSort("order"); if (library) regroup(); }]);
@@ -272,8 +283,10 @@ export function mount(el) {
     const query = currentQuery();
     const scope = library.stories.filter((s) => !state.world || s.world === state.world);
     rebuildCollections(scope);
-    const flat = Boolean(query.trim()) || state.sort === "plays" || state.audio || state.statuses.size > 0 || Boolean(state.collection);
-    const filter = { world: state.world, audio: state.audio, statuses: [...state.statuses], collection: state.collection, lore: library.lore };
+    const flat = Boolean(query.trim()) || state.sort === "plays" || state.audio || state.saved || state.statuses.size > 0 || Boolean(state.collection);
+    const savedSlugs = canSave ? offline.getStore().savedSlugs() : new Set();
+    const offlineNow = typeof navigator !== "undefined" && navigator.onLine === false;
+    const filter = { world: state.world, audio: state.audio, saved: state.saved, savedSlugs, statuses: [...state.statuses], collection: state.collection, lore: library.lore };
 
     // Row state, and which stories match everything.
     const matched = [];
@@ -292,6 +305,7 @@ export function mount(el) {
       }
       if (isNew(story, record, now)) row.dataset.new = "true";
       else delete row.dataset.new;
+      markOffline(row, canSave && savedSlugs.has(story.slug) ? "saved" : canSave && offlineNow ? "unavailable" : "");
       const ok = matchesFilters(story, record, filter, now);
       setHiddenReason(row, "filters", !ok);
       if (ok && matchesQuery(story, query, searchIndex)) matched.push(story);
@@ -358,6 +372,12 @@ export function mount(el) {
     if (status && status.textContent !== text) status.textContent = text;
     syncControls(matched.length, query);
     updateNoResults();
+    const savedEmpty = state.saved && matched.length === 0 && savedSlugs.size === 0;
+    savedEmptyEl.hidden = !savedEmpty;
+    if (savedEmpty) {
+      const note = document.querySelector('[data-role="no-results"]');
+      if (note) { note.textContent = ""; note.hidden = true; }
+    }
     persist();
     if (!hadRendered) {
       hadRendered = true;
@@ -365,6 +385,30 @@ export function mount(el) {
     }
   }
   let hadRendered = false;
+
+  /** data-offline on a row: "saved", "unavailable" (offline and not saved) or absent. */
+  function markOffline(row, value) {
+    if (value) row.dataset.offline = value;
+    else delete row.dataset.offline;
+    const link = row.querySelector(".row-title") ?? row.querySelector("a");
+    if (!link) return;
+    if (value === "unavailable") link.setAttribute("aria-description", NOT_SAVED);
+    else link.removeAttribute("aria-description");
+  }
+
+  let noticeTimer = 0;
+  /** Offline, a tap on a story that is not saved says so instead of going nowhere. */
+  const onRowTap = (event) => {
+    const row = event.target?.closest?.('[data-role="story-row"][data-offline="unavailable"]');
+    if (!row || !event.target.closest("a, button")) return;
+    event.preventDefault();
+    event.stopPropagation(); // the router and the play button never see it
+    notice.textContent = "";
+    notice.textContent = NOT_SAVED;
+    notice.hidden = false;
+    clearTimeout(noticeTimer);
+    noticeTimer = setTimeout(() => { notice.textContent = ""; notice.hidden = true; }, 5000);
+  };
 
   function fillNext(parts, next) {
     const signature = next && next.kind !== "start" ? `${next.kind}|${next.story.slug}` : "";
@@ -384,6 +428,7 @@ export function mount(el) {
   function persist() {
     writeView({
       audio: state.audio,
+      saved: state.saved,
       statuses: [...state.statuses],
       collection: state.collection,
       open: state.open,
@@ -408,6 +453,7 @@ export function mount(el) {
   sheetClear.addEventListener("click", () => clearAll({ keepQuery: true }));
   function clearAll({ keepQuery = false } = {}) {
     state.audio = false;
+    state.saved = false;
     state.statuses.clear();
     state.collection = "";
     state.flatPages = 1;
@@ -431,6 +477,11 @@ export function mount(el) {
   };
   document.addEventListener("stories:world", onWorld);
   document.addEventListener("stories:search", onSearch);
+  const onOffline = () => render();
+  document.addEventListener("stories:offline", onOffline);
+  window.addEventListener("online", onOffline);
+  window.addEventListener("offline", onOffline);
+  document.addEventListener("click", onRowTap, true);
   const stop = onProgressChange(render);
 
   loadLibrary().then((lib) => {
@@ -445,13 +496,21 @@ export function mount(el) {
     disposed = true;
     document.removeEventListener("stories:world", onWorld);
     document.removeEventListener("stories:search", onSearch);
+    document.removeEventListener("stories:offline", onOffline);
+    window.removeEventListener("online", onOffline);
+    window.removeEventListener("offline", onOffline);
+    document.removeEventListener("click", onRowTap, true);
+    clearTimeout(noticeTimer);
     stop();
     for (const row of originalRows) {
       originalList?.append(row);
       setHiddenReason(row, "filters", false);
       setHiddenReason(row, "page", false);
+      delete row.dataset.offline;
+      row.querySelector(".row-title")?.removeAttribute("aria-description");
     }
     view.remove();
+    notice.remove();
     sheet.destroy();
     el.replaceChildren();
     sortSlot?.replaceChildren();

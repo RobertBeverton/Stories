@@ -44,3 +44,22 @@
 .offline-story .btn { padding-inline: 0.75rem; }
 
 .offline-selection { position: sticky; bottom: calc(var(--dock-h) + 0.75rem); display: flex; gap: 0.5rem; align-items: center; justify-content: space-between; background: var(--raised); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.75rem; box-shadow: 0 6px 24px rgb(0 0 0 / 0.45); }
+
+/* Library: Saved badge, and rows that are not saved while the tablet is offline.
+   No opacity on text (it would drop below 4.5:1): the cue is muted text (--muted
+   passes on every surface), a dimmed cover, a plain "Not saved" label and a quiet
+   Play button. The tap itself is answered by the .offline-toast notice. */
+.badge-saved, .badge-unsaved { display: none; margin-left: 0.5rem; padding: 0 0.55rem; min-height: 1.4rem; align-items: center; border: 1px solid var(--line); border-radius: var(--radius-pill); font-size: 0.75rem; font-weight: 700; }
+.badge-saved { color: var(--text); }
+.badge-unsaved { color: var(--muted); }
+.row[data-offline="saved"] .badge-saved { display: inline-flex; }
+.row[data-offline="unavailable"] .badge-unsaved { display: inline-flex; }
+.row[data-offline="unavailable"] .row-title, .row[data-offline="unavailable"] .row-meta { color: var(--muted); }
+.row[data-offline="unavailable"] .cover { opacity: 0.45; }
+.row[data-offline="unavailable"] .btn-primary { background: var(--raised); color: var(--muted); border-color: var(--line); }
+.offline-toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--dock-h) + 1rem); z-index: 20; margin: 0; max-width: calc(100vw - 2rem); padding: 0.7rem 1.1rem; background: var(--raised); color: var(--text); border: 1px solid var(--line); border-radius: var(--radius-pill); font-weight: 700; }
+.offline-toast[hidden] { display: none; }
+body.has-mini-player .offline-toast { bottom: calc(var(--dock-h) + var(--dock-mini-h) + 1rem); }
+.saved-empty { margin: 1rem 0; color: var(--text); }
+.saved-empty a { color: var(--accent); }
+.saved-empty[hidden] { display: none; }
