@@ -124,7 +124,8 @@ Design: [plans/2026-11-12-offline-listening-design.md](plans/2026-11-12-offline-
 
 - **Service worker** `<base>/sw.js` (module worker, scope `<base>/`), logic in `site/assets/js/sw-logic.mjs`
   and `offline-core.mjs`. Registered by `offline-register.mjs` from `main.js`. Kill switch:
-  `?sw=off` (sets `localStorage["stories-sw"]="off"`, unregisters) and `?sw=on`.
+  `?sw=off` (sets `localStorage["stories-sw"]="off"`, unregisters) and `?sw=on`. It unregisters this
+  app's worker only (matched by scope; other apps on the shared origin are untouched) and leaves the caches in place.
 - **Caches.** `shell-<buildId>`: pages, CSS, modules, `library.json`, saved story pages; old ones are deleted
   on activate. `audio-v1`: one entry per saved story, keyed by the exact `audioUrl` string including `?v=`;
   never versioned by build.

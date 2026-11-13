@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { registerOffline } from "../../site/assets/js/offline-register.mjs";
 
 function fakeNav() {
-  const registration = { unregister: vi.fn(async () => true) };
+  const registration = { scope: new URL("/Stories/", location.href).href, unregister: vi.fn(async () => true) };
   return {
     registration,
     serviceWorker: {
@@ -20,6 +20,15 @@ describe("registerOffline", () => {
     const nav = fakeNav();
     await registerOffline({ nav, base: "/Stories", storage: localStorage, search: "" });
     expect(nav.serviceWorker.register).toHaveBeenCalledWith("/Stories/sw.js", { scope: "/Stories/", type: "module", updateViaCache: "none" });
+  });
+
+  it("?sw=off unregisters only this app's registration, not another app on the origin", async () => {
+    const nav = fakeNav();
+    const foreign = { scope: new URL("/Other/", location.href).href, unregister: vi.fn(async () => true) };
+    nav.serviceWorker.getRegistrations = vi.fn(async () => [foreign, nav.registration]);
+    await registerOffline({ nav, base: "/Stories", storage: localStorage, search: "?sw=off" });
+    expect(nav.registration.unregister).toHaveBeenCalled();
+    expect(foreign.unregister).not.toHaveBeenCalled();
   });
 
   it("does nothing without service worker support", async () => {

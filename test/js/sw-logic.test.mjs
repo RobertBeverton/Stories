@@ -110,6 +110,34 @@ describe("pages", () => {
     expect(await res.text()).toBe("cached");
   });
 
+  it("a navigation with a query string finds the cached page offline, not the Offline page", async () => {
+    const { caches, worker } = setup({ fetch: vi.fn(async () => { throw new TypeError("offline"); }) });
+    const shell = await caches.open("shell-b2");
+    await shell.put(page("stories/one/"), html("cached story"));
+    await shell.put(page("offline/"), html("offline page"));
+    const res = await worker.respond(req(page("stories/one/?autoplay=1"), { headers: { Accept: "text/html" } }));
+    expect(await res.text()).toBe("cached story");
+  });
+
+  it("a slow network serves the cached page for a query-string URL too", async () => {
+    const { caches, worker } = setup({ fetch: vi.fn(() => new Promise(() => {})), timeoutMs: 10 });
+    const shell = await caches.open("shell-b2");
+    await shell.put(page("stories/one/"), html("cached story"));
+    const res = await worker.respond(req(page("stories/one/?autoplay=1"), { headers: { Accept: "text/html" } }));
+    expect(await res.text()).toBe("cached story");
+  });
+
+  it("hands the background refresh to waitUntil", async () => {
+    const fetch = vi.fn(() => new Promise((r) => setTimeout(() => r(html("late")), 40)));
+    const { caches, worker } = setup({ fetch, timeoutMs: 10 });
+    const shell = await caches.open("shell-b2");
+    await shell.put(page("library/"), html("cached"));
+    const waitUntil = vi.fn();
+    await worker.respond(req(page("library/"), { headers: { Accept: "text/html" } }), waitUntil);
+    expect(waitUntil).toHaveBeenCalledTimes(1);
+    expect(waitUntil.mock.calls[0][0]).toBeInstanceOf(Promise);
+  });
+
   it("shows the Offline page for a page that was never saved", async () => {
     const { caches, worker } = setup({ fetch: vi.fn(async () => { throw new TypeError("offline"); }) });
     const shell = await caches.open("shell-b2");

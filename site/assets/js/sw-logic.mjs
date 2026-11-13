@@ -63,10 +63,12 @@ export function createWorker({ caches, fetch, origin, scope, buildId, precache, 
 
   const TIMED_OUT = Symbol("timed out");
 
-  async function networkFirst(request, { page = false, ignoreSearch = false } = {}) {
+  async function networkFirst(request, { page = false, waitUntil } = {}) {
     const cache = await caches.open(shellName);
+    // Exact URL first, then ignoring the query (?autoplay=1, router fetches, library.json?v=).
+    const find = async () => (await cache.match(request.url)) ?? (await cache.match(request.url, { ignoreSearch: true }));
     const fallback = async (err) => {
-      const hit = await cache.match(request.url, { ignoreSearch });
+      const hit = await find();
       if (hit) return hit;
       if (page) {
         const offline = await cache.match(`${origin}${scope}offline/`);
@@ -91,9 +93,11 @@ export function createWorker({ caches, fetch, origin, scope, buildId, precache, 
     if (first !== TIMED_OUT) return first;
     // Slow: serve a copy if there is one (the fetch finishes in the background
     // and refreshes it); otherwise keep waiting for the real answer.
-    const hit = await cache.match(request.url, { ignoreSearch });
+    const hit = await find();
     if (hit) {
-      network.catch(() => {});
+      // Keep the worker alive until the background refresh finishes.
+      const refresh = network.catch(() => {});
+      if (waitUntil) waitUntil(refresh);
       return hit;
     }
     try {
@@ -112,11 +116,11 @@ export function createWorker({ caches, fetch, origin, scope, buildId, precache, 
     return res;
   }
 
-  function respond(request) {
+  function respond(request, waitUntil) {
     const url = new URL(request.url);
     if (isAudio(request, url)) return audioResponse(request);
-    if (isLibrary(url)) return networkFirst(request, { ignoreSearch: true });
-    if (isPage(request)) return networkFirst(request, { page: true });
+    if (isLibrary(url)) return networkFirst(request, { waitUntil });
+    if (isPage(request)) return networkFirst(request, { page: true, waitUntil });
     return cacheFirst(request);
   }
 

@@ -1185,7 +1185,11 @@ export async function registerOffline({
   if (flag === "on") guard(() => storage?.removeItem(KEY));
   if (guard(() => storage?.getItem(KEY)) === "off") {
     try {
-      for (const registration of await nav.serviceWorker.getRegistrations()) await registration.unregister();
+      // Only this app: the origin is shared with the other robertbeverton.github.io sites.
+      const mine = new URL(`${base}/`, globalThis.location?.href ?? "http://localhost/").href;
+      for (const registration of await nav.serviceWorker.getRegistrations()) {
+        if (registration.scope === mine) await registration.unregister();
+      }
     } catch { /* nothing to undo */ }
     return null;
   }

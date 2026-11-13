@@ -34,7 +34,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(worker.activate().then(() => self.clients.claim()));
 });
 self.addEventListener("fetch", (event) => {
-  if (worker.shouldHandle(event.request)) event.respondWith(worker.respond(event.request));
+  if (worker.shouldHandle(event.request)) event.respondWith(worker.respond(event.request, event.waitUntil.bind(event)));
 });
 `;
 }

@@ -22,6 +22,21 @@ function project({ offlinePage = true } = {}) {
   return root;
 }
 
+describe("precacheList against the real source tree", () => {
+  it("every asset it lists exists under site/assets, and the page sources exist", () => {
+    const list = precacheList({ buildId: "b2", prefix: "/Stories" });
+    const assets = list.filter((u) => u.startsWith("/Stories/assets/"));
+    expect(assets.length).toBeGreaterThan(10);
+    for (const u of assets) {
+      const rel = u.replace("/Stories/", "site/").split("?")[0];
+      expect(fs.existsSync(rel), rel).toBe(true);
+    }
+    for (const src of ["site/index.njk", "site/library.njk", "site/library.json.11ty.js", "site/manifest.webmanifest"]) {
+      expect(fs.existsSync(src), src).toBe(true);
+    }
+  });
+});
+
 describe("precacheList", () => {
   const list = precacheList({ buildId: "b2", prefix: "/Stories", origin: "https://s.example", root: project() });
 
