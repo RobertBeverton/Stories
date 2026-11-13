@@ -84,3 +84,11 @@ npm run build                # fetch, validate, contrast checks, icons, 11ty
 
 Agent worktrees: do not run `fetch-content` inside a worktree (`../` sources resolve wrongly);
 copy `stories/` from the main checkout. Worktrees under `.claude/worktrees/` are ignored by git and vitest.
+
+## Git: always push
+
+Solo repo, so pushing needs no confirmation. Whenever you commit on `main`, or merge a branch into it,
+push `main` to `origin` in the same step. Push feature branches too when you commit on them, so
+nothing lives only on this PC. Never force-push. This covers this repo only; the world repos
+(`../isles-of-yum` and others) still get committed and pushed only when asked. A push to `main` starts
+the build and deploys to the live site, so tests must pass first.
