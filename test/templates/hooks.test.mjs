@@ -8,10 +8,13 @@ import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
 import { JSDOM } from "jsdom";
 import { accentColorFor } from "../../scripts/accent-colors.mjs";
-import { renderHome, renderLibrary, renderStory } from "./render-pages.mjs";
+import { renderHome, renderLibrary, renderOffline, renderStory } from "./render-pages.mjs";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const site = path.join(root, "site");
+
+// Hooks the contract names that no template emits yet. Empty now that every page exists.
+const PENDING_TEMPLATES = [];
 
 const contractHooks = (() => {
   const md = fs.readFileSync(path.join(root, "docs", "contracts.md"), "utf8");
@@ -45,6 +48,7 @@ const stories = [story(3), story(2), story(1)];
 const pages = {
   home: renderHome(stories),
   library: renderLibrary(stories),
+  offline: renderOffline(stories),
   story: renderStory(story(1), {
     title: "Tale 1 of Testing",
     nextStory: { url: "/Stories/stories/tale-2/", title: "Tale 2 of Testing" },
@@ -58,12 +62,18 @@ describe("template hooks", () => {
     expect(contractHooks).toEqual([
       "continue", "played-lately", "story-resume", "search", "play-button",
       "filters", "world-switcher", "text-size", "lore", "parts", "dock", "surprise", "play-float",
+      "offline-save", "offline-page",
     ]);
   });
 
   it("emits every contract hook somewhere across the pages", () => {
     const all = new Set(Object.values(doc).flatMap((d) => [...hooksIn(d)]));
-    for (const hook of contractHooks) expect(all, hook).toContain(hook);
+    for (const hook of contractHooks.filter((h) => !PENDING_TEMPLATES.includes(h))) expect(all, hook).toContain(hook);
+  });
+
+  it("lists no pending hook that a template already emits (a stale entry fails)", () => {
+    const all = new Set(Object.values(doc).flatMap((d) => [...hooksIn(d)]));
+    for (const hook of PENDING_TEMPLATES) expect(all, `${hook} is emitted: remove it from PENDING_TEMPLATES`).not.toContain(hook);
   });
 
   it("emits no hook the contract does not name", () => {
@@ -73,7 +83,8 @@ describe("template hooks", () => {
   it.each([
     ["home", ["continue", "played-lately", "surprise", "world-switcher", "dock"]],
     ["library", ["search", "filters", "world-switcher", "play-button", "dock"]],
-    ["story", ["story-resume", "play-button", "play-float", "text-size", "parts", "dock"]],
+    ["offline", ["offline-page", "dock"]],
+    ["story", ["story-resume", "play-button", "play-float", "offline-save", "text-size", "parts", "dock"]],
   ])("%s carries its hooks", (name, expected) => {
     for (const hook of expected) expect(hooksIn(doc[name]), `${name}: ${hook}`).toContain(hook);
   });
@@ -103,9 +114,10 @@ describe("page shell", () => {
     const current = (n) => [...doc[n].querySelectorAll(".dock-link[aria-current]")].map((a) => a.textContent.trim());
     expect(current("home")).toEqual(["Home"]);
     expect(current("library")).toEqual(["Library"]);
+    expect(current("offline")).toEqual(["Offline"]);
     expect(current("story")).toEqual([]);
     const hrefs = [...doc.home.querySelectorAll(".dock-link")].map((a) => a.getAttribute("href"));
-    expect(hrefs).toEqual(["/Stories/", "/Stories/library/"]);
+    expect(hrefs).toEqual(["/Stories/", "/Stories/library/", "/Stories/offline/"]);
   });
 
   it("gives the story page a text size control and a series-coloured header", () => {

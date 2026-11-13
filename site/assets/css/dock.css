@@ -1,5 +1,5 @@
 /* One fixed container at the bottom: an optional mini-player row above a
-   two-item nav. About 112px plus the safe area at most. Frosted, like the
+   three-item nav. About 112px plus the safe area at most. Frosted, like the
    Hearth design's bottom bar. */
 .dock {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
@@ -40,11 +40,11 @@
   display: flex; margin: 0 auto; padding: 0; list-style: none;
   max-width: var(--page-max);
 }
-.dock-nav li { flex: 1 1 0; display: flex; justify-content: center; }
+.dock-nav li { flex: 1 1 0; min-width: 0; display: flex; justify-content: center; }
 .dock-link {
   display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.5rem;
   min-height: calc(var(--dock-nav-h) - 1rem); min-width: var(--tap); margin: 0.5rem 0;
-  padding: 0 1.25rem; border-radius: var(--radius-pill);
+  padding: 0 0.75rem; border-radius: var(--radius-pill);
   color: var(--muted); text-decoration: none;
   font-size: 0.9375rem; font-weight: 600;
 }

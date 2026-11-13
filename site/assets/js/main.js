@@ -9,6 +9,7 @@ import { startWorldAccent } from "./world-accent.mjs";
 export const NAMES = [
   "continue", "played-lately", "story-resume", "search", "play-button",
   "filters", "world-switcher", "text-size", "lore", "parts", "dock", "surprise", "play-float",
+  "offline-save", "offline-page",
 ];
 const unmounts = new Map();
 
@@ -63,4 +64,8 @@ if (typeof document !== "undefined") {
   // The router swaps #view and remounts its modules; see router.mjs for the kill switch.
   // `ready`: the saved scroll position is applied once the first page's modules are mounted.
   startRouter({ mountAll, unmountAll, ready: initialMount });
+  // Offline listening: a failure here must never touch the page.
+  const startOffline = () => import("./offline-register.mjs").then((m) => m.registerOffline()).catch(() => {});
+  if (document.readyState === "complete") startOffline();
+  else window.addEventListener("load", startOffline, { once: true });
 }

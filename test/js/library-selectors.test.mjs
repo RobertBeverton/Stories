@@ -101,6 +101,26 @@ describe("matchesFilters: not played and collection", () => {
   });
 });
 
+describe("matchesFilters: saved", () => {
+  const stories = [mk(1), mk(2), mk(3)];
+
+  it("filters to saved stories when f.saved is on", () => {
+    const f = { saved: true, savedSlugs: new Set([stories[0].slug]) };
+    expect(stories.filter((s) => matchesFilters(s, undefined, f, NOW)).map((s) => s.slug)).toEqual([stories[0].slug]);
+  });
+
+  it("ignores f.saved when it is off, and matches nothing when it is on with no set", () => {
+    expect(stories.every((s) => matchesFilters(s, undefined, { saved: false }, NOW))).toBe(true);
+    expect(stories.some((s) => matchesFilters(s, undefined, { saved: true }, NOW))).toBe(false);
+  });
+
+  it("composes with the world filter", () => {
+    const other = mk(4, { world: "v" });
+    const f = { saved: true, world: "w", savedSlugs: new Set([stories[0].slug, other.slug]) };
+    expect([...stories, other].filter((s) => matchesFilters(s, undefined, f, NOW))).toEqual([stories[0]]);
+  });
+});
+
 describe("visibleLimit", () => {
   it("reveals a page at a time and never leaves a tiny remainder", () => {
     expect(PAGE_SIZE).toBe(10);

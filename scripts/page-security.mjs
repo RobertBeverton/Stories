@@ -37,7 +37,8 @@ export function contentSecurityPolicy({ importMapHash, audioOrigin = AUDIO_ORIGI
     "style-src 'self' 'unsafe-inline'", // templates set inline style="--accent-bg:..."; scripts stay locked down
     "img-src 'self' data:",
     `media-src 'self' ${audioOrigin}`,
-    "connect-src 'self'",
+    `connect-src 'self' ${audioOrigin}`,
+    "worker-src 'self'",
     "font-src 'self'",
     "object-src 'none'",
     "base-uri 'self'",

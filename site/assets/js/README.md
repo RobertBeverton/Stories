@@ -127,14 +127,18 @@ the tab and announces `stories:search {query}`. Restores the remembered text on 
 `<div data-mount="filters"></div>` (sits beside the search box): the Library's controls and view (see "Library" below).
 Renders one `button[data-role="filters-open"]` ("Filters", with a `[data-role="filter-count"]` badge when something is on)
 that opens a bottom sheet (`sheet.mjs`, `[data-role="filters-sheet"]`, attached to the page at mount, hidden until opened). The sheet holds
-toggle chips `button[data-filter="in-progress|not-played|audio"][aria-pressed]` in `div[data-role="filters"]`
-(`audio`: the story has a known audio duration) (statuses OR together; everything else ANDs),
+toggle chips `button[data-filter="in-progress|not-played|audio|saved"][aria-pressed]` in `div[data-role="filters"]`
+(`audio`: the story has a known audio duration; `saved`, "Saved on this tablet": the story is in the offline store, and the chip only exists when `offlineSupported()`) (statuses OR together; everything else ANDs),
 `div[data-role="collection"]` with a `button[data-collection][aria-pressed]` per tradition from lore plus "Any"
 (its `[data-role="collection-section"]` is hidden unless one world is chosen and it has two or more),
 `div[data-role="sort"]` with `button[data-sort="order|newest|plays"]`, "Clear filters" (`[data-role="sheet-clear"]`) and
 "Show N stories" (`[data-role="sheet-done"]`, closes the sheet). In `[data-role="sort-slot"]` (or after the button when the page has none)
 it renders the on filters as removable `button[data-role="active-chip"]` ("Remove Not played") and a `button[data-role="clear"]`
 when two or more filters, or a search, are on. It follows the world from `stories:world` (and the remembered world on mount).
+It also re-runs on `stories:offline` and the window `online`/`offline` events and sets `data-offline="saved|unavailable"` on every row
+(`unavailable` = offline and not saved; the row title link gets `aria-description="Not saved on this tablet"`). While a row is
+`unavailable`, a tap on its link or button is stopped and a polite `[data-role="offline-notice"]` (role=status) says "Not saved on this tablet".
+A Saved filter with nothing saved shows `[data-role="saved-empty"]` ("Nothing saved yet", linking to `<base>/offline/`).
 
 ## Library (grouped browse)
 
@@ -294,6 +298,30 @@ title after next/previous even though metadata was set on each load while the pa
 was hidden (device spike). `player.mjs` assigns a fresh `MediaMetadata` again when
 `playing` fires and on every return to the foreground; there is no other workaround.
 iOS has not been tested.
+
+## `offline-save`
+
+`<div class="offline-save" data-mount="offline-save" data-slug>` on a story with audio. Builds one
+`button.btn[data-role="save"]` (`data-state="none|saving|queued|saved|stale|error"`, `aria-pressed="true"`
+when saved) and `p.offline-note[role="status"][aria-live="polite"][data-role="note"]`, which carries the
+space message or the failure reason from `job.failedReasons` in plain words. Hides itself (`hidden`)
+where the browser has no Cache API or service worker, or the story has no audio. Everything comes from
+`library.json` and `offline.mjs`.
+
+## `offline-page`
+
+`<div class="offline-root" data-mount="offline-page">` on `/offline/` (`site/offline.njk`). Builds, from
+`library.json` (worlds, accents, icons, titles, sizes) and the offline store (what is saved, the running
+job): `section.offline-meter` (`[data-role="meter-text"]`, `progress[data-role="meter-bar"]`),
+`[data-role="job"]` (`job-text`, `job-bar`, `job-cancel`, `job-retry`, failure reasons from
+`failureWords()` in `offline-core.mjs`), `p[data-role="notice"][role="status"]`, the Everything row
+(`all`, `all-detail`, `all-save`, `all-remove`), one `[data-role="world"][data-world]` per world with audio
+(`world-toggle[aria-expanded]`, `world-detail`, `world-save`, `world-remove`, and when open a checklist of
+`[data-role="story"][data-slug]` with `story-pick`, `story-state`, `story-remove`) and the sticky
+`[data-role="selection"]` bar (`selection-save`, `selection-clear`). Remove buttons confirm with a second
+tap (the label changes and the notice says so aloud). Lists rebuild only when the saved set, open worlds
+or ticks change, and focus is put back. Uses `textContent` only, never `innerHTML`. Where the browser
+cannot save for offline it shows one quiet line and does nothing else.
 
 ## Missing modules
 

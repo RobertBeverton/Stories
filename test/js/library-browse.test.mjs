@@ -2,6 +2,7 @@
 // The grouped Library: series cards, expand/collapse, paged reveal, flat search
 // and filter results, collections, persistence. All data invented.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as offline from "../../site/assets/js/offline.mjs";
 import { mount as mountFilters } from "../../site/assets/js/filters.mjs";
 import { resetLibrary } from "../../site/assets/js/library.mjs";
 import { markCompleted, write } from "../../site/assets/js/progress.mjs";
@@ -456,5 +457,117 @@ describe("unmount", () => {
     page();
     await open();
     expect(groups()).toHaveLength(4);
+  });
+});
+
+describe("offline: Saved chip, badge and dimming", () => {
+  const SAVED = "alpha/long-saga-3";
+  let savedSet;
+  let listeners;
+  const setOnline = (value) => Object.defineProperty(navigator, "onLine", { configurable: true, get: () => value });
+  const rowOf = (slug) => document.querySelector(`[data-role="story-row"][data-slug="${slug}"]`);
+
+  function fakeOffline({ supported = true } = {}) {
+    savedSet = new Set([SAVED]);
+    listeners = new Set();
+    const store = { savedSlugs: () => new Set(savedSet), subscribe: (fn) => { listeners.add(fn); return () => listeners.delete(fn); } };
+    vi.spyOn(offline, "offlineSupported").mockReturnValue(supported);
+    vi.spyOn(offline, "getStore").mockReturnValue(store);
+  }
+  afterEach(() => setOnline(true));
+
+  it("has a Saved chip in the sheet that shows only saved stories, and marks the row", async () => {
+    fakeOffline();
+    await open();
+    expect(chip("saved").getAttribute("aria-pressed")).toBe("false");
+    chip("saved").click();
+    expect(chip("saved").getAttribute("aria-pressed")).toBe("true");
+    expect(shownRows().map((r) => r.dataset.slug)).toEqual([SAVED]);
+    expect(rowOf(SAVED).dataset.offline).toBe("saved");
+    expect(document.querySelectorAll('[data-role="active-chip"]')[0].textContent).toContain("Saved");
+  });
+
+  it("composes with the world filter", async () => {
+    fakeOffline();
+    savedSet.add("beta/only-series-2");
+    await open({ switcher: true });
+    chip("saved").click();
+    expect(shownRows()).toHaveLength(2);
+    document.dispatchEvent(new CustomEvent("stories:world", { detail: { world: "beta" } }));
+    expect(shownRows().map((r) => r.dataset.slug)).toEqual(["beta/only-series-2"]);
+  });
+
+  it("is absent when offline saving is not supported, and rows carry no data-offline", async () => {
+    fakeOffline({ supported: false });
+    await open();
+    expect(chip("saved")).toBeNull();
+    expect(rowOf(SAVED).dataset.offline).toBeUndefined();
+  });
+
+  it("updates live on stories:offline", async () => {
+    fakeOffline();
+    await open();
+    chip("saved").click();
+    savedSet.add("alpha/long-saga-4");
+    document.dispatchEvent(new CustomEvent("stories:offline", { detail: { slug: "alpha/long-saga-4" } }));
+    expect(shownRows().map((r) => r.dataset.slug).sort()).toEqual([SAVED, "alpha/long-saga-4"]);
+    expect(rowOf("alpha/long-saga-4").dataset.offline).toBe("saved");
+    savedSet.clear();
+    document.dispatchEvent(new CustomEvent("stories:offline", { detail: { slug: null } }));
+    expect(rowOf(SAVED).dataset.offline).toBeUndefined();
+  });
+
+  it("marks unsaved rows unavailable while offline and tells the tapper instead of navigating", async () => {
+    fakeOffline();
+    setOnline(false);
+    await open();
+    expect(rowOf(SAVED).dataset.offline).toBe("saved");
+    const other = rowOf("alpha/long-saga-1");
+    expect(other.dataset.offline).toBe("unavailable");
+    const link = document.createElement("a");
+    link.href = "/Stories/alpha/1/";
+    link.textContent = "go";
+    other.append(link);
+    window.dispatchEvent(new Event("offline"));
+    expect(link.getAttribute("aria-description")).toBe("Not saved on this tablet");
+    // The live region exists (empty, not hidden) before the tap, so a screen reader announces the text when it is filled in.
+    const notice = document.querySelector('[data-role="offline-notice"]');
+    expect(notice.hidden).toBe(false);
+    expect(notice.textContent).toBe("");
+    const event = new MouseEvent("click", { bubbles: true, cancelable: true });
+    link.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(notice.getAttribute("role")).toBe("status");
+    expect(notice.textContent).toBe("Not saved on this tablet");
+    expect(notice.hidden).toBe(false);
+    // a saved row is left alone
+    const savedLink = document.createElement("a");
+    savedLink.href = "/Stories/alpha/3/";
+    rowOf(SAVED).append(savedLink);
+    const ok = new MouseEvent("click", { bubbles: true, cancelable: true });
+    savedLink.dispatchEvent(ok);
+    expect(ok.defaultPrevented).toBe(false);
+  });
+
+  it("goes back to normal when the network returns", async () => {
+    fakeOffline();
+    setOnline(false);
+    await open();
+    setOnline(true);
+    window.dispatchEvent(new Event("online"));
+    expect(rowOf("alpha/long-saga-1").dataset.offline).toBeUndefined();
+    expect(rowOf(SAVED).dataset.offline).toBe("saved");
+  });
+
+  it("explains an empty Saved view with a link to the Offline page", async () => {
+    fakeOffline();
+    savedSet.clear();
+    await open();
+    chip("saved").click();
+    const empty = document.querySelector('[data-role="saved-empty"]');
+    expect(empty.hidden).toBe(false);
+    expect(empty.textContent).toBe("Nothing saved yet. Open Offline to save stories.");
+    expect(empty.querySelector("a").getAttribute("href")).toBe("/Stories/offline/");
+    expect(document.querySelector('[data-role="no-results"]').hidden).toBe(true);
   });
 });

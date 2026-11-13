@@ -13,7 +13,7 @@ npm run narrate -- ../Gods-PrimarySchool/stories/some-story.md             # spe
 npm run upload-audio -- --apply --world legend-lane --story some-story     # host it on R2
 ```
 
-Then commit the story's changed front matter (`audioUrl`, `audioDuration`, `parts`) in the world repo. The mp3 is never committed: the narrator writes it to `narrator/out/<world>/<path>.mp3` (git-ignored), and `upload-audio` picks it up from there.
+Then commit the story's changed front matter (`audioUrl`, `audioDuration`, `audioBytes`, `parts`) in the world repo. The mp3 is never committed: the narrator writes it to `narrator/out/<world>/<path>.mp3` (git-ignored), and `upload-audio` picks it up from there.
 
 The story path decides the world: it must sit inside a world's `stories` folder, as set by `localPath` in `content-sources.json`. Never run narration in CI.
 

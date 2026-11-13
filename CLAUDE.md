@@ -62,6 +62,14 @@ Chromium) is the smoke test, and the deploy job in `build.yml` needs it.
 - **Security**: base.njk sets a CSP meta (scripts `self` plus the import-map hash, audio from
   `scripts/audio-origin.mjs`), `noindex` and ships `robots.txt`. Modules are cache-busted by a
   build-generated import map (`site/_data/importMap.js`). Add no inline scripts or handlers.
+- **Offline**: `sw.js` (emitted by `site/sw.js.11ty.js`, logic in `site/assets/js/sw-logic.mjs`) caches the
+  shell (`shell-<buildId>`) and serves saved mp3s from `audio-v1` with Range support; `offline.mjs` is the
+  store (index in localStorage `stories-offline`), the Offline page and the story page button sit on top.
+  Rules in `docs/contracts.md` section 9, design in `docs/plans/2026-11-12-offline-listening-design.md`.
+  `?sw=off` (and `?sw=on`) is the kill switch. The audio host needs the CORS rule in `docs/audio-hosting.md`.
+  Do not deploy a build with a precache entry that 404s: the worker's install fails and offline silently
+  never turns on. The e2e test covers saving and playing offline; the tablet steps are in
+  `docs/offline-device-checklist.md`.
 - **Audio**: a story's front matter `audioUrl` (https, on the audio origin) wins over a
   sibling mp3. See `docs/audio-hosting.md`.
 - **Narrator**: `narrator/` is the only narration code; world repos keep just `narration/`

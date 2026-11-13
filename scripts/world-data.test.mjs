@@ -370,6 +370,7 @@ describe("buildLibrary", () => {
       url: "/Stories/stories/a-series/one/",
       icon: "sun",
       publishDate: "2026-10-01",
+      audioUrl: "/Stories/stories/one.mp3",
       parts: [{ title: "Part One. X", start: 0 }],
     });
     const solo = library.stories.find((s) => s.slug === "solo");

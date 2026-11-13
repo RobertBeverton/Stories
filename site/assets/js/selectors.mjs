@@ -135,12 +135,13 @@ export function queryScore(story, query, index) {
  * Filters combine with AND across groups (world, series, collection, has audio,
  * status) and OR within the status group (in progress, not played,
  * finished, new).
- * @param {{world?: string, series?: string, collection?: string, lore?: object[], audio?: boolean, statuses?: string[]}} f
+ * @param {{world?: string, series?: string, collection?: string, lore?: object[], audio?: boolean, saved?: boolean, savedSlugs?: Set<string>, statuses?: string[]}} f
  */
 export function matchesFilters(story, record, f, now = Date.now()) {
   if (f.world && story.world !== f.world) return false;
   if (f.series && story.series !== f.series) return false;
   if (f.collection && !matchesCollection(story, f.collection, f.lore)) return false;
+  if (f.saved && !f.savedSlugs?.has(story.slug)) return false; // savedSlugs comes from the offline store, never from progress keys
   if (f.audio && story.durationSec === null) return false; // durationSec comes from audioDuration, which narration writes
   const statuses = f.statuses ?? [];
   if (statuses.length > 0) {

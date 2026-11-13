@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { resetLibrary } from "../../site/assets/js/library.mjs";
 import { nav } from "../../site/assets/js/nav.mjs";
 import { library, loadPage, progressV2, seed, stubLibraryFetch, useFixedNow } from "../js/helpers.mjs";
-import { renderHome, renderLibrary, renderStory, root, templateStory } from "../templates/render-pages.mjs";
+import { renderHome, renderLibrary, renderOffline, renderStory, root, templateStory } from "../templates/render-pages.mjs";
 
 const stories = library.stories.map((s) => templateStory(s));
 const [FIRST, SECOND, LONE] = library.stories.map((s) => s.slug);
@@ -20,12 +20,13 @@ const contractHooks = (() => {
   const line = md.match(/Names:\s*([^.]+)\./s)?.[1];
   return [...line.matchAll(/`([a-z-]+)`/g)].map((m) => m[1]);
 })();
-// Hooks whose module is wave 2. Anything else unresolved is a bug.
+// Hooks named in the contract whose module is not built yet (none now). Anything else unresolved is a bug.
 const PENDING_WAVE_2 = [];
 
 const pages = {
   home: () => renderHome(stories),
   library: () => renderLibrary(stories),
+  offline: () => renderOffline(stories),
   story: () => renderStory(stories[0], { parts: library.stories[0].parts }, stories),
 };
 
@@ -72,7 +73,7 @@ describe("hook resolution", () => {
   });
 
   it("main.js knows every contract hook", () => {
-    expect([...main.NAMES].sort()).toEqual([...contractHooks].sort());
+    expect([...main.NAMES].sort()).toEqual(contractHooks.filter((h) => !PENDING_WAVE_2.includes(h)).sort());
   });
 
   it.each(Object.keys(pages))("mounts every hook on the %s page; only pending wave 2 hooks warn", async (name) => {
@@ -160,7 +161,7 @@ describe("library page", () => {
     button.click();
     const audio = document.querySelector('audio[data-role="shell-audio"]');
     expect(audio.dataset.slug).toBe(FIRST);
-    expect(audio.src).toBe(new URL(`${library.stories[0].url.replace(/\/$/, "")}.mp3`, location.href).href);
+    expect(audio.src).toBe(library.stories[0].audioUrl); // the fixture story now carries an audioUrl, which wins over the sibling mp3
     expect(play).toHaveBeenCalledTimes(1);
     expect(go).not.toHaveBeenCalled();
     await vi.waitFor(() => expect(document.querySelector('[data-dock-slot="mini"]').hidden).toBe(false));

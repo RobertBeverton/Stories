@@ -29,6 +29,7 @@ Re-narrating a story **overwrites the same key**. To make sure listeners get the
 ```yaml
 audioUrl: https://audio.kinly.download/isles-of-yum/marzipans-well.mp3?v=3f9a2c1e
 audioDuration: 412
+audioBytes: 6592000
 ```
 
 - `v` is a short hash of the file's contents (for example, the first 8 hex characters of its SHA-256). A new narration gives a new hash, so a new URL.
@@ -50,7 +51,34 @@ The bucket allows:
 | Exposed headers | `Content-Length`, `Content-Range`, `Accept-Ranges`, `ETag` |
 | Preflight max age | 86400 s |
 
-A plain `<audio src>` doesn't need CORS. These rules cover `fetch()`, Web Audio and `crossorigin` audio elements. To change them, run `cf r2 buckets cors get stories-audio` to see the current rules, then `cf r2 buckets cors update stories-audio --rules @rules.json --force`. The update replaces every rule, so include them all.
+A plain `<audio src>` doesn't need CORS, but offline saving does. "Save for offline" reads the whole file with `fetch(audioUrl, { mode: "cors" })` and stores it in the Cache API (see [contracts.md](contracts.md) section 9). The rule required on `stories-audio` is:
+
+```json
+[
+  {
+    "AllowedOrigins": ["https://robertbeverton.github.io"],
+    "AllowedMethods": ["GET", "HEAD"],
+    "AllowedHeaders": ["range"],
+    "ExposeHeaders": ["Content-Length", "Content-Range", "Accept-Ranges", "ETag"],
+    "MaxAgeSeconds": 86400
+  }
+]
+```
+
+The table above also lists `http://localhost:8080` for local testing; keep it in `AllowedOrigins` if it is already there.
+
+**Why it is needed.** Without CORS the `fetch` is blocked and saving fails with "Could not save"; nothing else breaks and streaming still works. A `no-cors` fetch would succeed but give an opaque response, which Chrome pads to about 7 MB each against the storage quota and which the app cannot size-check, so the app does not use it.
+
+**Applying it.** Use the `cf` CLI (it needs the Node 22 binary). Find the exact commands with `cf cli search "r2 cors"` and `cf schema`; the update replaces every rule, so read the current rules first and include them all.
+
+**Verify** (the header must come back; the `?v=` is any real audio URL):
+
+```bash
+curl -sI -H "Origin: https://robertbeverton.github.io" "https://audio.kinly.download/isles-of-yum/marzipans-well.mp3?v=1b1eb345"
+# expect: access-control-allow-origin: https://robertbeverton.github.io
+```
+
+If the custom domain's edge cached an earlier response without the header, try another `?v=` value or wait for expiry before purging anything.
 
 ## Credentials
 

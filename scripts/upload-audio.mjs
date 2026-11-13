@@ -1,5 +1,5 @@
 // Uploads each world repo's narration mp3s to the R2 bucket (docs/audio-hosting.md) and
-// writes `audioUrl` and `audioDuration` back into the story's front matter.
+// writes `audioUrl`, `audioDuration` and `audioBytes` back into the story's front matter.
 //
 //   node scripts/upload-audio.mjs                       # dry run: what would happen, nothing changes
 //   node scripts/upload-audio.mjs --apply               # upload and update front matter
@@ -105,10 +105,11 @@ async function defaultDuration(file) {
   return metadata.format.duration ?? 0;
 }
 
-/** Front matter text for one planned item (audioUrl and audioDuration), or null when it is already right. */
+/** Front matter text for one planned item (audioUrl, audioDuration and audioBytes), or null when it is already right. */
 export function updatedStoryText(raw, item) {
   let next = setFrontMatterField(raw, "audioUrl", item.url);
   next = setFrontMatterField(next, "audioDuration", item.durationSec);
+  next = setFrontMatterField(next, "audioBytes", item.bytes);
   return next === raw ? null : next;
 }
 
@@ -207,7 +208,7 @@ export async function run(argv, { log = console.log, error = console.error, sour
       const next = updatedStoryText(raw, item);
       if (next) {
         fs.writeFileSync(item.storyFile, next);
-        log(`  ${item.rel}: audioUrl and audioDuration written`);
+        log(`  ${item.rel}: audioUrl, audioDuration and audioBytes written`);
       }
     } catch (err) {
       failed++;

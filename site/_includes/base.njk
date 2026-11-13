@@ -16,6 +16,7 @@
   <link rel="apple-touch-icon" href="{{ '/assets/app-icon-192.png' | url }}">
   {# SLOT head-end: meta (noindex, build-id) and CSS links live here #}
   <link rel="stylesheet" href="{{ '/assets/css/lore.css' | url }}?v={{ buildId }}">
+  <link rel="stylesheet" href="{{ '/assets/css/offline.css' | url }}?v={{ buildId }}">
   <meta name="robots" content="noindex">
   <meta name="build-id" content="{{ buildId }}">
   {# The import map adds ?v=<build> to every module import, so a cached old module can never mix with a new main.js. Its content must stay on one line: the CSP hashes it exactly. #}
