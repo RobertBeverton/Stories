@@ -139,7 +139,11 @@ Design: [plans/2026-11-12-offline-listening-design.md](plans/2026-11-12-offline-
   `docs/audio-hosting.md`. The CSP allows the audio origin in `connect-src` and `media-src`.
 - **Sizes.** `audioBytes` when present, else `durationSec` x 16000 bytes, shown with "~".
 - **Space check.** Free = `quota - usage` from `navigator.storage.estimate()`; a save needs `bytes x 1.1`
-  to fit. `navigator.storage.persist()` is requested on the first save.
+  to fit (a missing estimate counts as fitting). `navigator.storage.persist()` is requested on the first save.
+- **Completeness.** A download is rejected (nothing cached) when the body is empty, differs from
+  `Content-Length`, or, when `audioBytes` is known, differs from it by more than 1024 bytes.
+- **Reconcile** also deletes `audio-v1` entries no story in the library (or index) owns, but only when the
+  library loaded with at least one story.
 - **Downloads** run one job at a time, one story at a time; a story is cached only when complete.
 
 ## Test conventions
