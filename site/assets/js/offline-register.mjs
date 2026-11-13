@@ -10,6 +10,12 @@ export async function registerOffline({
   base = basePath(),
   storage = typeof localStorage === "undefined" ? null : localStorage,
   search = typeof location === "undefined" ? "" : location.search,
+  reconcile = true,
+  // Seams for tests; the defaults load the real modules lazily.
+  supported = null,
+  loadLibrary = null,
+  reconcileStories = null,
+  online = () => nav.onLine !== false,
 } = {}) {
   if (!nav.serviceWorker) return null;
   const guard = (fn) => { try { return fn(); } catch { return undefined; } };
@@ -27,9 +33,25 @@ export async function registerOffline({
     return null;
   }
   try {
-    return await nav.serviceWorker.register(`${base}/sw.js`, { scope: `${base}/`, type: "module", updateViaCache: "none" });
+    const registration = await nav.serviceWorker.register(`${base}/sw.js`, { scope: `${base}/`, type: "module", updateViaCache: "none" });
+    if (reconcile && online()) reconcileSaved({ supported, loadLibrary, reconcileStories }); // fire and forget
+    return registration;
   } catch (err) {
     console.warn("offline unavailable", err);
     return null;
   }
+}
+
+// Once per full page load, online: a deploy that cleared the shell cache gets the saved stories'
+// pages re-fetched without opening the Offline page. A failed or empty library load means no
+// reconcile at all (reconciling with [] would say nothing is wanted). Never throws.
+async function reconcileSaved({ supported, loadLibrary, reconcileStories }) {
+  try {
+    const [lib, off] = await Promise.all([import("./library.mjs"), import("./offline.mjs")]);
+    if (!(supported ?? off.offlineSupported)()) return;
+    const data = await (loadLibrary ?? lib.loadLibrary)();
+    const stories = Array.isArray(data?.stories) ? data.stories.filter((s) => s.audioUrl) : [];
+    if (!stories.length) return;
+    await (reconcileStories ?? ((list) => off.getStore().reconcile(list)))(stories);
+  } catch { /* the page must not notice */ }
 }

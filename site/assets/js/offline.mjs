@@ -283,12 +283,14 @@ export function createStore({
       const url = resolve(input).audioUrl;
       if (url) owned.add(url);
     }
+    let changed = false;
     if (known.length) {
-      for (const url of cached) if (!owned.has(url)) await cache.delete(url);
+      for (const url of cached) if (!owned.has(url)) { await cache.delete(url); changed = true; }
     }
     // Apply to the index in one synchronous pass over fresh state: saves may have finished meanwhile.
     const fresh = new Set((await cache.keys()).map((r) => r.url));
     const next = index();
+    const before = JSON.stringify(next);
     for (const [slug, record] of Object.entries(next)) if (!fresh.has(record.url)) delete next[slug];
     for (const input of known) {
       const story = resolve(input);
@@ -296,11 +298,12 @@ export function createStore({
         next[story.slug] = { url: story.audioUrl, bytes: storyBytes(story).bytes, savedAt: now() };
       }
     }
+    if (JSON.stringify(next) !== before) changed = true;
     writeIndex(next);
     for (const story of known) {
       if (next[story.slug]) { try { await cachePage(story); } catch { /* offline: try next time */ } }
     }
-    notify();
+    if (changed) notify();
   }
 
   const subscribe = (fn) => {

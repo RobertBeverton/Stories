@@ -193,6 +193,19 @@ describe("reconcile", () => {
   });
 });
 
+describe("reconcile notifications", () => {
+  it("emits one bulk event only when it changed something", async () => {
+    const { store, caches, events } = make();
+    await store.save(story(1));
+    events.length = 0;
+    await store.reconcile([story(1)]);
+    expect(events).toEqual([]);
+    await (await caches.open("audio-v1")).delete(story(1).audioUrl);
+    await store.reconcile([story(1)]);
+    expect(events).toEqual([null]);
+  });
+});
+
 describe("hardening", () => {
   const BASE = "https://robertbeverton.github.io/Stories/";
   const rel = (n) => story(n, { audioUrl: `/Stories/stories/w/tale-${n}.mp3` });
