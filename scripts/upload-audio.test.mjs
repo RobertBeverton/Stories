@@ -135,7 +135,14 @@ describe("with a world checkout on disk", () => {
     expect(io.log).toHaveBeenCalledWith(expect.stringContaining("Dry run: 2 file(s)"));
   });
 
-  it("--apply uploads, then writes audioUrl and audioDuration into the front matter", async () => {
+  it("--apply also writes the file size as audioBytes", async () => {
+    const client = { isUploaded: vi.fn(async () => false), upload: vi.fn(async () => {}) };
+    await run(["--apply", "--story", "one"], { ...out(), sources: [source], client });
+    const written = fs.readFileSync(fileOf("one.md"), "utf8");
+    expect(written).toContain(`audioBytes: ${fs.statSync(fileOf("one.mp3")).size}`);
+  });
+
+  it("--apply uploads, then writes audioUrl, audioDuration and audioBytes into the front matter", async () => {
     const client = { isUploaded: vi.fn(async () => false), upload: vi.fn(async () => {}) };
     expect(await run(["--apply"], { ...out(), sources: [source], client })).toBe(0);
     expect(client.upload).toHaveBeenCalledTimes(2);
@@ -143,6 +150,7 @@ describe("with a world checkout on disk", () => {
     const written = fs.readFileSync(fileOf("one.md"), "utf8");
     expect(written).toContain(`audioUrl: https://audio.kinly.download/w/one.mp3?v=${sha("AUDIO-ONE").slice(0, 8)}`);
     expect(written).toMatch(/audioDuration: \d+/);
+    expect(written).toContain(`audioBytes: ${fs.statSync(fileOf("one.mp3")).size}`);
     expect(written.endsWith("---\nBody\n")).toBe(true);
     expect(fs.readFileSync(fileOf("silent.md"), "utf8")).toBe(story());
   });
