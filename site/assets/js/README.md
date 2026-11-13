@@ -304,6 +304,21 @@ space message or the failure reason from `job.failedReasons` in plain words. Hid
 where the browser has no Cache API or service worker, or the story has no audio. Everything comes from
 `library.json` and `offline.mjs`.
 
+## `offline-page`
+
+`<div class="offline-root" data-mount="offline-page">` on `/offline/` (`site/offline.njk`). Builds, from
+`library.json` (worlds, accents, icons, titles, sizes) and the offline store (what is saved, the running
+job): `section.offline-meter` (`[data-role="meter-text"]`, `progress[data-role="meter-bar"]`),
+`[data-role="job"]` (`job-text`, `job-bar`, `job-cancel`, `job-retry`, failure reasons from
+`failureWords()` in `offline-core.mjs`), `p[data-role="notice"][role="status"]`, the Everything row
+(`all`, `all-detail`, `all-save`, `all-remove`), one `[data-role="world"][data-world]` per world with audio
+(`world-toggle[aria-expanded]`, `world-detail`, `world-save`, `world-remove`, and when open a checklist of
+`[data-role="story"][data-slug]` with `story-pick`, `story-state`, `story-remove`) and the sticky
+`[data-role="selection"]` bar (`selection-save`, `selection-clear`). Remove buttons confirm with a second
+tap (the label changes and the notice says so aloud). Lists rebuild only when the saved set, open worlds
+or ticks change, and focus is put back. Uses `textContent` only, never `innerHTML`. Where the browser
+cannot save for offline it shows one quiet line and does nothing else.
+
 ## Missing modules
 
 `main.js` logs a warning and carries on when a module file is missing.

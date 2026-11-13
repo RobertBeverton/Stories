@@ -6,17 +6,7 @@
 import { h } from "./dom.mjs";
 import { loadLibrary } from "./library.mjs";
 import * as offline from "./offline.mjs";
-import { formatBytes, spaceCheck, spaceMessage, storyBytes } from "./offline-core.mjs";
-
-// job.failedReasons values from offline.mjs, in words a listener understands.
-const REASONS = {
-  "no space": "Not enough space",
-  incomplete: "Download interrupted",
-  network: "Download interrupted",
-  "size mismatch": "File changed, try again later",
-  "wrong type": "File changed, try again later",
-  "not ok": "File not available, try again later",
-};
+import { failureWords, formatBytes, spaceCheck, spaceMessage, storyBytes } from "./offline-core.mjs";
 
 export function mount(el) {
   const slug = el.dataset.slug;
@@ -72,7 +62,7 @@ export function mount(el) {
     }
     let text = message;
     if (!text && failed) {
-      const why = REASONS[job.failedReasons?.[slug]];
+      const why = failureWords(job.failedReasons?.[slug]);
       text = why ? `Could not save: ${why}.` : "Could not save. Try again.";
     }
     note.textContent = text;

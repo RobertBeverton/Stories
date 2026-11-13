@@ -62,3 +62,7 @@ export function renderStory(story, data = {}, stories = [story]) {
     stories,
   );
 }
+
+export function renderOffline(stories) {
+  return page(path.join(site, "offline.njk"), {}, "/offline/", stories);
+}

@@ -2,7 +2,7 @@
 
 Hearth, dark only. System fonts and Georgia, no network requests. Linked from
 `base.njk` in this order: `tokens.css`, `base.css`, `dock.css`, `pages.css`,
-`player.css`, `lore.css`, `offline.css` (Save for offline button and note). Contrast for `tokens.css` is enforced by
+`player.css`, `lore.css`, `offline.css` (Save for offline button and note, the Offline page). Contrast for `tokens.css` is enforced by
 `scripts/check-token-contrast.mjs` (text 4.5:1, non-text 3:1, every PALETTE accent).
 
 Templates emit only the `data-mount` roots from `docs/contracts.md` (with

@@ -56,6 +56,21 @@ export function spaceMessage({ needBytes, freeBytes }) {
   return `Needs ${formatBytes(needBytes)}, ${formatBytes(freeBytes ?? 0)} free`;
 }
 
+// job.failedReasons values from offline.mjs, in words a listener understands.
+const FAILURE_WORDS = {
+  "no space": "Not enough space",
+  incomplete: "Download interrupted",
+  network: "Download interrupted",
+  "size mismatch": "File changed, try again later",
+  "wrong type": "File changed, try again later",
+  "not ok": "File not available, try again later",
+};
+
+/** Plain words for a store failure reason, or null when the reason is unknown. */
+export function failureWords(reason) {
+  return FAILURE_WORDS[reason] ?? null;
+}
+
 /** True when `record` (an index entry) does not hold this story's current audio. */
 export function needsSave(story, record) {
   return !record || record.url !== story.audioUrl;
