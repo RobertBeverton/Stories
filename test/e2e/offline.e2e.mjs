@@ -91,6 +91,9 @@ test("the Offline page shows the meter, saves a world and reports it", async ({ 
   await controlled(page, OFFLINE);
   await expect(page.getByRole("heading", { level: 1, name: "Offline" })).toBeVisible();
   await expect(page.locator('[data-role="meter-text"]')).toContainText("Saved on this tablet");
+  await page.locator('[data-role="world-toggle"]').first().click();
+  const pick = await page.locator('[data-role="story-pick"]').first().boundingBox();
+  expect(Math.min(pick.width, pick.height)).toBeGreaterThanOrEqual(44); // a real 44px tap target, not just margin
   await page.locator('[data-role="all-save"]').click();
   await expect(page.locator('[data-role="job-text"]')).toContainText(/Saved \d+ stories|Saving/, { timeout: 20_000 });
   await expect(page.locator('[data-role="all-detail"]')).toContainText(`${WITH_AUDIO} saved`, { timeout: 20_000 });
