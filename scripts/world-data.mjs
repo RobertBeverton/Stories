@@ -299,6 +299,11 @@ export function sanitizeWorldData({ rawStories, manifest, worldNames, loreFiles 
       delete s.data.audioUrl;
     }
 
+    if (s.data.audioBytes !== undefined && !(Number.isInteger(s.data.audioBytes) && s.data.audioBytes > 0)) {
+      warn("audioBytes ignored: must be a whole number of bytes, 1 or more");
+      delete s.data.audioBytes;
+    }
+
     if (s.data.lore !== undefined) {
       const wanted = s.data.lore;
       if (!isNonEmptyString(wanted) || !loreSlugsByWorld.get(world)?.has(wanted)) {
@@ -330,6 +335,8 @@ export function buildLibrary({ stories, sources, lore }) {
       url: s.url,
       icon: s.icon,
       publishDate: isoDate(s.publishDate),
+      ...(typeof s.audioUrl === "string" && s.audioUrl ? { audioUrl: s.audioUrl } : {}),
+      ...(Number.isInteger(s.audioBytes) && s.audioBytes > 0 ? { audioBytes: s.audioBytes } : {}),
       ...(Array.isArray(s.characters) && s.characters.some(isNonEmptyString)
         ? { characters: s.characters.filter(isNonEmptyString) }
         : {}),
