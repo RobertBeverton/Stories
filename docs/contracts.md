@@ -13,7 +13,8 @@ validate with `checkLibrary()` from `scripts/schema/validate.mjs`. Unknown field
 
 - `stories[]`: `slug`, `title`, `world`, `series` (or null), `seriesOrder` (or null),
   `durationSec` (or null), `tags`, `url` (prefixed with the base path), `icon`,
-  `publishDate` (`YYYY-MM-DD…`), optional `characters[]` (names, searchable in the Library), optional `parts[]` of `{title, start}` (seconds).
+  `publishDate` (`YYYY-MM-DD…`), optional `characters[]` (names, searchable in the Library), optional `parts[]` of `{title, start}` (seconds),
+  optional `audioUrl` (the file the player plays; https on the audio origin, or the site's own mp3 path) and optional `audioBytes` (whole bytes of that file, from front matter).
 - `worlds[]`: `name`, `title`, `tagline`, `accent` (a name in `PALETTE`), `icon`, `hasLore`.
 - `lore[]`: `world`, `slug`, `title`, `tradition`, `summary`, optional `link`, `stories[]` (slugs), `url`.
 
@@ -46,7 +47,7 @@ counts read as 0. Recency of a listen is the record's `completedAt`.
 ## 3. DOM hooks
 
 Behaviour attaches through `data-mount="<name>"`. Names: `continue`, `played-lately`,
-`story-resume`, `search`, `play-button`, `filters`, `world-switcher`, `text-size`, `lore`, `parts`, `dock`, `surprise`, `play-float`.
+`story-resume`, `search`, `play-button`, `filters`, `world-switcher`, `text-size`, `lore`, `parts`, `dock`, `surprise`, `play-float`, `offline-save`, `offline-page`.
 Each name maps to `site/assets/js/<name>.mjs`, which exports `mount(el)` and returns
 `unmount()`. `site/assets/js/main.js` mounts them. Templates (WP-B) emit the
 attributes; modules implement them. CSS class names are WP-B's private business.
@@ -56,7 +57,8 @@ Per-element data uses `data-slug` (the flat slug).
 
 On `document`: `stories:play` `{slug}`, `stories:progress` `{slug}`, `stories:world` `{world}`,
 `stories:search` `{query}` (the Library search box changed; `CustomEvent`, payload in `detail`),
-`stories:surprise` (no payload; opens the Surprise me sheet, which the `surprise` module on Home listens for).
+`stories:surprise` (no payload; opens the Surprise me sheet, which the `surprise` module on Home listens for),
+`stories:offline` `{slug}` (a story was saved, removed or updated for offline; `slug` is `null` for a bulk change).
 
 Library state kept in storage (guarded, optional): `localStorage["stories-library-sort"]`
 (`order` | `newest`), `sessionStorage["stories-library-view"]` and `["stories-library-query"]`
@@ -69,7 +71,7 @@ The Library groups stories with no new `library.json` field: series come from `s
 ## 5. Front matter additions
 
 Story: optional `lore: <slug>`, optional `parts: [{title, start}]`; existing
-`audioUrl` and `audioDuration`. Lore entry: `title`, `tradition`, `summary`,
+`audioUrl` and `audioDuration`. Story: optional `audioBytes: <whole bytes>` beside `audioDuration`, written by `upload-audio`. Lore entry: `title`, `tradition`, `summary`,
 optional `link`, `stories[]`. World config (`content-sources.json`): `name`, `title`,
 `tagline`, `accent`, `icon`, optional `lorePath`.
 
@@ -115,6 +117,26 @@ inputs give the same id, so the nightly build with no change keeps it, and any c
 stories, templates, modules or CSS changes it. A router fetch that sees a different id
 forces one full page load (which restarts the audio); that is acceptable only because the id
 no longer moves without a deploy.
+
+## 9. Offline listening
+
+Design: [plans/2026-11-12-offline-listening-design.md](plans/2026-11-12-offline-listening-design.md).
+
+- **Service worker** `<base>/sw.js` (module worker, scope `<base>/`), logic in `site/assets/js/sw-logic.mjs`
+  and `offline-core.mjs`. Registered by `offline-register.mjs` from `main.js`. Kill switch:
+  `?sw=off` (sets `localStorage["stories-sw"]="off"`, unregisters) and `?sw=on`.
+- **Caches.** `shell-<buildId>`: pages, CSS, modules, `library.json`, saved story pages; old ones are deleted
+  on activate. `audio-v1`: one entry per saved story, keyed by the exact `audioUrl` string including `?v=`;
+  never versioned by build.
+- **Index.** `localStorage["stories-offline"]` = `{ "<slug>": { url, bytes, savedAt } }`. `url` is the
+  `audioUrl` that was saved; a story whose current `audioUrl` differs is "stale" (update available).
+  The index is advisory: `reconcile()` drops entries whose cache entry is gone and re-adopts cache entries.
+- **Audio is fetched with CORS** (`fetch(audioUrl, {mode: "cors"})`), so the R2 bucket needs the CORS rule in
+  `docs/audio-hosting.md`. The CSP allows the audio origin in `connect-src` and `media-src`.
+- **Sizes.** `audioBytes` when present, else `durationSec` x 16000 bytes, shown with "~".
+- **Space check.** Free = `quota - usage` from `navigator.storage.estimate()`; a save needs `bytes x 1.1`
+  to fit. `navigator.storage.persist()` is requested on the first save.
+- **Downloads** run one job at a time, one story at a time; a story is cached only when complete.
 
 ## Test conventions
 

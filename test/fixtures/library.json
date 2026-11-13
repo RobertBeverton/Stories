@@ -10,6 +10,8 @@
       "tags": ["placeholder"],
       "characters": ["Elfine", "Mister Harris"],
       "url": "/Stories/stories/the-test-series/first-tale/",
+      "audioUrl": "https://audio.example/test-world/first-tale.mp3",
+      "audioBytes": 9600000,
       "icon": "sun",
       "publishDate": "2026-10-01",
       "parts": [
@@ -26,6 +28,7 @@
       "durationSec": 1500,
       "tags": [],
       "url": "/Stories/stories/the-test-series/second-tale/",
+      "audioUrl": "https://audio.example/test-world/second-tale.mp3",
       "icon": "boat",
       "publishDate": "2026-11-01"
     },

@@ -31,6 +31,20 @@ describe("library.json contract", () => {
     lib.stories[0].parts[0].start = "0";
     expect(checkLibrary(lib).ok).toBe(false);
   });
+  it("accepts audioUrl and audioBytes on a story", () => {
+    const lib = json("library.json");
+    lib.stories[0].audioUrl = "https://audio.example/test-world/first-tale.mp3?v=abc";
+    lib.stories[0].audioBytes = 9_600_000;
+    expect(checkLibrary(lib).ok).toBe(true);
+  });
+
+  it("rejects a zero, fractional or text audioBytes", () => {
+    for (const bad of [0, 1.5, "9", -4]) {
+      const lib = json("library.json");
+      lib.stories[0].audioBytes = bad;
+      expect(checkLibrary(lib).ok).toBe(false);
+    }
+  });
 });
 
 describe("progress record v2 contract", () => {

@@ -13,6 +13,9 @@ import { renderHome, renderLibrary, renderStory } from "./render-pages.mjs";
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const site = path.join(root, "site");
 
+// Offline listening hooks (contracts section 9) have no template yet; remove each when its task lands (plan Tasks 10 and 11).
+const PENDING_TEMPLATES = ["offline-save", "offline-page"];
+
 const contractHooks = (() => {
   const md = fs.readFileSync(path.join(root, "docs", "contracts.md"), "utf8");
   const line = md.match(/Names:\s*([^.]+)\./s)?.[1];
@@ -58,12 +61,13 @@ describe("template hooks", () => {
     expect(contractHooks).toEqual([
       "continue", "played-lately", "story-resume", "search", "play-button",
       "filters", "world-switcher", "text-size", "lore", "parts", "dock", "surprise", "play-float",
+      "offline-save", "offline-page",
     ]);
   });
 
   it("emits every contract hook somewhere across the pages", () => {
     const all = new Set(Object.values(doc).flatMap((d) => [...hooksIn(d)]));
-    for (const hook of contractHooks) expect(all, hook).toContain(hook);
+    for (const hook of contractHooks.filter((h) => !PENDING_TEMPLATES.includes(h))) expect(all, hook).toContain(hook);
   });
 
   it("emits no hook the contract does not name", () => {
