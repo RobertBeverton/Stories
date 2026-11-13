@@ -93,13 +93,15 @@ export async function rangeResponse(cached, rangeHeader) {
     return new Response(null, { status: 416, headers: { "Content-Range": `bytes */${size}` } });
   }
   const slice = blob.slice(range.start, range.end + 1);
-  return new Response(slice, {
-    status: 206,
-    headers: {
-      "Content-Type": type,
-      "Content-Length": String(slice.size),
-      "Content-Range": `bytes ${range.start}-${range.end}/${size}`,
-      "Accept-Ranges": "bytes",
-    },
-  });
+  const headers = {
+    "Content-Type": type,
+    "Content-Length": String(slice.size),
+    "Content-Range": `bytes ${range.start}-${range.end}/${size}`,
+    "Accept-Ranges": "bytes",
+  };
+  for (const name of ["ETag", "Last-Modified"]) {
+    const v = cached.headers.get(name);
+    if (v) headers[name] = v;
+  }
+  return new Response(slice, { status: 206, headers });
 }

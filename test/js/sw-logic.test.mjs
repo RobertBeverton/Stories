@@ -152,3 +152,122 @@ describe("assets and library.json", () => {
     expect(await (await worker.respond(req(page("library.json?v=zzz")))).text()).toBe("{}");
   });
 });
+
+const flush = () => new Promise((r) => setTimeout(r, 0));
+const audioStub = (url, headers = {}) => ({ url, method: "GET", destination: "audio", mode: "no-cors", headers: new Headers(headers) });
+const seed = async (caches, url, extra = {}) => {
+  const audio = await caches.open("audio-v1");
+  await audio.put(url, new Response(new Uint8Array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), { headers: { "Content-Type": "audio/mpeg", ...extra } }));
+};
+
+describe("hardening", () => {
+  it("a cache write that throws never breaks the response", async () => {
+    const { caches, worker } = setup({ fetch: vi.fn(async () => html("fresh")) });
+    const shell = await caches.open("shell-b2");
+    shell.put = async () => { throw new DOMException("full", "QuotaExceededError"); };
+    expect(await (await worker.respond(req(page("library/"), { headers: { Accept: "text/html" } }))).text()).toBe("fresh");
+    expect(await (await worker.respond(req(page("assets/js/y.mjs")))).text()).toBe("fresh");
+    await flush();
+  });
+
+  it("does not wait for the cache write before answering", async () => {
+    const { caches, worker } = setup({ fetch: vi.fn(async () => html("fresh")) });
+    const shell = await caches.open("shell-b2");
+    shell.put = () => new Promise(() => {});
+    expect(await (await worker.respond(req(page("library/"), { headers: { Accept: "text/html" } }))).text()).toBe("fresh");
+    expect(await (await worker.respond(req(page("assets/js/z.mjs")))).text()).toBe("fresh");
+  });
+
+  it("does not cache a 206 or a 404", async () => {
+    for (const status of [206, 404]) {
+      const { caches, worker } = setup({ fetch: vi.fn(async () => new Response("x", { status })) });
+      await worker.respond(req(page("assets/js/p.mjs")));
+      await worker.respond(req(page("stories/p/"), { headers: { Accept: "text/html" } }));
+      await flush();
+      const shell = await caches.open("shell-b2");
+      expect(shell.entries.size).toBe(0);
+    }
+  });
+
+  it("a slow network with no cached copy still waits for the real answer", async () => {
+    const fetch = vi.fn(() => new Promise((r) => setTimeout(() => r(html("late")), 40)));
+    const { worker } = setup({ fetch, timeoutMs: 10 });
+    const res = await worker.respond(req(page("stories/new/"), { headers: { Accept: "text/html" } }));
+    expect(await res.text()).toBe("late");
+  });
+
+  it("a slow network with a copy serves the copy, and the late answer refreshes it", async () => {
+    const fetch = vi.fn(() => new Promise((r) => setTimeout(() => r(html("late")), 40)));
+    const { caches, worker } = setup({ fetch, timeoutMs: 10 });
+    const shell = await caches.open("shell-b2");
+    await shell.put(page("library/"), html("cached"));
+    expect(await (await worker.respond(req(page("library/"), { headers: { Accept: "text/html" } }))).text()).toBe("cached");
+    await new Promise((r) => setTimeout(r, 80));
+    expect(await (await shell.match(page("library/"))).text()).toBe("late");
+  });
+
+  it("precache bypasses the HTTP cache and rejects redirects", async () => {
+    const fetch = vi.fn(async () => html("ok"));
+    await setup({ fetch }).worker.install();
+    expect(fetch.mock.calls.every(([, init]) => init?.cache === "reload")).toBe(true);
+    const moved = html("moved");
+    Object.defineProperty(moved, "redirected", { value: true });
+    await expect(setup({ fetch: vi.fn(async () => moved) }).worker.install()).rejects.toThrow();
+  });
+
+  it("a failing cache delete does not mask the install error", async () => {
+    const { caches, worker } = setup({ fetch: vi.fn(async () => new Response("no", { status: 500 })) });
+    caches.delete = async () => { throw new Error("delete failed"); };
+    await expect(worker.install()).rejects.toThrow(/precache/);
+  });
+
+  it("activate leaves non-shell caches alone", async () => {
+    const { caches, worker } = setup();
+    await caches.open("audio-v1");
+    await caches.open("something-else");
+    await caches.open("shell-old");
+    await worker.activate();
+    expect(await caches.keys()).toEqual(["audio-v1", "something-else"]);
+  });
+
+  it("matches audio by destination, even for a non-.mp3 cross-origin URL", async () => {
+    const url = "https://audio.example/w/stream?v=1";
+    const { caches, worker, fetch } = setup();
+    await seed(caches, url);
+    const stub = audioStub(url, { Range: "bytes=2-3" });
+    expect(worker.shouldHandle(stub)).toBe(true);
+    const res = await worker.respond(stub);
+    expect(res.status).toBe(206);
+    expect([...new Uint8Array(await res.arrayBuffer())]).toEqual([2, 3]);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("answers open-ended, suffix and unsatisfiable ranges from the cache", async () => {
+    const { caches, worker } = setup();
+    await seed(caches, AUDIO, { ETag: "\"abc\"", "Last-Modified": "Wed, 01 Jan 2025 00:00:00 GMT" });
+    const open = await worker.respond(req(AUDIO, { headers: { Range: "bytes=8-" } }));
+    expect(open.status).toBe(206);
+    expect(open.headers.get("Content-Range")).toBe("bytes 8-9/10");
+    expect(open.headers.get("Content-Type")).toBe("audio/mpeg");
+    expect(open.headers.get("Content-Length")).toBe("2");
+    expect(open.headers.get("Accept-Ranges")).toBe("bytes");
+    expect(open.headers.get("ETag")).toBe("\"abc\"");
+    expect(open.headers.get("Last-Modified")).toBe("Wed, 01 Jan 2025 00:00:00 GMT");
+    const suffix = await worker.respond(req(AUDIO, { headers: { Range: "bytes=-3" } }));
+    expect(suffix.headers.get("Content-Range")).toBe("bytes 7-9/10");
+    const bad = await worker.respond(req(AUDIO, { headers: { Range: "bytes=50-" } }));
+    expect(bad.status).toBe(416);
+    expect(bad.headers.get("Content-Range")).toBe("bytes */10");
+  });
+
+  it("matches saved audio even if the stored response has a Vary header", async () => {
+    const { caches, worker } = setup();
+    await seed(caches, AUDIO);
+    const audio = await caches.open("audio-v1");
+    const calls = [];
+    const orig = audio.match;
+    audio.match = (k, o) => { calls.push(o); return orig(k, o); };
+    await worker.respond(req(AUDIO));
+    expect(calls[0]?.ignoreVary).toBe(true);
+  });
+});

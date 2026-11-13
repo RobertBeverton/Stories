@@ -22,14 +22,16 @@ export function createWorker({ caches, fetch, origin, scope, buildId, precache, 
     try {
       await Promise.all(
         precache.map(async (url) => {
-          const res = await fetch(url);
-          if (!res.ok) throw new Error(`precache ${url}: ${res.status}`);
+          // "reload" skips the HTTP cache, so GitHub Pages max-age cannot fill
+          // the new cache with the previous build.
+          const res = await fetch(url, { cache: "reload" });
+          if (!res.ok || res.redirected) throw new Error(`precache ${url}: ${res.status}${res.redirected ? " (redirected)" : ""}`);
           await cache.put(url, res);
         }),
       );
     } catch (err) {
       // Never leave a half-filled shell cache: a retried install starts clean.
-      await caches.delete(shellName);
+      await caches.delete(shellName).catch(() => {});
       throw err;
     }
   }
@@ -42,29 +44,28 @@ export function createWorker({ caches, fetch, origin, scope, buildId, precache, 
 
   async function audioResponse(request) {
     const audio = await caches.open(AUDIO_CACHE);
-    const hit = await audio.match(request.url);
+    const hit = await audio.match(request.url, { ignoreVary: true });
     if (hit) return rangeResponse(hit, request.headers.get("range"));
     return fetch(request);
   }
 
-  function withTimeout(promise) {
-    return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error("slow")), timeoutMs);
-      promise.then(
-        (v) => { clearTimeout(timer); resolve(v); },
-        (e) => { clearTimeout(timer); reject(e); },
-      );
-    });
+  // Fire and forget: a failed or slow write (quota) must never hold up or break
+  // the response. Only complete 200s are kept: never a 206, a 404 or a redirect.
+  function keep(cache, request, res) {
+    if (res.status !== 200 || res.redirected) return;
+    try {
+      const copy = res.clone();
+      Promise.resolve(cache.put(request.url, copy)).catch(() => {});
+    } catch {
+      // ignore
+    }
   }
+
+  const TIMED_OUT = Symbol("timed out");
 
   async function networkFirst(request, { page = false, ignoreSearch = false } = {}) {
     const cache = await caches.open(shellName);
-    try {
-      const res = await withTimeout(fetch(request));
-      // A redirected response cannot answer a navigation, so it is never kept.
-      if (res.ok && !res.redirected) await cache.put(request.url, res.clone());
-      return res;
-    } catch (err) {
+    const fallback = async (err) => {
       const hit = await cache.match(request.url, { ignoreSearch });
       if (hit) return hit;
       if (page) {
@@ -72,6 +73,33 @@ export function createWorker({ caches, fetch, origin, scope, buildId, precache, 
         if (offline) return offline;
       }
       throw err;
+    };
+    const network = Promise.resolve(fetch(request)).then((res) => {
+      keep(cache, request, res);
+      return res;
+    });
+    let timer;
+    const slow = new Promise((resolve) => { timer = setTimeout(() => resolve(TIMED_OUT), timeoutMs); });
+    let first;
+    try {
+      first = await Promise.race([network, slow]);
+    } catch (err) {
+      clearTimeout(timer);
+      return fallback(err);
+    }
+    clearTimeout(timer);
+    if (first !== TIMED_OUT) return first;
+    // Slow: serve a copy if there is one (the fetch finishes in the background
+    // and refreshes it); otherwise keep waiting for the real answer.
+    const hit = await cache.match(request.url, { ignoreSearch });
+    if (hit) {
+      network.catch(() => {});
+      return hit;
+    }
+    try {
+      return await network;
+    } catch (err) {
+      return fallback(err);
     }
   }
 
@@ -80,7 +108,7 @@ export function createWorker({ caches, fetch, origin, scope, buildId, precache, 
     const hit = (await cache.match(request.url)) ?? (await cache.match(request.url, { ignoreSearch: true }));
     if (hit) return hit;
     const res = await fetch(request);
-    if (res.ok && !res.redirected) await cache.put(request.url, res.clone());
+    keep(cache, request, res);
     return res;
   }
 
